@@ -1108,8 +1108,12 @@ html[data-store-theme] .pp24-home .pp35-grid .product.pp35-card .photo img,html[
 #pp53-sync[data-state=saved]{background:#136c48}#pp53-sync[data-state=error]{background:#a43c36}#pp53-sync[data-state=offline]{background:#8a6a12}
 #pp53-sync[hidden]{display:none}
 .pp46-counter,.pp-live-row span,.banner-indicators{direction:ltr;unicode-bidi:isolate}
-#pp55-new{position:fixed;inset-inline:10px;bottom:calc(78px + env(safe-area-inset-bottom,0px));z-index:9998;display:flex;align-items:stretch;background:#c62828;color:#fff;border-radius:14px;box-shadow:0 4px 16px #0005;overflow:hidden;font:800 14px/1.3 system-ui,Tahoma,Arial,sans-serif}
-#pp55-new button{all:unset;cursor:pointer;color:#fff}#pp55-new .pp55-txt{flex:1;padding:12px 14px}#pp55-new .pp55-x{padding:0 16px;font-size:18px;background:#0003}
+#pp56-new{all:unset;box-sizing:border-box;position:relative;cursor:pointer;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:40px;height:44px;flex:0 0 40px;margin-inline:2px;border-radius:12px;background:#c62828;color:#fff;font:800 10px/1 system-ui,Tahoma,Arial,sans-serif;white-space:nowrap}
+#pp56-new.pp56-on{background:#14213d;border:1px solid #c9a14a}
+#pp56-new b{position:absolute;top:-6px;inset-inline-start:-6px;background:#fff;color:#c62828;border:1px solid #c62828;border-radius:99px;min-width:17px;padding:2px 4px;font-size:10px;text-align:center}
+#pp56-new i{font-style:normal;font-size:16px}
+#pp56-new.pp56-dot::after{content:'';position:absolute;top:-4px;inset-inline-end:-4px;width:12px;height:12px;border-radius:50%;background:#ffeb3b;border:2px solid #c62828;box-shadow:0 0 0 2px #fff}
+#pp56-days{all:unset;cursor:pointer;font-size:20px;padding:0 4px}
 </style>
 <style>
 /* V42 keep editor position / V41 slider preview */
@@ -1647,7 +1651,7 @@ function ppBindBuilderDrag(){
 const normalizeSearch=(s)=>clean(s).toLowerCase().normalize('NFKC').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[\u064B-\u065F\u0670]/g,'').replace(/[^\p{L}\p{N}]+/gu,' ');
 const searchable=(p)=>normalizeSearch([p.sku,p.productCode,p.barcode,p.nameAr,p.nameEn,p.category,p.brand,p.model,p.specs,p.descriptionAr,p.descriptionEn].join(' '));
 const ALIASES={breaker:['breaker','mcb','mccb','قاطع','قواطع'],mcb:['mcb','قاطع','قواطع','breaker'],mccb:['mccb','قاطع','قواطع','breaker'],fuse:['fuse','fuses','فيوز','فيوزات'],inverter:['inverter','انفرتر','انفرترات'],battery:['battery','بطاريه','بطاريات'],قاطع:['قاطع','قواطع','mcb','mccb','breaker'],فيوز:['فيوز','فيوزات','fuse','fuses'],انفرتر:['انفرتر','انفرترات','inverter']};
-const list=()=>{const terms=normalizeSearch(q).split(' ').filter(Boolean);return state.products.filter(p=>p.active&&(!cat||p.category===cat)&&(!onlyStock||p.stock==null||p.stock>0)&&(!terms.length||terms.every(term=>(ALIASES[term]||[term]).some(alt=>searchable(p).includes(alt))))).sort((a,b)=>order==='az'?S(a.nameAr,a.nameEn).localeCompare(S(b.nameAr,b.nameEn),'ar'):order==='price-low'?(a.price??Infinity)-(b.price??Infinity):order==='price-high'?(b.price??-1)-(a.price??-1):order==='old'?(a.createdAt||0)-(b.createdAt||0):(b.createdAt||0)-(a.createdAt||0));};
+const list=()=>{const terms=normalizeSearch(q).split(' ').filter(Boolean);return state.products.filter(p=>p.active&&(!ppOnlyNew||ppIsNew(p))&&(!cat||p.category===cat)&&(!onlyStock||p.stock==null||p.stock>0)&&(!terms.length||terms.every(term=>(ALIASES[term]||[term]).some(alt=>searchable(p).includes(alt))))).sort((a,b)=>order==='az'?S(a.nameAr,a.nameEn).localeCompare(S(b.nameAr,b.nameEn),'ar'):order==='price-low'?(a.price??Infinity)-(b.price??Infinity):order==='price-high'?(b.price??-1)-(a.price??-1):order==='old'?(a.createdAt||0)-(b.createdAt||0):(b.createdAt||0)-(a.createdAt||0));};
 const allCategories=()=>[...new Set([...state.settings.categories,...state.products.map(p=>p.category)])].filter(Boolean);
 
 // 100% local product recommendations: never call an AI service and never add products to cart without a click.
@@ -4331,9 +4335,14 @@ async function ppSignOut(){
   try{await ppLoadRemote({render:true});}catch(e){}
 }
 /* ---- customer: "new products" notice ---- */
+let ppOnlyNew=false;
+function ppNewDays(){const d=Number(state.settings&&state.settings.newDays);return d>0?d:3;}
+function ppNewest(){return state.products.filter(ppIsNew).reduce((m,p)=>Math.max(m,Number(p.createdAt)||0),0);}
+function ppHasDot(){return ppNewest()>Number(ppLS.get(PP_SEEN_KEY)||0);}
+function ppIsNew(p){return !!p&&p.active!==false&&(Number(p.createdAt)||0)>Date.now()-ppNewDays()*864e5;}
 function ppNewBadge(p,html){
   if(p.stock===0)html=html.replace(/data-action="add-cart"/g,'data-action="add-cart" disabled aria-disabled="true"');
-  if(!ppNewSince||(Number(p.createdAt)||0)<=ppNewSince||p.active===false)return html;
+  if(!ppIsNew(p))return html;
   return html.replace('>','><span class="pp-new-badge">'+T('جديد','New')+'</span>');
 }
 /* out-of-stock items (stock = 0) cannot be added to the basket from any screen */
@@ -4342,33 +4351,55 @@ document.addEventListener('click',e=>{
   const p=state.products.find(x=>String(x.id)===String(el.dataset.id));
   if(p&&p.stock===0){e.stopImmediatePropagation();e.preventDefault();note(T('هذا المنتج غير متوفر حالياً — تواصل معنا عبر واتساب للاستفسار','Out of stock — contact us on WhatsApp'));}
 },true);
-function ppNewestLive(){return state.products.filter(p=>p.active!==false).reduce((m,p)=>Math.max(m,Number(p.createdAt)||0),0);}
-function ppShowNewBanner(n){
-  let el=document.getElementById('pp55-new');
-  if(!n){if(el)el.remove();return;}
-  if(!el){
-    el=document.createElement('div');el.id='pp55-new';
-    el.innerHTML='<button type="button" class="pp55-txt" data-action="menu-new"></button><button type="button" class="pp55-x" aria-label="close">✕</button>';
-    el.querySelector('.pp55-x').addEventListener('click',ppDismissNew);
-    document.body.appendChild(el);
+/* ---- header "New" chip (customer + owner preview) ---- */
+let ppChipT=0;
+function ppEnsureChip(){
+  const cart=document.querySelector('[data-pp29-item="cart"]');
+  let chip=document.getElementById('pp56-new'),gear=document.getElementById('pp56-days');
+  const n=state.products.filter(ppIsNew).length;
+  if(!cart||!n){if(chip)chip.remove();}
+  else{
+    if(!chip){chip=document.createElement('button');chip.id='pp56-new';chip.type='button';chip.setAttribute('data-action','pp56-new');}
+    const dot=ppHasDot();const key=(ppOnlyNew?'x':'n')+n+lang+(dot?'d':'');
+    if(chip.dataset.k!==key){chip.dataset.k=key;chip.className=(ppOnlyNew?'pp56-on ':'')+(dot?'pp56-dot':'');chip.innerHTML='<i>'+(ppOnlyNew?'✕':'🔔')+'</i>'+T('جديد','New')+'<b>'+n+'</b>';chip.setAttribute('aria-label',T('المنتجات الجديدة','New products'));}
+    if(chip.previousElementSibling!==cart)cart.insertAdjacentElement('afterend',chip);
   }
-  el.querySelector('.pp55-txt').textContent='🔔 '+T('وصل حديثاً: '+n+' منتج جديد — اضغط للعرض','New arrivals: '+n+' new product(s) — tap to view');
+  const showGear=MANAGER&&ownerUnlocked&&!preview&&cart;
+  if(!showGear){if(gear)gear.remove();}
+  else{
+    if(!gear){gear=document.createElement('button');gear.id='pp56-days';gear.type='button';gear.setAttribute('data-action','pp56-days');gear.textContent='⏱';gear.title=T('مدة ظهور "جديد"','"New" duration');}
+    const anchor=document.getElementById('pp56-new')||cart;
+    if(anchor.nextElementSibling!==gear)anchor.insertAdjacentElement('afterend',gear);
+  }
 }
-function ppDismissNew(){
-  const newest=ppNewestLive();
-  if(newest)ppLS.set(PP_SEEN_KEY,String(newest));
-  ppNewSince=0;ppShowNewBanner(0);render();
-}
-function ppAnnounceNew(){
-  if(MANAGER)return;
-  const seen=Number(ppLS.get(PP_SEEN_KEY)||0);
-  const live=state.products.filter(p=>p.active!==false);
-  const newest=ppNewestLive();
-  if(!seen){ppLS.set(PP_SEEN_KEY,String(newest||Date.now()));return;}
-  const n=live.filter(p=>(Number(p.createdAt)||0)>seen).length;
-  ppNewSince=n?seen:0;
-  ppShowNewBanner(n);
-}
+new MutationObserver(()=>{if(ppChipT)return;ppChipT=setTimeout(()=>{ppChipT=0;try{ppEnsureChip()}catch(e){}},60);}).observe(document.body,{childList:true,subtree:true});
+document.addEventListener('click',async e=>{
+  const el=e.target.closest('[data-action]');if(!el)return;const a=el.dataset.action;
+  if(a==='pp56-new'){
+    e.stopImmediatePropagation();e.preventDefault();
+    ppOnlyNew=!ppOnlyNew;
+    if(ppOnlyNew){
+      const nw=ppNewest();if(nw)ppLS.set(PP_SEEN_KEY,String(nw));
+      const all=state.products.filter(p=>p.active!==false).reduce((m,p)=>Math.max(m,Number(p.createdAt)||0),0);
+      const ds=all?new Date(all).toLocaleDateString(lang==='ar'?'ar-EG-u-nu-latn':'en-GB',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
+      note('📅 '+T('آخر تحديث للمنتجات: ','Last products update: ')+ds);
+    }
+    setMenu(false);pp24ShowAllProducts=true;cat='';q='';order='new';pg=1;assistantSearched=false;goto('catalog');
+    setTimeout(ppEnsureChip,100);return;
+  }
+  if(a==='pp56-days'){
+    e.stopImmediatePropagation();e.preventDefault();
+    const v=window.prompt(T('كم يوماً تبقى علامة "جديد" وزر "جديد" ظاهرة للزبون؟ (مثال: 1 أو 2 أو 3 أو 7)','How many days should the "New" badge stay visible? (e.g. 1, 2, 3, 7)'),String(ppNewDays()));
+    if(v===null)return;
+    const d=Number(String(v).replace(/[٠-٩]/g,c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(',','.'));
+    if(!(d>=0.5&&d<=90)){note(T('اكتب رقماً بين 0.5 و 90','Enter a number between 0.5 and 90'));return;}
+    state.settings.newDays=d;
+    try{await changed();}catch(err){}
+    render();note(T('✅ صارت مدة "جديد" '+d+' يوم','✅ "New" now lasts '+d+' day(s)'));return;
+  }
+  if(/^(menu-all|menu-category|menu-new|pp24-all|pp24-home|search-go|quick-search|search-result|smart-submit)$/.test(a))ppOnlyNew=false;
+},true);
+function ppAnnounceNew(){}
 async function ppRefreshCustomer(){
   if(MANAGER||document.hidden)return;
   try{
