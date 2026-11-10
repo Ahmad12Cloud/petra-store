@@ -1109,7 +1109,7 @@ html[data-store-theme] .pp24-home .pp35-grid .product.pp35-card .photo img,html[
 #pp53-sync[hidden]{display:none}
 .pp46-counter,.pp-live-row span,.banner-indicators{direction:ltr;unicode-bidi:isolate}
 .v12-headbar{position:relative}
-#pp56-new{all:unset;box-sizing:border-box;position:absolute!important;top:50%;margin-top:-22px;cursor:pointer;display:flex!important;flex-direction:column!important;align-items:center;justify-content:center;gap:1px;width:40px!important;height:44px!important;padding:0!important;border-radius:12px!important;background:var(--pp29-new-bg,#c62828)!important;color:var(--pp29-new-fg,#fff)!important;font:800 10px/1 system-ui,Tahoma,Arial,sans-serif;white-space:nowrap;z-index:5}
+#pp56-new{all:unset;box-sizing:border-box;position:absolute!important;top:50%;margin-top:-22px;inset-inline-start:176px;cursor:pointer;display:flex!important;flex-direction:column!important;align-items:center;justify-content:center;gap:1px;width:40px!important;height:44px!important;padding:0!important;border-radius:12px!important;background:var(--pp29-new-bg,#c62828)!important;color:var(--pp29-new-fg,#fff)!important;font:800 10px/1 system-ui,Tahoma,Arial,sans-serif;white-space:nowrap;z-index:5}
 #pp56-new.pp56-on{background:#14213d!important;border:1px solid #c9a14a!important}
 #pp56-new b{position:absolute;top:-6px;inset-inline-start:-6px;background:#fff;color:#c62828;border:1px solid #c62828;border-radius:99px;min-width:17px;padding:2px 4px;font-size:10px;text-align:center}
 #pp56-new i{font-style:normal;font-size:16px}
@@ -1870,7 +1870,7 @@ function pp24Action(a,el){const rows=state.settings.homeSections;if(a==='pp24-sa
 
 const pageHtml=()=>`<header class="header v12-header" style="--pp-live-header-bg:${safeColor(state.settings.headerBg||'#fffefa','#fffefa')};--pp28-hbg:${safeColor(state.settings.headerBg||'#fffefa','#fffefa')};--pp28-hfg:${safeColor(state.settings.headerFg||'#35261d','#35261d')};--pp28-iconbg:${safeColor(state.settings.headerIconBg||'#fff8ef','#fff8ef')};--pp28-shiftx:${Math.max(-85,Math.min(85,Number(state.settings.headerShiftX)||0))}px;--pp28-shifty:${Math.max(-26,Math.min(26,Number(state.settings.headerShiftY)||0))}px">
 <div class="container v12-headbar"><button type="button" class="brand v12-brand" data-pp29-item="brand" data-action="pp24-home" aria-label="الصفحة الرئيسية"><img class="brand-icon" id="logo-img" alt="Petra Power Energy" src="${safeImg(state.settings.logo)||PETRA_GOLD_LOGO}"><div class="brandname pp30-brand-lines">${pp30BrandMarkup()}</div></button>
-<div class="v12-top-actions"><button type="button" class="v12-icon" data-pp29-item="search" data-action="open-search" aria-label="${T('بحث بالكتابة','Text search')}" title="${T('بحث','Search')}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></button><button type="button" class="v12-icon" data-pp29-item="cart" data-action="cart" aria-label="${T('الطلب','Cart')}" title="${T('الطلب','Cart')}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h2.7l2.3 12h11.5l2.4-9H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg><span id="cart-count" class="v12-cartbadge">0</span></button><button type="button" class="v12-icon" data-pp29-item="menu" data-action="toggle-menu" id="v12-menu-toggle" aria-expanded="false" aria-label="${T('القائمة والتصنيفات','Menu and categories')}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></button></div></div>
+${ppChipHtml()}<div class="v12-top-actions"><button type="button" class="v12-icon" data-pp29-item="search" data-action="open-search" aria-label="${T('بحث بالكتابة','Text search')}" title="${T('بحث','Search')}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></button><button type="button" class="v12-icon" data-pp29-item="cart" data-action="cart" aria-label="${T('الطلب','Cart')}" title="${T('الطلب','Cart')}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h2.7l2.3 12h11.5l2.4-9H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg><span id="cart-count" class="v12-cartbadge">0</span></button><button type="button" class="v12-icon" data-pp29-item="menu" data-action="toggle-menu" id="v12-menu-toggle" aria-expanded="false" aria-label="${T('القائمة والتصنيفات','Menu and categories')}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></button></div></div>
 <div id="v12-menu" class="v12-menu hide" role="navigation" aria-label="${T('التصنيفات والقائمة','Categories and menu')}"><div class="v12-menu-head"><strong>${T('التصنيفات','Categories')}</strong><button class="v12-menu-dismiss" data-action="close-menu" type="button">✕</button></div><div class="v12-menu-list"><button type="button" data-action="pp24-home">⌂ ${T('الرئيسية','Home')}</button><button type="button" data-action="menu-all">${T('جميع المنتجات','All products')}</button>${allCategories().map(c=>`<button type="button" data-action="menu-category" data-category="${esc(c)}">${esc(c)}</button>`).join('')}</div><div class="v12-menu-footer"><button type="button" data-action="lang">🌐 ${lang==='ar'?'English':'العربية'}</button><button type="button" data-action="menu-new">${T('وصل حديثاً','New arrivals')}</button></div>${MANAGER?(!ownerUnlocked?`<div class="pp-dev-access"><button type="button" data-action="dev-login">🛠️ ${T('مصمّم المتجر — دخول المطوّر','Store builder — developer login')}</button></div>`:preview?`<div class="pp-dev-access"><button type="button" data-action="preview-exit">↩ ${T('العودة لوضع المطوّر','Back to developer')}</button></div>`:`<div class="v12-owner-menu"><div class="v12-owner-menu-title">🔒 ${T('لوحة المطوّر','Developer tools')} <span class="pp47-build" lang="en" dir="ltr">PetraPower · ${PETRA_APP_VERSION}</span></div><button type="button" data-action="pp49-open">✏️ تعديل واجهة الكتالوج — الأقلام مباشرة</button><button type="button" data-action="pp49-add">＋ إضافة منتجات / سلايدر / صورة / وصف</button><button type="button" data-action="pp-live-enter">⚙️ المحرّر المتقدم السابق</button><button type="button" data-tab="theme">🏪 ${T('تصميم الواجهة الرئيسية','Homepage theme editor')}</button><button type="button" data-tab="designer">⚙️ ${T('محرّر المربعات القديم (متقدم)','Advanced legacy block editor')}</button><button type="button" data-action="pp35-grid">▦ حجم وعدد مربعات المنتجات</button><button type="button" data-action="edit-new">＋ ${T('إضافة منتج','Add product')}</button><button type="button" data-tab="admin">✏️ ${T('إدارة وتعديل المنتجات','Manage products')}</button><button type="button" data-tab="banners">🖼️ ${T('صور الواجهة والسلايدر','Store banners')}</button><button type="button" data-tab="settings">🎨 ${T('المظهر والخلفيات والإعدادات','Appearance & settings')}</button><button type="button" data-tab="export">📤 ${T('النسخ والتصدير','Export & backup')}</button><button type="button" data-action="preview-customer">👁️ ${T('معاينة الزبون','Customer preview')}</button><button type="button" data-action="import-full-owner">📥 ${T('نقل نسخة المالك السابقة','Transfer owner file')}</button><button type="button" data-action="save-local-settings" class="v12-owner-save pp38-save-local">💾 ${T('حفظ الإعدادات — بدون تنزيل','Save settings on this device')}</button><button type="button" data-action="save-current-file" class="v12-owner-save">📥 ${T('حفظ نسخة كاملة — تنزيل','Download owner copy')}</button><button type="button" data-action="dev-logout">🔒 ${T('قفل أدوات المطوّر','Lock developer tools')}</button></div>`):''}</div></header>
 ${renderHomeSections()}
 <div class="v12-customer-nav pp26-nav ${state.settings.bottomNavVisible===false?'pp43-hide-customer-nav':''}"><button type="button" data-action="pp24-home" class="${tab==='catalog'?'selected':''}" aria-label="الرئيسية">⌂ <span>الرئيسية</span></button><button type="button" data-action="toggle-menu" aria-label="التصنيفات">▦ <span>التصنيفات</span></button><button type="button" data-action="cart" aria-label="السلة">🛒 <span>السلة</span></button><button type="button" data-action="pp26-favorites" aria-label="المفضلة">♡ <span>المفضلة</span></button><button type="button" data-action="pp26-contact" aria-label="التواصل">☏ <span>تواصل معنا</span></button></div>
@@ -2425,7 +2425,7 @@ function ppLiveDockHtml(){const s=ppLiveSection(),t=s?.type,heading=s?.title||pp
  if(ppLiveSelectedId==='@icon:brand')return pp30BrandDockHtml();
   if(ppLiveSelectedId.startsWith('@icon:'))return pp29IconDockHtml(ppLiveSelectedId.slice(6));
  if(ppLiveSelectedId==='@header')return `<div class="pp-live-dock" id="pp-live-dock"><h3>☷ تعديل الصف العلوي كاملاً</h3><p class="pp28-ed-tip">اضغط مقبض «اسحب الصف العلوي» تحت الشعار لتحريك البحث والسلة والقائمة والشعار معاً. أو أدخل المكان بالأرقام.</p>
- <div class="pp-live-row"><button type="button" data-action="pp30-select-brand">✏️ تعديل Petrapower / Energy — النص والخط واللون</button>${ppLiveHtmlField('التحريك يمين / شمال (px)','headerShiftX',Number(state.settings.headerShiftX)||0,'number',-85)}${ppLiveHtmlField('التحريك فوق / تحت (px)','headerShiftY',Number(state.settings.headerShiftY)||0,'number',-26)}</div>
+ <div class="pp-live-row">${PP29_HEADER_KEYS.filter(k=>k!=='brand').map(k=>`<button type="button" data-action="pp56-select-icon" data-k="${k}">☝️ ${PP29_ICON_TITLES[k]}</button>`).join('')}</div><div class="pp-live-row"><button type="button" data-action="pp30-select-brand">✏️ تعديل Petrapower / Energy — النص والخط واللون</button>${ppLiveHtmlField('التحريك يمين / شمال (px)','headerShiftX',Number(state.settings.headerShiftX)||0,'number',-85)}${ppLiveHtmlField('التحريك فوق / تحت (px)','headerShiftY',Number(state.settings.headerShiftY)||0,'number',-26)}</div>
  <div class="pp-live-row">${ppLiveHtmlField('خلفية الصف','headerBg',state.settings.headerBg||'#fffefa','color')}${ppLiveHtmlField('لون النصوص والأيقونات','headerFg',state.settings.headerFg||'#35261d','color')}${ppLiveHtmlField('خلفية أزرار البحث والسلة','headerIconBg',state.settings.headerIconBg||'#fff8ef','color')}</div>
  <div class="pp-live-row"><button data-action="pp29-palette">🎨 كل الألوان ودرجاتها (HEX / HSL)</button><button data-action="pp29-all-buttons-reset">↶ إعادة ترتيب الأزرار</button></div><div class="pp28-presets"><button data-action="pp28-preset" data-theme="white"><span class="pp28-swatch" style="background:white"></span>أبيض</button><button data-action="pp28-preset" data-theme="black"><span class="pp28-swatch" style="background:#151515"></span>أسود</button><button data-action="pp28-preset" data-theme="gold"><span class="pp28-swatch" style="background:#ebcd88"></span>ذهبي</button><button data-action="pp28-reset-header">↶ إعادة مكان الصف</button></div>
  <div class="pp-live-row"><button data-action="pp-live-image">🖼 تغيير الشعار</button><button data-action="pp-live-select-first">تعديل قسم واجهة الشركة</button></div><input type="file" accept="image/*" id="pp-live-photo" hidden></div>`
@@ -4353,27 +4353,20 @@ document.addEventListener('click',e=>{
 },true);
 /* ---- header "New" chip (customer + owner preview) ---- */
 let ppChipT=0;
-function ppPlaceChip(chip){
-  const hb=document.querySelector('.v12-headbar');if(!hb)return;
-  const hr=hb.getBoundingClientRect();let maxR=hr.left+2;
-  hb.querySelectorAll('[data-pp29-item]').forEach(e=>{if(e===chip||e.dataset.pp29Item==='brand')return;const r=e.getBoundingClientRect();if(r.width)maxR=Math.max(maxR,r.right);});
-  const brand=hb.querySelector('[data-pp29-item="brand"]');const bl=brand?brand.getBoundingClientRect().left:hr.right;
-  const w=40,gap=bl-maxR;const left=gap>=w+4?maxR+(gap-w)/2:maxR+2;
-  chip.style.left=Math.round(left-hr.left)+'px';
+function ppChipHtml(){
+  const n=state.products.filter(ppIsNew).length;if(!n)return '';
+  const dot=ppHasDot();
+  return '<button type="button" id="pp56-new" class="'+(ppOnlyNew?'pp56-on ':'')+(dot?'pp56-dot':'')+'" data-action="pp56-new" data-pp29-item="new" aria-label="'+T('المنتجات الجديدة','New products')+'"><i>'+(ppOnlyNew?'✕':'🔔')+'</i>'+T('جديد','New')+'<b>'+n+'</b></button>';
 }
 function ppEnsureChip(){
   const hb=document.querySelector('.v12-headbar');
-  let chip=document.getElementById('pp56-new');
-  const n=state.products.filter(ppIsNew).length;
-  if(!hb||!n){if(chip)chip.remove();}
-  else{
-    let created=false;
-    if(!chip){chip=document.createElement('button');chip.id='pp56-new';chip.type='button';chip.setAttribute('data-action','pp56-new');chip.setAttribute('data-pp29-item','new');created=true;}
-    const dot=ppHasDot();const key=(ppOnlyNew?'x':'n')+n+lang+(dot?'d':'');
-    if(chip.dataset.k!==key){chip.dataset.k=key;chip.className=(ppOnlyNew?'pp56-on ':'')+(dot?'pp56-dot':'');chip.innerHTML='<i>'+(ppOnlyNew?'✕':'🔔')+'</i>'+T('جديد','New')+'<b>'+n+'</b>';chip.setAttribute('aria-label',T('المنتجات الجديدة','New products'));}
-    if(chip.parentNode!==hb)hb.appendChild(chip);
-    ppPlaceChip(chip);
-    if(created){try{pp29ApplyTheme()}catch(e){}}
+  /* owner easy-edit mode: pencil for the top row (header) */
+  const hdr=document.querySelector('.v12-header');let hp=document.getElementById('pp56-hdr-edit');
+  const easy=MANAGER&&ownerUnlocked&&!preview&&typeof pp49EditMode!=='undefined'&&pp49EditMode&&hdr;
+  if(!easy){if(hp)hp.remove();}
+  else if(!hp||hp.previousElementSibling!==hdr){
+    if(!hp){hp=document.createElement('button');hp.id='pp56-hdr-edit';hp.type='button';hp.setAttribute('data-action','pp56-hdr-edit');hp.className='pp49-between';hp.textContent='✏️ '+T('تعديل الصف العلوي — الألوان والخلفية والأحرف وأماكن الأزرار','Edit top row — colors, background, text, button positions');}
+    hdr.insertAdjacentElement('afterend',hp);
   }
   /* owner: duration control inside the owner tools menu */
   const menu=document.querySelector('.v12-menu');
@@ -4398,6 +4391,13 @@ document.addEventListener('click',async e=>{
     setMenu(false);pp24ShowAllProducts=true;cat='';q='';order='new';pg=1;assistantSearched=false;goto('catalog');
     setTimeout(ppEnsureChip,100);return;
   }
+  if(a==='pp56-hdr-edit'){
+    e.stopImmediatePropagation();e.preventDefault();
+    pp49EditMode=false;pp49SheetSection=null;document.getElementById('pp49-sheet')?.remove();
+    ppLiveAction('pp-live-enter');
+    return;
+  }
+  if(a==='pp56-select-icon'){e.stopImmediatePropagation();e.preventDefault();ppLiveSelect('@icon:'+el.dataset.k);return;}
   if(a==='pp56-days'){
     e.stopImmediatePropagation();e.preventDefault();
     const v=window.prompt(T('كم يوماً تبقى علامة "جديد" وزر "جديد" ظاهرة للزبون؟ (مثال: 1 أو 2 أو 3 أو 7)','How many days should the "New" badge stay visible? (e.g. 1, 2, 3, 7)'),String(ppNewDays()));
