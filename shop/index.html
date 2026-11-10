@@ -4336,7 +4336,7 @@ async function ppSignOut(){
 }
 /* ---- customer: "new products" notice ---- */
 let ppOnlyNew=false;
-function ppNewDays(){const d=Number(state.settings&&state.settings.newDays);return d>0?d:3;}
+function ppNewDays(){const d=Number(state.settings&&state.settings.newDays);return d>0?d:2;}
 function ppNewest(){return state.products.filter(ppIsNew).reduce((m,p)=>Math.max(m,Number(p.createdAt)||0),0);}
 function ppHasDot(){return ppNewest()>Number(ppLS.get(PP_SEEN_KEY)||0);}
 function ppIsNew(p){return !!p&&p.active!==false&&(Number(p.createdAt)||0)>Date.now()-ppNewDays()*864e5;}
