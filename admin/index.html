@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V87';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V88';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -4754,7 +4754,7 @@ function drawCart(){
   const items=cart.map(x=>({...x,p:state.products.find(p=>p.id===x.id)})).filter(x=>x.p);
   const totals={};for(const {qty,p,size} of items){const up=ppUnit(p,size);if(up!=null)totals[p.currency||'USD']=(totals[p.currency||'USD']||0)+up*qty}
   const sum=Object.entries(totals).map(([c,v])=>money(v,c)).join(' + ');
-  $('view').innerHTML=`<div class="maxcontent"><h2>${T('سلة الطلب','Order cart')}</h2>${!items.length?`<div class="empty"><div class="symbol">🛒</div><h3>${T('السلة فارغة','Your cart is empty')}</h3><button class="btn dark" data-tab="catalog">${T('تصفح الكتالوج','Browse catalog')}</button></div>`:`<div class="list">${items.map(({p,qty,size})=>`<div class="line-item"><div class="photo" style="width:70px;height:70px;flex:0 0 70px">${photo(p)}</div><div class="line-main"><strong>${esc(S(p.nameAr,p.nameEn))}</strong>${size?`<small class="pp64-size">${esc(ppSizeLabel(p))}: <b>${esc(size)}</b></small>`:''}<small>${esc(p.sku)} • ${money(ppUnit(p,size),p.currency)}</small></div><div class="actions"><button class="btn small" data-action="qty-minus" data-id="${esc(p.id)}" data-size="${esc(size||'')}">−</button><span style="min-width:19px;text-align:center">${qty}</span><button class="btn small" data-action="qty-plus" data-id="${esc(p.id)}" data-size="${esc(size||'')}">＋</button><button class="btn small danger" data-action="remove-cart" data-id="${esc(p.id)}" data-size="${esc(size||'')}">✕</button></div></div>`).join('')}</div>${cartRecommendations()}<div class="panel"><div><strong>${T('المجموع التقريبي:','Estimated total:')} ${sum||T('حسب التسعير','To be quoted')}</strong></div><label class="pp64-notebox">${T('ملاحظات أو استفسار (اختياري)','Notes or inquiry (optional)')}<textarea id="pp64-cartnote" maxlength="600" rows="3" placeholder="${esc(ppCartPh())}">${esc(ppCartNote)}</textarea></label>${MANAGER&&ownerUnlocked?`<button type="button" class="btn small" data-action="pp65-ph">✏️ ${T('تعديل نص خانة الاستفسار','Edit inquiry box text')}</button>`:''}<p class="smallnote">${T('لإرسال طلبك: اضغط على واتساب فرعنا (لبنان أو سوريا) بالأسفل ⬇ بتنفتح محادثة فيها قائمة طلبك كاملة، فقط اضغط إرسال. لا يوجد دفع إلكتروني.','To send your order tap our branch WhatsApp below ⬇ — a chat opens with your full order list ready to send. No online payment.')}</p><div class="actions" style="margin-top:15px"><button class="btn" data-action="copy-order">${T('نسخ الطلب','Copy order')}</button></div></div>`}</div>`;
+  $('view').innerHTML=`<div class="maxcontent"><h2>${T('سلة الطلب','Order cart')}</h2>${pp88Banner()}${!items.length?`<div class="empty"><div class="symbol">🛒</div><h3>${T('السلة فارغة','Your cart is empty')}</h3><button class="btn dark" data-tab="catalog">${T('تصفح الكتالوج','Browse catalog')}</button></div>`:`<div class="list">${items.map(({p,qty,size})=>`<div class="line-item"><div class="photo" style="width:70px;height:70px;flex:0 0 70px">${photo(p)}</div><div class="line-main"><strong>${esc(S(p.nameAr,p.nameEn))}</strong>${size?`<small class="pp64-size">${esc(ppSizeLabel(p))}: <b>${esc(size)}</b></small>`:''}<small>${esc(p.sku)} • ${money(ppUnit(p,size),p.currency)}</small></div><div class="actions"><button class="btn small" data-action="qty-minus" data-id="${esc(p.id)}" data-size="${esc(size||'')}">−</button><span style="min-width:19px;text-align:center">${qty}</span><button class="btn small" data-action="qty-plus" data-id="${esc(p.id)}" data-size="${esc(size||'')}">＋</button><button class="btn small danger" data-action="remove-cart" data-id="${esc(p.id)}" data-size="${esc(size||'')}">✕</button></div></div>`).join('')}</div>${cartRecommendations()}<div class="panel"><div><strong>${T('المجموع التقريبي:','Estimated total:')} ${sum||T('حسب التسعير','To be quoted')}</strong></div><label class="pp64-notebox">${T('ملاحظات أو استفسار (اختياري)','Notes or inquiry (optional)')}<textarea id="pp64-cartnote" maxlength="600" rows="3" placeholder="${esc(ppCartPh())}">${esc(ppCartNote)}</textarea></label>${MANAGER&&ownerUnlocked?`<button type="button" class="btn small" data-action="pp65-ph">✏️ ${T('تعديل نص خانة الاستفسار','Edit inquiry box text')}</button>`:''}<p class="smallnote">${T('لإرسال طلبك: اضغط على واتساب فرعنا (لبنان أو سوريا) بالأسفل ⬇ بتنفتح محادثة فيها قائمة طلبك كاملة، فقط اضغط إرسال. لا يوجد دفع إلكتروني.','To send your order tap our branch WhatsApp below ⬇ — a chat opens with your full order list ready to send. No online payment.')}</p><div class="actions" style="margin-top:15px"><button class="btn" data-action="copy-order">${T('نسخ الطلب','Copy order')}</button></div></div>`}</div>`;
 }
 /* detail modal: replace the plain "add to order" with size picker + qty + note + add/send buttons */
 let ppSel={size:'',qty:1};
@@ -5322,6 +5322,7 @@ new MutationObserver(()=>{try{pp75MenuBtn()}catch(e){}}).observe(document.body,{
 const pp76Sel=new Set();const pp76Q={};
 function ppOrderTextFor(lines,note){
   if(!lines.length)return'';
+  try{pp88Cap(lines)}catch(_){}
   const groups=[];for(const l of lines){let g=groups.find(x=>x.p===l.p);if(!g){g={p:l.p,items:[]};groups.push(g);}g.items.push(l);}
   let n=0;
   const body=groups.map(g=>{
@@ -5775,6 +5776,51 @@ window.addEventListener('click',e=>{
   r.onend=()=>{pp87Rec=null;t.classList.remove('on');if(inp)inp.placeholder=ph;};
   try{r.start()}catch(_){pp87Rec=null;t.classList.remove('on');}
 },true);
+
+/* ===== V88: re-order the last order (stored only on the customer's phone) ===== */
+const PP88_KEY='pp88-last-order',PP88_DIS='pp88-dismissed';
+let pp88Cur=null,pp88CurT=0,pp88Open=false;
+function pp88Cap(lines){pp88CurT=Date.now();pp88Cur=(lines||[]).filter(l=>l&&l.p).map(l=>({id:l.p.id,size:String(l.size||''),qty:Math.max(1,Math.round(Number(l.qty)||1))}));}
+function pp88Save(){try{if(pp88Cur&&pp88Cur.length&&Date.now()-pp88CurT<8000)localStorage.setItem(PP88_KEY,JSON.stringify({t:Date.now(),items:pp88Cur}));}catch(_){}pp88Cur=null;}
+function pp88Get(){try{const o=JSON.parse(localStorage.getItem(PP88_KEY)||'null');return o&&Array.isArray(o.items)&&o.items.length?o:null;}catch(_){return null;}}
+function pp88Date(t){const d=new Date(t);const ar=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],en=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+(lang==='ar'?ar:en)[d.getMonth()]+' '+d.getFullYear();}
+function pp88Ok(p,size){if(!p||p.active===false)return false;if(p.stock!=null&&Number(p.stock)<=0)return false;if(size&&Array.isArray(p.soldOut)&&p.soldOut.includes(size))return false;return true;}
+function pp88Banner(){
+  const o=pp88Get();if(!o)return'';let dis='';try{dis=localStorage.getItem(PP88_DIS)||''}catch(_){}
+  if(dis===String(o.t))return'';
+  const rows=o.items.map(x=>({x,p:state.products.find(q=>q.id===x.id)})).filter(r=>r.p);if(!rows.length)return'';
+  const head=`<div class="pp88-bar"><button type="button" class="pp88-x" data-pp88="dismiss" aria-label="${T('إخفاء','Dismiss')}">✕</button><b>🔁 ${T('طلبت منتجات من قبل','You ordered before')} (${pp88Date(o.t)}) — ${rows.length} ${T('منتج','items')}</b>`;
+  if(!pp88Open)return head+`<button type="button" class="pp88-yes" data-pp88="open">${T('نعم، أعد الطلب','Yes, re-order')}</button></div>`;
+  const list=rows.map((r,i)=>{const ok=pp88Ok(r.p,r.x.size);const up=ppUnit(r.p,r.x.size);return `<label class="pp88-it ${ok?'':'na'}"><input type="checkbox" data-pp88-i="${i}" ${ok?'checked':'disabled'}><span class="photo" style="width:40px;height:40px;flex:0 0 40px">${photo(r.p)}</span><span style="flex:1"><b>${esc(S(r.p.nameAr,r.p.nameEn))}</b>${r.x.size?` <small>${esc(ppSizeLabel(r.p))}: ${esc(r.x.size)}</small>`:''}<small style="display:block">${T('الكمية','Qty')} ${r.x.qty}${ok&&up!=null?' × '+money(up,r.p.currency)+' ('+T('سعر اليوم','today\'s price')+')':''}</small>${ok?'':`<em class="pp88-tag">${T('غير متوفر حاليًا','Currently unavailable')}</em>`}</span></label>`}).join('');
+  const n=rows.filter(r=>pp88Ok(r.p,r.x.size)).length;
+  return head+`<div class="pp88-list">${list}</div><button type="button" class="pp88-add" data-pp88="add">➕ ${T('أضف المحدَّد','Add selected')} (<span id="pp88-n">${n}</span>) ${T('إلى السلة','to cart')}</button></div>`;
+}
+(function(){const st=document.createElement('style');st.textContent=`.pp88-bar{position:relative;margin:10px 0;background:#fff7e0;border:2px solid #c9a24a;border-radius:14px;padding:10px 12px}.pp88-bar>b{display:block;margin-bottom:8px;padding-inline-end:30px}.pp88-x{position:absolute;inset-inline-end:10px;top:8px;width:26px;height:26px;border-radius:50%;background:#fff;border:1.5px solid #c9a24a;font-size:12px;padding:0}.pp88-yes,.pp88-add{display:inline-block;background:#2b1b06;color:#ffd36b;border:0;border-radius:10px;padding:9px 16px;font:inherit;font-weight:800}.pp88-add{display:block;width:100%;margin-top:8px;background:#f4c04e;color:#2b1b06;border:1.5px solid #b98400}.pp88-list{background:#fff;border:1.5px solid #e5d6b3;border-radius:12px}.pp88-it{display:flex;gap:8px;align-items:center;padding:8px;border-bottom:1px solid #eee}.pp88-it:last-child{border:0}.pp88-it.na{opacity:.55}.pp88-tag{display:inline-block;background:#fde8e5;color:#a02a1c;border-radius:8px;padding:2px 7px;font-size:11px;font-style:normal;font-weight:800}`;document.head.appendChild(st);})();
+window.addEventListener('click',e=>{
+  const b=e.target&&e.target.closest?e.target.closest('[data-pp88]'):null;if(!b)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const o=pp88Get(),act=b.dataset.pp88;
+  if(act==='dismiss'){try{if(o)localStorage.setItem(PP88_DIS,String(o.t))}catch(_){}pp88Open=false;drawCart();return;}
+  if(act==='open'){pp88Open=true;drawCart();return;}
+  if(act==='add'&&o){
+    let n=0;document.querySelectorAll('[data-pp88-i]:checked').forEach(c=>{const x=o.items.filter(i=>state.products.find(q=>q.id===i.id))[Number(c.dataset.pp88I)];if(x&&addCart(x.id,x.size,x.qty))n++;});
+    pp88Open=false;try{localStorage.setItem(PP88_DIS,String(o.t))}catch(_){}drawCart();note('✓ '+T('تمت إضافة '+n+' منتج إلى السلة','Added '+n+' item(s) to cart'));
+  }
+},true);
+document.addEventListener('change',e=>{if(e.target&&e.target.matches&&e.target.matches('[data-pp88-i]')){const el=document.getElementById('pp88-n');if(el)el.textContent=document.querySelectorAll('[data-pp88-i]:checked').length;}});
+function ppSendWA(branch,text){
+  if(!text)return;
+  const phone=(state.settings[branch==='SY'?'phoneSY':'phoneLB']||'').replace(/[^0-9]/g,'');
+  if(!phone){copyText(text);note(T('رقم واتساب غير مضبوط. تم نسخ النص.','WhatsApp number missing. Order copied.'));return;}
+  pp88Save();
+  const a=document.createElement('a');a.href='https://wa.me/'+encodeURIComponent(phone)+'?text='+encodeURIComponent(text);a.target='_blank';a.rel='noopener noreferrer';a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+}
+function ppSendPhone(phoneRaw,text){
+  if(!text)return;const phone=String(phoneRaw||'').replace(/[^0-9]/g,'');
+  if(!phone){copyText(text);note(T('رقم واتساب غير مضبوط. تم نسخ النص.','WhatsApp number missing. Order copied.'));return;}
+  pp88Save();
+  const a=document.createElement('a');a.href='https://wa.me/'+encodeURIComponent(phone)+'?text='+encodeURIComponent(text);a.target='_blank';a.rel='noopener noreferrer';a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+}
 
 ppBoot();
 })();
