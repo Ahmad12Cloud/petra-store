@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V88';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V89';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -4325,6 +4325,7 @@ async function ppLoadRemote(opts={}){
   for(const r of raw.products)ppSynced.set(String(r.id),JSON.stringify(ppProductToRow(r)));
   ppRemoteLoaded=true;
   state=normalize(raw);
+  try{pp89Restore()}catch(_){}
   ppSettingsHash=JSON.stringify(ppSettingsForDb());
   ppCatsHash=ppCatsSig();
   ppCacheSave();
@@ -4516,7 +4517,7 @@ async function ppRefreshCustomer(){
 /* ---- boot ---- */
 async function ppBoot(){
   let cached=null;try{cached=JSON.parse(ppLS.get(PP_CACHE_KEY)||'null')}catch(e){}
-  if(cached&&Array.isArray(cached.products))state=normalize(cached);
+  if(cached&&Array.isArray(cached.products)){state=normalize(cached);try{pp89Restore()}catch(_){}}
   if(MANAGER){
     try{const s=JSON.parse(ppLS.get(PP_SESSION_KEY)||'null');
       if(s&&s.refresh_token){ppSession=s;await ppEnsureToken();if(await ppIsAdmin())ownerUnlocked=true;else ppSaveSession(null);}
@@ -5820,6 +5821,21 @@ function ppSendPhone(phoneRaw,text){
   if(!phone){copyText(text);note(T('رقم واتساب غير مضبوط. تم نسخ النص.','WhatsApp number missing. Order copied.'));return;}
   pp88Save();
   const a=document.createElement('a');a.href='https://wa.me/'+encodeURIComponent(phone)+'?text='+encodeURIComponent(text);a.target='_blank';a.rel='noopener noreferrer';a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+}
+
+/* ===== V89: restore the saved cart after products arrive (it was dropped at page load) ===== */
+function pp89Restore(){
+  let raw=[];try{raw=JSON.parse(localStorage.getItem(PP_CART_STORAGE_KEY)||'[]');}catch(_){return;}
+  if(!Array.isArray(raw)||!raw.length)return;
+  let added=false;
+  for(const x of raw){
+    if(!x||typeof x.id!=='string'||!Number.isInteger(x.qty)||x.qty<=0||x.qty>999)continue;
+    if(!state.products.some(p=>p.id===x.id&&p.active))continue;
+    const size=typeof x.size==='string'?x.size:'';
+    if(cart.some(c=>c.id===x.id&&(c.size||'')===size))continue;
+    cart.push({id:x.id,qty:x.qty,size});added=true;
+  }
+  if(added){try{ppCartBadge()}catch(_){}}
 }
 
 ppBoot();
