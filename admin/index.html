@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V78';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V79';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -5435,6 +5435,9 @@ document.addEventListener('input',e=>{
   const o={};f.querySelectorAll('[data-pp78f]').forEach(x=>{const v=String(x.value).trim();if(v!==''&&Number.isFinite(Number(v)))o[x.dataset.pp78f]=Number(v);});hid.value=JSON.stringify(o);
 },true);
 window.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-pp64-q]'))setTimeout(()=>{try{pp76Sync()}catch(_){}},0);},true);
+
+/* ===== V79: product page photo shows fully (frame follows the image height) ===== */
+(function(){const st=document.createElement('style');st.textContent='#detail-photo.photo.big{height:auto!important;max-height:none!important;aspect-ratio:auto!important}#detail-photo.photo.big img{width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important}';document.head.appendChild(st);})();
 
 ppBoot();
 })();
