@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V77';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V78';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2241,7 +2241,7 @@ function edit(p){
       ${input('barcode','الباركود','Barcode',p?.barcode,'maxlength="120"')}
       <label class="stack">🗂 القسم${p?'':' (إجباري)'}<select class="field" name="category" ${p?'':'required'}>${p?'':'<option value="">— اختر القسم —</option>'}<option value="" ${p&&!p.category?'selected':''}>بدون قسم</option>${[...new Set([...allCategories(),p?.category].filter(Boolean))].map(c=>`<option value="${esc(c)}" ${p?.category===c?'selected':''}>${esc(c)}</option>`).join('')}</select></label>
       <label class="stack full">📏 القياسات / الخيارات المتاحة (اختياري)<textarea class="field" name="sizes" rows="2" placeholder="مثلاً: 2A, 4A, 6A, 10A, 16A, 20A, 25A, 32A, 40A, 50A, 63A">${esc((p?.sizes||[]).join(', '))}</textarea><small>افصل بفاصلة أو سطر جديد. الزبون لازم يختار واحد منها قبل الطلب، وبيظهر بالطلب اللي بينبعتلك على واتساب.</small><button type="button" class="btn small" data-action="pp64-breaker">⚡ تعبئة قياسات القواطع 2→63 أمبير</button></label>
-      <label class="stack">اسم الخيار (اختياري)<input class="field" name="sizeLabel" value="${esc(p?.sizeLabel||'')}" placeholder="القياس (الافتراضي)"></label>
+      <label class="stack">اسم الخيار (اختياري)<input class="field" name="sizeLabel" value="${esc(p?.sizeLabel||'')}" placeholder="القياس (الافتراضي)"></label><input type="hidden" name="sizePrices" value="${esc(JSON.stringify(p?.sizePrices||{}))}">
       <label class="stack full">🏷 سطر مواصفات قصير يظهر على البطاقة<input class="field" name="specLine" maxlength="120" value="${esc(p?.specLine||'')}" placeholder="مثلاً: 1P · 2–63A · 6kA · 230/400V"></label>
       <label class="stack full">📋 جدول المواصفات (سطر لكل مواصفة بالشكل: الاسم: القيمة)<textarea class="field" name="specTable" rows="5" placeholder="عدد الأقطاب: 1P&#10;التيار المقنن: 2 - 63 A&#10;قدرة القطع: 6 kA">${esc(p?.specTable||'')}</textarea></label>
       <label class="stack full">⬇ رابط ورقة البيانات Datasheet (اختياري، رابط https لملف PDF)<input class="field" name="datasheet" dir="ltr" value="${esc(p?.datasheet||'')}" placeholder="https://..."></label>
@@ -2289,7 +2289,7 @@ async function saveProduct(){
  if((price!==''&&(!Number.isFinite(+price)||+price<0))||(stock!==''&&!/^\d+$/.test(stock))){note('راجع السعر والكمية');return;}
  const visibility={showName:fd.has('showName'),showPrice:fd.has('showPrice'),showDesc:fd.has('showDesc'),showCode:fd.has('showCode'),showCategory:fd.has('showCategory'),showBrandModel:fd.has('showBrandModel'),showSpecs:fd.has('showSpecs')};
  const p={id:old?.id||id(),demoOnly:old?.demoOnly===true,createdAt:old?.createdAt||Date.now(),
- nameAr:v('nameAr'),nameEn:v('nameEn'),sku,productCode,pp49CodeMode:mode,pp49CodePrefix:prefix,barcode:v('barcode'),category:v('category'),sizes:ppParseSizes(v('sizes')),sizeLabel:v('sizeLabel'),specLine:v('specLine'),specTable:v('specTable'),datasheet:v('datasheet'),brand:v('brand'),model:v('model'),
+ nameAr:v('nameAr'),nameEn:v('nameEn'),sku,productCode,pp49CodeMode:mode,pp49CodePrefix:prefix,barcode:v('barcode'),category:v('category'),sizes:ppParseSizes(v('sizes')),sizePrices:ppCleanSP(v('sizePrices'),ppParseSizes(v('sizes'))),sizeLabel:v('sizeLabel'),specLine:v('specLine'),specTable:v('specTable'),datasheet:v('datasheet'),brand:v('brand'),model:v('model'),
  currency:v('currency')||'USD',price:price===''?null:Number(price),stock:stock===''?null:Number(stock),specs:v('specs'),
  descriptionAr:v('descriptionAr'),descriptionEn:v('descriptionEn'),images:[...formImages],
  photoBg:fd.has('customPhotoBg')?safeColor(fd.get('photoBg'),safeColor(state.settings.productPhotoBg,'#ffffff')):'',
@@ -4732,7 +4732,7 @@ function addCart(id,size,qty){
   ppCartBadge();persistCustomerCart();return true;
 }
 function ppItemLine(p,qty,size,i){
-  const price=p.price==null?T('السعر عند الطلب','Price on request'):(p.price+' '+(p.currency||'USD'));
+  const up0=ppUnit(p,size);const price=up0==null?T('السعر عند الطلب','Price on request'):(up0+' '+(p.currency||'USD'));
   const im=(Array.isArray(p.images)?p.images:[]).find(x=>typeof x==='string'&&/^https:\/\//.test(x));
   return (i+1)+'. '+(p.nameAr||p.nameEn)+' ['+p.sku+']'+(size?' — '+ppSizeLabel(p)+': '+size:'')+' × '+qty+' — '+price+(im?'\n🖼 '+T('الصورة: ','Photo: ')+im:'');
 }
@@ -4751,9 +4751,9 @@ function ppSendWA(branch,text){
 function whatsapp(branch){ppSendWA(branch,orderText());}
 function drawCart(){
   const items=cart.map(x=>({...x,p:state.products.find(p=>p.id===x.id)})).filter(x=>x.p);
-  const totals={};for(const {qty,p} of items){if(p.price!=null)totals[p.currency||'USD']=(totals[p.currency||'USD']||0)+p.price*qty}
+  const totals={};for(const {qty,p,size} of items){const up=ppUnit(p,size);if(up!=null)totals[p.currency||'USD']=(totals[p.currency||'USD']||0)+up*qty}
   const sum=Object.entries(totals).map(([c,v])=>money(v,c)).join(' + ');
-  $('view').innerHTML=`<div class="maxcontent"><h2>${T('سلة الطلب','Order cart')}</h2>${!items.length?`<div class="empty"><div class="symbol">🛒</div><h3>${T('السلة فارغة','Your cart is empty')}</h3><button class="btn dark" data-tab="catalog">${T('تصفح الكتالوج','Browse catalog')}</button></div>`:`<div class="list">${items.map(({p,qty,size})=>`<div class="line-item"><div class="photo" style="width:70px;height:70px;flex:0 0 70px">${photo(p)}</div><div class="line-main"><strong>${esc(S(p.nameAr,p.nameEn))}</strong>${size?`<small class="pp64-size">${esc(ppSizeLabel(p))}: <b>${esc(size)}</b></small>`:''}<small>${esc(p.sku)} • ${money(p.price,p.currency)}</small></div><div class="actions"><button class="btn small" data-action="qty-minus" data-id="${esc(p.id)}" data-size="${esc(size||'')}">−</button><span style="min-width:19px;text-align:center">${qty}</span><button class="btn small" data-action="qty-plus" data-id="${esc(p.id)}" data-size="${esc(size||'')}">＋</button><button class="btn small danger" data-action="remove-cart" data-id="${esc(p.id)}" data-size="${esc(size||'')}">✕</button></div></div>`).join('')}</div>${cartRecommendations()}<div class="panel"><div><strong>${T('المجموع التقريبي:','Estimated total:')} ${sum||T('حسب التسعير','To be quoted')}</strong></div><label class="pp64-notebox">${T('ملاحظات أو استفسار (اختياري)','Notes or inquiry (optional)')}<textarea id="pp64-cartnote" maxlength="600" rows="3" placeholder="${esc(ppCartPh())}">${esc(ppCartNote)}</textarea></label>${MANAGER&&ownerUnlocked?`<button type="button" class="btn small" data-action="pp65-ph">✏️ ${T('تعديل نص خانة الاستفسار','Edit inquiry box text')}</button>`:''}<p class="smallnote">${T('لإرسال طلبك: اضغط على واتساب فرعنا (لبنان أو سوريا) بالأسفل ⬇ بتنفتح محادثة فيها قائمة طلبك كاملة، فقط اضغط إرسال. لا يوجد دفع إلكتروني.','To send your order tap our branch WhatsApp below ⬇ — a chat opens with your full order list ready to send. No online payment.')}</p><div class="actions" style="margin-top:15px"><button class="btn" data-action="copy-order">${T('نسخ الطلب','Copy order')}</button></div></div>`}</div>`;
+  $('view').innerHTML=`<div class="maxcontent"><h2>${T('سلة الطلب','Order cart')}</h2>${!items.length?`<div class="empty"><div class="symbol">🛒</div><h3>${T('السلة فارغة','Your cart is empty')}</h3><button class="btn dark" data-tab="catalog">${T('تصفح الكتالوج','Browse catalog')}</button></div>`:`<div class="list">${items.map(({p,qty,size})=>`<div class="line-item"><div class="photo" style="width:70px;height:70px;flex:0 0 70px">${photo(p)}</div><div class="line-main"><strong>${esc(S(p.nameAr,p.nameEn))}</strong>${size?`<small class="pp64-size">${esc(ppSizeLabel(p))}: <b>${esc(size)}</b></small>`:''}<small>${esc(p.sku)} • ${money(ppUnit(p,size),p.currency)}</small></div><div class="actions"><button class="btn small" data-action="qty-minus" data-id="${esc(p.id)}" data-size="${esc(size||'')}">−</button><span style="min-width:19px;text-align:center">${qty}</span><button class="btn small" data-action="qty-plus" data-id="${esc(p.id)}" data-size="${esc(size||'')}">＋</button><button class="btn small danger" data-action="remove-cart" data-id="${esc(p.id)}" data-size="${esc(size||'')}">✕</button></div></div>`).join('')}</div>${cartRecommendations()}<div class="panel"><div><strong>${T('المجموع التقريبي:','Estimated total:')} ${sum||T('حسب التسعير','To be quoted')}</strong></div><label class="pp64-notebox">${T('ملاحظات أو استفسار (اختياري)','Notes or inquiry (optional)')}<textarea id="pp64-cartnote" maxlength="600" rows="3" placeholder="${esc(ppCartPh())}">${esc(ppCartNote)}</textarea></label>${MANAGER&&ownerUnlocked?`<button type="button" class="btn small" data-action="pp65-ph">✏️ ${T('تعديل نص خانة الاستفسار','Edit inquiry box text')}</button>`:''}<p class="smallnote">${T('لإرسال طلبك: اضغط على واتساب فرعنا (لبنان أو سوريا) بالأسفل ⬇ بتنفتح محادثة فيها قائمة طلبك كاملة، فقط اضغط إرسال. لا يوجد دفع إلكتروني.','To send your order tap our branch WhatsApp below ⬇ — a chat opens with your full order list ready to send. No online payment.')}</p><div class="actions" style="margin-top:15px"><button class="btn" data-action="copy-order">${T('نسخ الطلب','Copy order')}</button></div></div>`}</div>`;
 }
 /* detail modal: replace the plain "add to order" with size picker + qty + note + add/send buttons */
 let ppSel={size:'',qty:1};
@@ -5326,11 +5326,10 @@ function ppOrderTextFor(lines,note){
   const body=groups.map(g=>{
     if(g.items.length===1){return ppItemLine(g.p,g.items[0].qty,g.items[0].size,n++);}
     const p=g.p;const im=(Array.isArray(p.images)?p.images:[]).find(x=>typeof x==='string'&&/^https:\/\//.test(x));
-    const price=p.price==null?T('السعر عند الطلب','Price on request'):(p.price+' '+(p.currency||'USD'));
     n++;
-    return n+'. '+(p.nameAr||p.nameEn)+' ['+p.sku+']'+(im?'\n🖼 '+T('الصورة: ','Photo: ')+im:'')+'\n'+g.items.map(l=>'   • '+(l.size?ppSizeLabel(p)+': '+l.size+' × ':'× ')+l.qty+' — '+price).join('\n');
+    return n+'. '+(p.nameAr||p.nameEn)+' ['+p.sku+']'+(im?'\n🖼 '+T('الصورة: ','Photo: ')+im:'')+'\n'+g.items.map(l=>{const u=ppUnit(p,l.size);return '   • '+(l.size?ppSizeLabel(p)+': '+l.size+' × ':'× ')+l.qty+' — '+(u==null?T('السعر عند الطلب','Price on request'):u+' '+(p.currency||'USD'));}).join('\n');
   }).join('\n\n');
-  return T('مرحباً Petra Power، أريد الاستفسار عن المنتجات التالية:','Hello Petra Power, please quote the following products:')+'\n\n'+(note&&note.trim()?'📝 '+T('ملاحظتي: ','My note: ')+note.trim()+'\n\n':'')+body+'\n\n'+T('يرجى تأكيد التوافر والأسعار، وشكراً.','Please confirm availability and prices. Thank you.');
+  return T('مرحباً Petra Power، أريد الاستفسار عن المنتجات التالية:','Hello Petra Power, please quote the following products:')+'\n\n'+(note&&note.trim()?'📝 '+T('ملاحظتي: ','My note: ')+note.trim()+'\n\n':'')+body+ppTotalLine(lines)+'\n\n'+T('يرجى تأكيد التوافر والأسعار، وشكراً.','Please confirm availability and prices. Thank you.');
 }
 function ppPick(){
   const box=document.getElementById('pp64-order');if(!box)return null;const p=state.products.find(x=>x.id===box.dataset.id);if(!p)return null;
@@ -5348,9 +5347,10 @@ function pp76Sync(){
   const k=chips.filter(c=>pp76Sel.has(c.dataset.pp64Size)).length;ppSel.size=k?'x':'';
   const sel=chips.filter(c=>pp76Sel.has(c.dataset.pp64Size)).map(c=>c.dataset.pp64Size);
   const c=box.querySelector('#pp76-cnt');
-  if(c){const tot=sel.reduce((a,z)=>a+(pp76Q[z]||1),0);pp76Set(c,'textContent',k>1?T('المجموع: '+tot+' قطعة — '+k+' قياسات','Total: '+tot+' pcs — '+k+' sizes'):'');}
+  if(c){const tot=sel.reduce((a,z)=>a+(pp76Q[z]||1),0);const pp=state.products.find(x=>x.id===box.dataset.id)||{};const money78=ppHasSP(pp)&&k>=1?sel.reduce((a,z)=>a+(ppUnit(pp,z)||0)*(k>1?(pp76Q[z]||1):ppSel.qty),0):null;pp76Set(c,'textContent',(money78!=null?T('المجموع التقريبي: ','Estimated total: ')+money(money78,pp.currency)+(k>1?' — ':''):'')+(k>1?T(tot+' قطعة، '+k+' قياسات',tot+' pcs, '+k+' sizes'):''));}
+  const pp78P=state.products.find(x=>x.id===box.dataset.id)||{};const pp78Show=ppHasSP(pp78P)&&ppUnit(pp78P,sel[0])!=null;
   const qs=box.querySelector('#pp76-qs');
-  if(qs){const h=k>1?'<div style="font-weight:800;margin:6px 0 2px">'+T('الكمية لكل قياس','Quantity per size')+'</div>'+sel.map(z=>'<div class="pp76-r"><b class="pp76-s">'+esc(z)+'</b><span style="flex:1"></span><button type="button" data-pp76q="'+esc(z)+'|-1">−</button><span class="pp76-q">'+(pp76Q[z]||1)+'</span><button type="button" data-pp76q="'+esc(z)+'|1">＋</button></div>').join(''):'';pp76Set(qs,'innerHTML',h);}
+  if(qs){const h=k>1?'<div style="font-weight:800;margin:6px 0 2px">'+T('الكمية لكل قياس','Quantity per size')+'</div>'+sel.map(z=>'<div class="pp76-r"><b class="pp76-s">'+esc(z)+'</b>'+(pp78Show?'<span class="pp78-u">'+esc(pp78fmt(pp78P,ppUnit(pp78P,z)))+'</span>':'')+'<span style="flex:1"></span><button type="button" data-pp76q="'+esc(z)+'|-1">−</button><span class="pp76-q">'+(pp76Q[z]||1)+'</span><button type="button" data-pp76q="'+esc(z)+'|1">＋</button>'+(pp78Show?'<span class="pp78-sub">'+esc(pp78fmt(pp78P,(ppUnit(pp78P,z)||0)*(pp76Q[z]||1)))+'</span>':'')+'</div>').join(''):'';pp76Set(qs,'innerHTML',h);}
   const mq=box.querySelector('.pp64-qty');if(mq){const hide=k>1?'none':'';if(mq.style.display!==hide)mq.style.display=hide;}
   const add=box.querySelector('[data-pp64-add]');if(add&&!add.dataset.pp76busy)pp76Set(add,'textContent','🛒 '+T('أضف للسلة','Add to cart')+(k>1?' ('+k+' '+T('قياسات','sizes')+')':''));
 }
@@ -5388,6 +5388,53 @@ window.addEventListener('click',e=>{
   b=t.closest('#pp64-order [data-pp75-send]');
   if(b){e.preventDefault();e.stopPropagation();const br=ppBranches().find(x=>String(x.id)===b.dataset.pp75Send);if(!br)return;const s=ppPick();if(!s)return;ppSendPhone(ppBranchPhone(br),ppOrderTextFor(pp76Lines(s),s.note));return;}
 },true);
+
+/* ===== V78: per-size prices ===== */
+function ppCleanSP(raw,sizes){let o={};try{o=typeof raw==='string'?JSON.parse(raw||'{}'):(raw||{});}catch(_){o={};}const r={};for(const s of sizes||[]){const n=Number(o[s]);if(o[s]!==''&&o[s]!=null&&Number.isFinite(n)&&n>=0)r[s]=n;}return r;}
+function ppUnit(p,size){const sp=p&&p.sizePrices;if(size&&sp&&sp[size]!=null&&sp[size]!==''&&Number.isFinite(Number(sp[size])))return Number(sp[size]);return p&&p.price!=null&&Number.isFinite(Number(p.price))?Number(p.price):null;}
+function ppHasSP(p){const sp=p&&p.sizePrices;return !!sp&&ppSizes(p).some(s=>sp[s]!=null&&sp[s]!==''&&Number.isFinite(Number(sp[s])));}
+function ppTotalLine(lines){const tot={};for(const l of lines){const u=ppUnit(l.p,l.size);if(u==null)return'';tot[l.p.currency||'USD']=(tot[l.p.currency||'USD']||0)+u*l.qty;}
+  if(!lines.some(l=>ppHasSP(l.p))&&lines.length<2)return'';
+  return '\n\n'+T('المجموع التقريبي: ','Estimated total: ')+Object.entries(tot).map(([c,v])=>(Math.round(v*100)/100)+' '+c).join(' + ');}
+const pp78fmt=(p,u)=>u==null?'':money(u,p.currency);
+(function(){const st=document.createElement('style');st.textContent='.pp64-chip .pp78-pr{display:block;font-size:11px;font-weight:600;color:#7a4f00;margin-top:1px}.pp76-r .pp78-u{font-size:12px;color:#7a4f00;font-weight:700}.pp76-r .pp78-sub{min-width:62px;text-align:left;font-weight:800;font-size:13px}.pp78-own{margin-top:8px}.pp78-own .pp78-row{display:flex;align-items:center;gap:8px;margin-top:5px}.pp78-own .pp78-row b{background:#f4c04e;border-radius:9px;padding:5px 9px;min-width:40px;text-align:center}.pp78-own input{width:84px;padding:7px;border:1.5px solid #d9c797;border-radius:9px;text-align:center;font:inherit;font-weight:700;background:#fffdf7}';document.head.appendChild(st);})();
+/* customer side: prices on chips (re-run by the existing observer) */
+function pp78Chips(){
+  const box=document.getElementById('pp64-order');if(!box)return;const p=state.products.find(x=>x.id===box.dataset.id);if(!p||!ppHasSP(p))return;
+  box.querySelectorAll('.pp64-chip[data-pp64-size]').forEach(c=>{const z=c.dataset.pp64Size;const u=ppUnit(p,z);let s=c.querySelector('.pp78-pr');const txt=pp78fmt(p,u);if(!s){s=document.createElement('small');s.className='pp78-pr';c.appendChild(s);}if(s.textContent!==txt)s.textContent=txt;});
+}
+new MutationObserver(()=>{try{pp78Chips()}catch(e){}}).observe(document.body,{childList:true,subtree:true});
+/* owner price inputs: product page box */
+function pp78OwnerPrices(){
+  const own=document.getElementById('pp69-own');if(!own||own.querySelector('.pp78-own'))return;const p=state.products.find(x=>x.id===own.dataset.id);if(!p)return;
+  const list=ppSizes(p);if(!list.length)return;
+  const d=document.createElement('div');d.className='pp78-own';
+  d.innerHTML='<b>💲 سعر كل قياس ('+esc(p.currency||'USD')+') — الفاضي = السعر العام للمنتج'+(p.price!=null?' ('+esc(String(p.price))+')':'')+'</b>'+list.map(s=>'<div class="pp78-row"><b>'+esc(s)+'</b><input type="number" step="any" min="0" inputmode="decimal" data-pp78p="'+esc(s)+'" placeholder="سعر عام" value="'+esc(p.sizePrices&&p.sizePrices[s]!=null?String(p.sizePrices[s]):'')+'"></div>').join('');
+  own.appendChild(d);
+}
+new MutationObserver(()=>{try{pp78OwnerPrices()}catch(e){}}).observe(document.body,{childList:true,subtree:true});
+document.addEventListener('change',async e=>{
+  const i=e.target.closest&&e.target.closest('[data-pp78p]');if(!i)return;
+  const own=i.closest('#pp69-own');const p=state.products.find(x=>x.id===own?.dataset.id);if(!p||!visibleAdmin())return;
+  const sp={...(p.sizePrices||{})};const v=String(i.value).trim();if(v===''||!Number.isFinite(Number(v)))delete sp[i.dataset.pp78p];else sp[i.dataset.pp78p]=Number(v);
+  p.sizePrices=ppCleanSP(sp,ppSizes(p));await changed();pp78Chips();pp76Sync();note('✓ '+T('تم حفظ السعر','Price saved'));
+},true);
+/* owner price inputs: product edit form (hidden JSON field) */
+function pp78FormSync(form){
+  const ta=form.querySelector('textarea[name="sizes"]'),hid=form.querySelector('input[name="sizePrices"]');if(!ta||!hid)return;
+  let cur={};try{cur=JSON.parse(hid.value||'{}');}catch(_){}
+  let box=form.querySelector('.pp78-form');if(!box){box=document.createElement('div');box.className='pp69-own pp78-own pp78-form';const anchor=form.querySelector('.pp69-form')||ta;anchor.insertAdjacentElement('afterend',box);}
+  const sizes=ppParseSizes(ta.value);
+  const key=sizes.join('|');if(box.dataset.k===key)return;box.dataset.k=key;
+  box.innerHTML=sizes.length?'<b>💲 سعر كل قياس — الفاضي = السعر العام</b>'+sizes.map(s=>'<div class="pp78-row"><b>'+esc(s)+'</b><input type="number" step="any" min="0" inputmode="decimal" data-pp78f="'+esc(s)+'" placeholder="سعر عام" value="'+esc(cur[s]!=null?String(cur[s]):'')+'"></div>').join(''):'';
+}
+new MutationObserver(()=>{document.querySelectorAll('form').forEach(f=>{try{if(f.querySelector('input[name="sizePrices"]'))pp78FormSync(f)}catch(e){}})}).observe(document.body,{childList:true,subtree:true});
+document.addEventListener('input',e=>{
+  const ta=e.target.closest&&e.target.closest('textarea[name="sizes"]');if(ta){const f=ta.closest('form');if(f)setTimeout(()=>pp78FormSync(f),0);return;}
+  const i=e.target.closest&&e.target.closest('[data-pp78f]');if(!i)return;const f=i.closest('form');const hid=f.querySelector('input[name="sizePrices"]');
+  const o={};f.querySelectorAll('[data-pp78f]').forEach(x=>{const v=String(x.value).trim();if(v!==''&&Number.isFinite(Number(v)))o[x.dataset.pp78f]=Number(v);});hid.value=JSON.stringify(o);
+},true);
+window.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-pp64-q]'))setTimeout(()=>{try{pp76Sync()}catch(_){}},0);},true);
 
 ppBoot();
 })();
