@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Petra Power Energy – الشياح عقار 1720 – 131 لوح شمسي (3D)</title>
+<meta name="description" content="Petra Power Energy – 3D model: solar canopy, Chiyah plot 1720, 131 panels.">
+<meta name="author" content="Petra Power Energy">
+<meta name="application-name" content="Petra Power Energy">
+<meta name="theme-color" content="#0f1720">
+<meta property="og:site_name" content="Petra Power Energy">
+<meta property="og:title" content="Petra Power Energy | الشياح – عقار 1720 – 131 لوح شمسي (3D)">
+<meta property="og:description" content="نموذج ثلاثي الأبعاد لمظلة الطاقة الشمسية – تصميم وتنفيذ Petra Power Energy">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ahmad12cloud.github.io/petra-store/chiyah-1720/">
+<meta property="og:image" content="https://ahmad12cloud.github.io/petra-store/chiyah-1720/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Petra Power Energy | الشياح – عقار 1720 – 131 لوح شمسي (3D)">
+<meta name="twitter:image" content="https://ahmad12cloud.github.io/petra-store/chiyah-1720/preview.png">
+<link rel="icon" href="../icon-192.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0f1720;--card:rgba(15,23,32,.88);--acc:#f5a524;--txt:#eef2f6;--mut:#9fb0c2}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:#cfdbe6;font-family:Cairo,system-ui,sans-serif;color:var(--txt)}
+  #c{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  .bar{position:absolute;top:8px;left:8px;right:8px;display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;justify-content:center;z-index:6;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .bar::-webkit-scrollbar,.tg::-webkit-scrollbar{display:none}
+  .bar button,.tg button{flex:0 0 auto;white-space:nowrap;font-family:inherit;border:0;border-radius:10px;padding:7px 12px;background:var(--card);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;backdrop-filter:blur(6px)}
+  .bar button.on{background:var(--acc);color:#111}
+  .title{position:absolute;top:52px;right:8px;z-index:4;background:var(--card);padding:8px 14px;border-radius:12px;max-width:300px}
+  .brand{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:1.5px;font-weight:600;color:#fff;margin-bottom:4px;direction:ltr;justify-content:flex-end}
+  .brand b{color:var(--acc)}
+  .logo{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;background:var(--acc);color:#111;font-weight:800;letter-spacing:0;font-size:12px}
+  .title h1{margin:0;font-size:15px;font-weight:800}
+  .title p{margin:2px 0 0;font-size:12px;color:var(--mut)}
+  .tg{position:absolute;bottom:12px;left:12px;z-index:5;display:flex;flex-direction:column;gap:6px}
+  .tg button.off{opacity:.45}
+  #info{position:absolute;bottom:12px;right:12px;z-index:5;background:var(--card);border-radius:14px;padding:12px 14px;width:min(340px,calc(100vw - 150px));max-height:62vh;overflow:auto;font-size:12.5px;line-height:1.7;backdrop-filter:blur(6px)}
+  #info.min .body{display:none}
+  #app{position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden}
+  #app.rot{transform-origin:top left}
+  #rot{display:none;position:absolute;top:52px;left:8px;z-index:6;font-family:inherit;border:0;border-radius:10px;padding:7px 12px;background:#2b6cb0;color:#fff;font-size:13px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  #rot.show{display:block}
+  #app.land #info{left:auto;right:8px;bottom:8px;width:270px;max-height:70%}
+  #app.land .tg{flex-direction:row;left:8px;right:290px;bottom:8px;overflow-x:auto;flex-wrap:nowrap}
+  #app.land .tg button{padding:6px 10px;font-size:12px}
+  #app.land .title{padding:5px 10px}#app.land .title p{display:none}#app.land .title h1{font-size:12px}
+  #app.land .bar{justify-content:flex-start}
+  #app.land .bar button{padding:6px 10px;font-size:12px}
+  @media (max-width:700px){
+    .bar{justify-content:flex-start}
+    .bar button{padding:6px 10px;font-size:12px}
+    .title{padding:5px 10px;max-width:62vw}
+    .title h1{font-size:12px}.title p{display:none}.brand{font-size:10px;margin-bottom:2px}.logo{width:20px;height:20px;font-size:10px}
+    .tg{flex-direction:row;left:8px;right:8px;bottom:8px;overflow-x:auto;flex-wrap:nowrap}
+    .tg button{padding:6px 10px;font-size:12px}
+    #info{left:8px;right:8px;bottom:50px;width:auto;padding:8px 12px;max-height:55vh}
+    #info h2{font-size:13px}
+  }
+
+  #info h2{margin:0;font-size:14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:8px}
+  #info h2 span{font-size:11px;color:var(--acc)}
+  table{width:100%;border-collapse:collapse;margin-top:6px}
+  td{padding:2px 4px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top}
+  td:last-child{text-align:left;direction:ltr;font-weight:600;white-space:nowrap}
+  .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-left:6px;vertical-align:middle}
+  .lowhigh{display:flex;gap:6px;margin:8px 0}
+  .lowhigh div{flex:1;border-radius:10px;padding:6px 8px;text-align:center}
+  .lowhigh b{display:block;font-size:17px;direction:ltr}
+  .note{color:var(--mut);font-size:11px;margin-top:6px}
+  #shot{position:absolute;inset:0;background:rgba(0,0,0,.85);z-index:20;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px}
+  #shot img{max-width:100%;max-height:80vh;border-radius:8px;box-shadow:0 6px 30px #000}
+  #shot p{margin:0;font-size:14px}
+  #shot button{font-family:inherit;border:0;border-radius:10px;padding:8px 18px;background:var(--acc);font-weight:700}
+  #load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;color:#223;z-index:30;background:#cfdbe6}
+</style>
+</head>
+<body>
+<div id="load">جاري تحميل النموذج…</div>
+<div id="app">
+<canvas id="c"></canvas>
+
+<div class="bar" id="views">
+  <button data-v="iso" class="on">3D</button>
+  <button data-v="iso2">3D خلفي</button>
+  <button data-v="front">أمامي (Section A)</button>
+  <button data-v="side">جانبي (Section B)</button>
+  <button data-v="top">علوي (Plan)</button>
+  <button id="snap">📷 صورة</button>
+</div>
+
+<button id="rot">⟲ عرض أفقي</button>
+<div class="title">
+  <div class="brand"><span class="logo">PE</span><span>PETRA POWER <b>ENERGY</b></span></div>
+  <h1>الشياح – عقار 1720 · Solar Canopy</h1>
+  <p>131 لوح شمسي على مظلة حديد (Trusses) بجانب المبنى القائم</p>
+</div>
+
+<div class="tg" id="toggles">
+  <button data-t="tags">🏷️ المقاطع والحديد</button>
+  <button data-t="dims">📏 الأبعاد</button>
+  <button data-t="panels">🔷 الألواح</button>
+  <button data-t="steel">🟧 الهيكل</button>
+  <button data-t="building">🏭 المستودع</button>
+</div>
+
+<div id="info">
+  <h2 id="infoHead">تفاصيل المشروع <span>إخفاء ▾</span></h2>
+  <div class="body">
+    <table>
+      <tr><td>المالك</td><td style="direction:rtl;text-align:left">شركة مهد للعقارات – السيد مصطفى محمود قنديل</td></tr>
+      <tr><td>المستأجر</td><td style="direction:rtl;text-align:left">السيد علي محمود ياسين</td></tr>
+      <tr><td>العقار</td><td style="direction:rtl;text-align:left">الشياح · 1720</td></tr>
+    </table>
+    <div class="lowhigh">
+      <div style="background:#1f7a4d">أوطى عمود (الواجهة)<b>2.492 m</b></div>
+      <div style="background:#b3261e">أعلى عمود (جهة المبنى)<b>5.992 m</b></div>
+    </div>
+    <table>
+      <tr><td>عدد الألواح</td><td>131 Panels</td></tr>
+      <tr><td>التوزيع</td><td>18 × 7 + 5</td></tr>
+      <tr><td>مقاس اللوح (حسب Solar Plan)</td><td>≈ 2400 × 1300 mm</td></tr>
+      <tr><td>العرض الكلي</td><td>25.448 m</td></tr>
+      <tr><td>العمق (من الواجهة)</td><td>18.580 m</td></tr>
+      <tr><td>محاور الأعمدة بالعرض</td><td>1.836 · 5 · 6 · 6 · 6 · 0.612</td></tr>
+      <tr><td>محاور الأعمدة بالعمق</td><td>1.012 · 8.5 · 8.5 · 2.0</td></tr>
+      <tr><td>الميل (حسب الارتفاعات)</td><td>≈ 18.4% (10.4°)</td></tr>
+      <tr><td>عمق الـTruss</td><td>0.508 m</td></tr>
+      <tr><td><span class="sw" style="background:#e8862a"></span>أعمدة + Truss Chords</td><td>SHS 120×120×5</td></tr>
+      <tr><td><span class="sw" style="background:#c96f1c"></span>Truss Web</td><td>SHS 50×50×3</td></tr>
+      <tr><td><span class="sw" style="background:#f2c94c"></span>مدادات (Purlins)</td><td>SHS 100×50×4</td></tr>
+      <tr><td><span class="sw" style="background:#2fa36b"></span>Bracing / Knee Braces</td><td>L50×50×5</td></tr>
+      <tr><td>القواعد (Footings)</td><td>13 × 1×1×0.5 m</td></tr>
+      <tr><td>Base Plate</td><td>280×280×12 · 4 M14 (8.8)</td></tr>
+      <tr><td>عدد الأعمدة</td><td>17 Columns</td></tr>
+    </table>
+    <table id="bom"><tr><td colspan="2" style="color:var(--acc);font-weight:700">كميات الحديد (تقديرية من المخططات)</td></tr></table>
+    <div class="note" style="color:#f5a524;font-weight:600">إعداد وتصميم: Petra Power Energy</div>
+    <div class="note">ارتفاع المبنى القائم في النموذج توضيحي. الأبعاد والارتفاعات والمقاطع والتوزيع مأخوذة من المخططات.</div>
+  </div>
+</div>
+
+<div id="shot"><p>اضغط مطوّلاً على الصورة لحفظها</p><img id="shotImg" alt="snapshot"><button id="shotClose">إغلاق</button></div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+// ===================== DATA FROM DRAWINGS =====================
+// Plan frame: x = along 25.448 (left -> right), z = plan "down" (toward street). Building is at z < 0.
+const W = 25.448;                       // overall width (plans)
+const FE = 18.582;                      // front edge of canopy (18.580 from back line)
+const ZF = FE - 1.012;                  // front column row
+const ZM = ZF - 8.5;                    // middle column row
+const ZB = ZM - 8.5;                    // back column row
+const ZE = ZB - 2.0;                    // extra columns on existing concrete base (X1, X2 only)
+const XR = W/2, L = 2*8.0;              // scene centre helpers (x, z=L/2)
+const COLX = [1.836, 6.836, 12.836, 18.836, 24.836];
+const H_FRONT = 2.492, H_EXTRA = 5.992, TRUSS_D = 0.508;
+const K = (H_EXTRA - H_FRONT)/(ZF - ZE);           // 3.5 / 19.0 = 0.1842  (≈10.4°)
+const TH = Math.atan(K);
+const Bz = z => H_FRONT + K*(ZF - z);               // underside of truss bottom chord = column top
+const Tz = z => Bz(z) + TRUSS_D;                    // top of truss top chord
+const TRUSS_FRONT = 18.28;                           // roof plan: truss ends
+const TRUSS_BACK = [-1.98, -1.98, 0.22, -0.01, -0.01];
+const PURLIN_Z = [-1.447, 0.556, 2.682, 4.81, 6.93, 9.06, 11.19, 13.31, 15.44, 17.57, 18.25];
+// Solar plan (exact): 18 columns x 7 rows + 5 panels on the top-left extension = 131
+const PANEL_L = 2.40, PANEL_W = 1.30, PANEL_T = 0.035;
+const PX0 = 0.186, PPITCH_X = 1.40;
+const ROW_TOP = [0.795, 3.297, 5.799, 8.301, 10.803, 13.305, 15.807];
+const EXT_ROW_TOP = -1.709, EXT_COLS = 5;
+// Existing building footprint (from plans) & concrete bases
+const BLD = [[1.318,-4.99],[25.46,-4.99],[25.46,-0.033],[16.81,-0.033],[16.81,0.197],[7.32,0.197],[7.32,-1.99],[1.318,-1.99]];
+const BLD_H = 7.5;                                   // illustrative only
+
+// ===================== SCENE =====================
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputEncoding = THREE.sRGBEncoding;
+const scene = new THREE.Scene();
+scene.background = skyTexture();
+scene.fog = new THREE.Fog(0xcfdbe6, 120, 260);
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 600);
+const controls = new THREE.OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.maxPolarAngle = Math.PI*0.495;
+controls.minDistance = 8; controls.maxDistance = 180;
+
+scene.add(new THREE.HemisphereLight(0xdfefff, 0x6b6250, 0.75));
+const sun = new THREE.DirectionalLight(0xfff3e0, 0.95);
+sun.position.set(-20, 40, 40); sun.target.position.set(XR, 3, 8);
+sun.castShadow = true; sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-35,right:35,top:35,bottom:-35,near:1,far:150});
+sun.shadow.bias = -0.0004;
+scene.add(sun, sun.target);
+
+const groups = {tags:new THREE.Group(), dims:new THREE.Group(), panels:new THREE.Group(), steel:new THREE.Group(), building:new THREE.Group()};
+Object.values(groups).forEach(g=>scene.add(g));
+
+// ===================== MATERIALS =====================
+const M = {
+  steel:  new THREE.MeshStandardMaterial({color:0xe8862a, metalness:.35, roughness:.45}),
+  purlin: new THREE.MeshStandardMaterial({color:0xf2c94c, metalness:.35, roughness:.45}),
+  brace:  new THREE.MeshStandardMaterial({color:0x2fa36b, metalness:.3, roughness:.5}),
+  plate:  new THREE.MeshStandardMaterial({color:0x555b63, metalness:.5, roughness:.4}),
+  wall:   new THREE.MeshStandardMaterial({color:0xe9ecef, roughness:.9}),
+  wall2:  new THREE.MeshStandardMaterial({color:0xd5dae0, roughness:.9}),
+  parapet:new THREE.MeshStandardMaterial({color:0xc4cad1, roughness:.85}),
+  roof:   new THREE.MeshStandardMaterial({map:corrugTex(), color:0xffffff, roughness:.6, metalness:.25, side:THREE.DoubleSide}),
+  rafter: new THREE.MeshStandardMaterial({color:0x7d8794, metalness:.4, roughness:.5}),
+  door:   new THREE.MeshStandardMaterial({color:0x8a939e, roughness:.6, metalness:.3}),
+  frameAl:new THREE.MeshStandardMaterial({color:0xc9ced4, metalness:.8, roughness:.3}),
+  pvTop:  new THREE.MeshStandardMaterial({map:pvTex(), roughness:.25, metalness:.4}),
+  pvBack: new THREE.MeshStandardMaterial({color:0xf0f0f0, roughness:.8}),
+  ground: new THREE.MeshStandardMaterial({color:0xa9b2a0, roughness:1}),
+  dim:    new THREE.MeshBasicMaterial({color:0x1d2b3a}),
+  dimHi:  new THREE.MeshBasicMaterial({color:0xb3261e}),
+  dimLo:  new THREE.MeshBasicMaterial({color:0x1f7a4d}),
+};
+
+// ===================== HELPERS =====================
+function box(w,h,d,mat,x,y,z,grp){
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat);
+  m.position.set(x,y,z); m.castShadow = m.receiveShadow = true; grp.add(m); return m;
+}
+function beam(p1,p2,w,h,mat,grp){ // box from p1 to p2 (local z along length)
+  const a = new THREE.Vector3(...p1), b = new THREE.Vector3(...p2);
+  const len = a.distanceTo(b);
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,len), mat);
+  m.position.copy(a).add(b).multiplyScalar(.5);
+  m.lookAt(b); m.castShadow = m.receiveShadow = true; grp.add(m); return m;
+}
+const LABELS = [];
+function label(text, opt={}){
+  const fs = 64, pad = 22;
+  const c = document.createElement('canvas'), ctx = c.getContext('2d');
+  const font = `${opt.bold===false?600:800} ${fs}px Cairo, Arial, sans-serif`;
+  ctx.font = font;
+  const lines = String(text).split('\n');
+  const tw = Math.ceil(Math.max(...lines.map(t=>ctx.measureText(t).width)));
+  const lh = fs*1.15;
+  c.width = tw + pad*2; c.height = lh*lines.length + pad*1.1;
+  ctx.font = font;
+  ctx.fillStyle = opt.bg || 'rgba(255,255,255,.92)';
+  const r = 18; roundRect(ctx,0,0,c.width,c.height,r); ctx.fill();
+  if(opt.border){ctx.lineWidth=5;ctx.strokeStyle=opt.border;roundRect(ctx,2.5,2.5,c.width-5,c.height-5,r);ctx.stroke();}
+  ctx.fillStyle = opt.color || '#1d2b3a';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  lines.forEach((t,i)=>{ ctx.direction = /[؀-ۿ]/.test(t) ? 'rtl':'ltr';
+    ctx.fillText(t, c.width/2, c.height/2 + (i-(lines.length-1)/2)*lh + 3); });
+  const tex = new THREE.CanvasTexture(c); tex.encoding = THREE.sRGBEncoding; tex.anisotropy = 4;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:tex, depthTest:false, transparent:true}));
+  const hgt = opt.size || 0.55;
+  sp.scale.set(hgt*c.width/c.height, hgt, 1);
+  sp.renderOrder = 10;
+  sp.userData = {ar:c.width/c.height, px: (13 + hgt*13)*(c.height/(lh+pad*1.1)), prio: opt.prio || (opt.grp===groups.tags?2.2:(hgt>=0.75?3:2))};
+  LABELS.push(sp);
+  if(opt.pos) sp.position.set(...opt.pos);
+  (opt.grp||groups.dims).add(sp);
+  return sp;
+}
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function rod(p1,p2,mat,r){
+  const a = new THREE.Vector3(...p1), b = new THREE.Vector3(...p2);
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r||0.025,r||0.025,a.distanceTo(b),6), mat||M.dim);
+  m.position.copy(a).add(b).multiplyScalar(.5);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), b.clone().sub(a).normalize());
+  m.renderOrder = 9; groups.dims.add(m); return m;
+}
+// dimension line along axis between p1,p2 with ticks in direction "tick"
+function dim(p1,p2,text,tick,opt={}){
+  const mat = opt.mat || M.dim;
+  rod(p1,p2,mat,opt.r);
+  const t = tick || [0,0.25,0];
+  [p1,p2].forEach(p=>rod([p[0]-t[0],p[1]-t[1],p[2]-t[2]],[p[0]+t[0],p[1]+t[1],p[2]+t[2]],mat,opt.r));
+  const mid = [(p1[0]+p2[0])/2+(opt.off?opt.off[0]:0),(p1[1]+p2[1])/2+(opt.off?opt.off[1]:0.35),(p1[2]+p2[2])/2+(opt.off?opt.off[2]:0)];
+  label(text,{pos:mid,size:opt.size||0.55,color:opt.color,bg:opt.bg,border:opt.border});
+}
+
+// ===================== TEXTURES =====================
+function skyTexture(){
+  const c=document.createElement('canvas');c.width=2;c.height=256;const g=c.getContext('2d');
+  const gr=g.createLinearGradient(0,0,0,256);gr.addColorStop(0,'#6fa3d8');gr.addColorStop(.6,'#bcd4ea');gr.addColorStop(1,'#e6eef5');
+  g.fillStyle=gr;g.fillRect(0,0,2,256);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t;
+}
+function corrugTex(){
+  const c=document.createElement('canvas');c.width=256;c.height=256;const g=c.getContext('2d');
+  for(let i=0;i<256;i++){const v=Math.round(178+28*Math.sin(i/256*Math.PI*2*8));g.fillStyle=`rgb(${v},${v+4},${v+8})`;g.fillRect(0,i,256,1);}
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(1,12);t.encoding=THREE.sRGBEncoding;return t;
+}
+function pvTex(){ // texture mapped on box top face: u along slope (2.384), v along width (1.303)
+  const c=document.createElement('canvas');c.width=1024;c.height=560;const g=c.getContext('2d');
+  g.fillStyle='#c9ced4';g.fillRect(0,0,1024,560);
+  const m=14; g.fillStyle='#0f2347';g.fillRect(m,m,1024-2*m,560-2*m);
+  const nx=22, ny=6, cw=(1024-2*m)/nx, ch=(560-2*m)/ny;
+  for(let i=0;i<nx;i++)for(let j=0;j<ny;j++){
+    const x=m+i*cw+1.5,y=m+j*ch+1.5;
+    const gr=g.createLinearGradient(x,y,x+cw,y+ch);gr.addColorStop(0,'#1d3f7a');gr.addColorStop(1,'#132d5c');
+    g.fillStyle=gr;g.fillRect(x,y,cw-3,ch-3);
+    g.fillStyle='rgba(200,215,240,.18)';g.fillRect(x,y+ch*.33,cw-3,1);g.fillRect(x,y+ch*.66,cw-3,1);
+  }
+  g.fillStyle='#c9ced4';g.fillRect(512-2,m,4,560-2*m); // half-cut split
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;return t;
+}
+
+// ===================== GROUND & EXISTING =====================
+M.concrete = new THREE.MeshStandardMaterial({color:0xb9b4aa, roughness:.95});
+M.yard = new THREE.MeshStandardMaterial({color:0x9a9d9f, roughness:1});
+M.bld = new THREE.MeshStandardMaterial({color:0xe7e2d8, roughness:.9});
+M.bldRoof = new THREE.MeshStandardMaterial({color:0xcfc9bd, roughness:.9});
+M.web = new THREE.MeshStandardMaterial({color:0xc96f1c, metalness:.35, roughness:.45});
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(220,220), M.ground);
+ground.rotation.x=-Math.PI/2; ground.position.set(XR,0,8); ground.receiveShadow=true; scene.add(ground);
+const B = groups.building;
+box(W+3, 0.02, FE+3, M.yard, XR, 0.01, FE/2+0.5, B).castShadow=false;           // paved yard
+// existing building
+{ const sh=new THREE.Shape(); BLD.forEach(([x,z],i)=> i? sh.lineTo(x,-z) : sh.moveTo(x,-z));
+  const g=new THREE.ExtrudeGeometry(sh,{depth:BLD_H,bevelEnabled:false});
+  const m=new THREE.Mesh(g,M.bld); m.rotation.x=-Math.PI/2; m.castShadow=m.receiveShadow=true; B.add(m);
+  // simple window strips on facade
+  const win=new THREE.MeshStandardMaterial({color:0x6d8fb3,roughness:.2,metalness:.5});
+  for(let i=0;i<4;i++) box(1.4,1.1,0.05,win,9.0+i*2.0,4.6,0.23,B);
+  for(let i=0;i<3;i++) box(1.4,1.1,0.05,win,18.5+i*2.3,4.6,0.0,B);
+  box(1.6,1.1,0.05,win,3.0,4.6,-1.96,B); box(1.6,1.1,0.05,win,5.4,4.6,-1.96,B);
+  box(1.2,2.3,0.05,M.door,10.8,1.15,0.23,B);
+}
+// existing concrete bases
+box(6.010,0.15,2.200,M.concrete, 1.318+3.005, 0.075, -1.99+1.10, B);
+box(8.661,0.15,2.518,M.concrete, 16.80+4.33, 0.075, -0.033+1.259, B);
+// existing stair (left)
+for(let i=0;i<8;i++) box(1.33,0.18*(i+1),0.29,M.concrete,0.67,0.09*(i+1),2.52-0.29*i-0.145,B);
+
+// ===================== NEW STEEL STRUCTURE =====================
+const S = groups.steel;
+const colTopZ = [];   // [x,z,top]
+function column(x,z,top,footing){
+  box(0.12, top, 0.12, M.steel, x, top/2, z, S);
+  box(0.28,0.012,0.28,M.plate,x,0.006 + (footing?0:0.15),z,S);
+  if(footing){ const f=box(1,0.5,1,M.concrete,x,-0.24,z,S); f.castShadow=false; }
+}
+COLX.forEach((x,i)=>{
+  column(x,ZF,Bz(ZF),true); column(x,ZM,Bz(ZM),true);
+  column(x,ZB,Bz(ZB),i<3);             // X4, X5 back columns sit on existing concrete base
+  if(i<2) column(x,ZE,Bz(ZE),false);    // extra columns on left existing concrete base
+});
+// trusses (SHS 120x120x5 chords, SHS 50x50x3 web)
+COLX.forEach((x,i)=>{
+  const z0=TRUSS_FRONT, z1=TRUSS_BACK[i];
+  const yb=z=>Bz(z)+0.06, yt=z=>Tz(z)-0.06;
+  beam([x,yb(z0),z0],[x,yb(z1),z1],0.12,0.12,M.steel,S);
+  beam([x,yt(z0),z0],[x,yt(z1),z1],0.12,0.12,M.steel,S);
+  const n=Math.round((z0-z1)/0.85), dz=(z0-z1)/n;
+  for(let k=0;k<=n;k++){
+    const z=z0-k*dz; beam([x,yb(z),z],[x,yt(z),z],0.05,0.05,M.web,S);
+    if(k<n){ const za=z, zb=z-dz;
+      if(k%2===0) beam([x,yb(za),za],[x,yt(zb),zb],0.05,0.05,M.web,S);
+      else        beam([x,yt(za),za],[x,yb(zb),zb],0.05,0.05,M.web,S); }
+  }
+});
+// purlins SHS 100x50x4 along x
+PURLIN_Z.forEach((z,i)=>{ const x0=0.29, x1= i===0? 7.23 : 25.35;
+  box(x1-x0, 0.1, 0.05, M.purlin, (x0+x1)/2, Tz(z)+0.05, z, S); });
+// X-bracing L50x50x5 (Ground Floor Plan + Section A)
+function xbrace(p1,p2){ // p = [x,z,topY]
+  beam([p1[0],1.0,p1[1]],[p2[0],p2[2]-0.05,p2[1]],0.05,0.05,M.brace,S);
+  beam([p1[0],p1[2]-0.05,p1[1]],[p2[0],1.0,p2[1]],0.05,0.05,M.brace,S);
+}
+xbrace([COLX[0],ZF,Bz(ZF)],[COLX[0],ZM,Bz(ZM)]);
+xbrace([COLX[4],ZF,Bz(ZF)],[COLX[4],ZM,Bz(ZM)]);
+xbrace([COLX[2],ZM,Bz(ZM)],[COLX[2],ZB,Bz(ZB)]);
+xbrace([COLX[3],ZB,Bz(ZB)],[COLX[4],ZB,Bz(ZB)]);
+xbrace([COLX[0],ZE,Bz(ZE)],[COLX[1],ZE,Bz(ZE)]);
+// knee braces Angle 50x50x5 (Section B: 1.035 down, 1.060 out) at column rows
+[ZF,ZM,ZB].forEach(z=>COLX.forEach((x,i)=>{
+  [-1,1].forEach(s=>{ if(i===4 && s>0) return;
+    beam([x,Tz(z)-1.035,z],[x+s*1.06,Tz(z)-0.02,z],0.05,0.05,M.brace,S); });
+}));
+// fly braces (Section C: 0.620 down, 1.060 out) at purlin z=13.31
+COLX.forEach((x,i)=>[-1,1].forEach(s=>{ if(i===4&&s>0) return; const z=13.31;
+  beam([x,Tz(z)-0.62,z],[x+s*1.06,Tz(z)-0.02,z],0.05,0.05,M.brace,S); }));
+
+// ===================== PV PANELS =====================
+const P = groups.panels;
+const pvGeo = new THREE.BoxGeometry(PANEL_W, PANEL_T, PANEL_L/Math.cos(TH));
+const pvMat2 = M.pvTop.clone(); pvMat2.map = M.pvTop.map.clone(); pvMat2.map.center.set(.5,.5); pvMat2.map.rotation=Math.PI/2; pvMat2.map.needsUpdate=true;
+const pvMats = [M.frameAl,M.frameAl,pvMat2,M.pvBack,M.frameAl,M.frameAl];
+let count = 0;
+function panel(x0,ztop){
+  const zc = ztop + PANEL_L/2, xc = x0 + PANEL_W/2;
+  const m = new THREE.Mesh(pvGeo,pvMats);
+  m.position.set(xc, Tz(zc)+0.1+0.02+PANEL_T/2, zc); m.rotation.x = TH;
+  m.castShadow = m.receiveShadow = true; P.add(m); count++;
+}
+ROW_TOP.forEach(zt=>{ for(let i=0;i<18;i++) panel(PX0+i*PPITCH_X, zt); });
+for(let i=0;i<EXT_COLS;i++) panel(PX0+i*PPITCH_X, EXT_ROW_TOP);
+
+// ===================== DIMENSIONS & LABELS =====================
+const zD = FE + 1.8;
+dim([0,0.06,zD+1.4],[W,0.06,zD+1.4],'25.448 m',[0,0,0.3],{size:0.75});
+const xs=[0,...COLX,W];
+for(let i=0;i<xs.length-1;i++) dim([xs[i],0.06,zD],[xs[i+1],0.06,zD],(xs[i+1]-xs[i]).toFixed(3),[0,0,0.2],{size:0.42});
+COLX.forEach(x=>rod([x,0.03,ZF+0.5],[x,0.03,zD],M.dim,0.01));
+// side dims (right side, Section A direction)
+const xS = W + 2.0;
+const zs=[FE,ZF,ZM,ZB,ZE];
+for(let i=0;i<zs.length-1;i++) dim([xS,0.06,zs[i]],[xS,0.06,zs[i+1]],(zs[i]-zs[i+1]).toFixed(3),[0.2,0,0],{size:0.42});
+dim([xS+1.3,0.06,FE],[xS+1.3,0.06,0],'18.580 m',[0.3,0,0],{size:0.7});
+// column heights on X5 line (seen in Section A view)
+[[ZF,'2.492'],[ZM,Bz(ZM).toFixed(3)],[ZB,Bz(ZB).toFixed(3)]].forEach(([z,t],i)=>{
+  const x=COLX[4]+0.35; rod([x,0,z],[x,Bz(z),z],i===0?M.dimLo:M.dim,0.02);
+  label(t,{pos:[x+0.5,Bz(z)/2,z],size:0.42,bg:i===0?'#1f7a4d':'rgba(255,255,255,.92)',color:i===0?'#fff':'#1d2b3a'});
+});
+{ const x=COLX[0]-0.35; rod([x,0.15,ZE],[x,Bz(ZE),ZE],M.dimHi,0.02);
+  label('5.992',{pos:[x-0.5,Bz(ZE)/2,ZE],size:0.42,bg:'#b3261e',color:'#fff'}); }
+label('أوطى عمود (الواجهة)\n2.492 m',{pos:[COLX[0]-0.6, Bz(ZF)+1.6, ZF+0.4],size:0.8,bg:'#1f7a4d',color:'#fff'});
+label('أعلى عمود (جهة المبنى)\n5.992 m',{pos:[COLX[1]+0.4, Tz(ZE)+1.9, ZE],size:0.8,bg:'#b3261e',color:'#fff'});
+rod([COLX[0]-0.6,Bz(ZF)+1.1,ZF+0.4],[COLX[0]-0.05,Bz(ZF)+0.05,ZF],M.dimLo,0.04);
+// truss depth
+dim([COLX[4]+0.25,Bz(TRUSS_FRONT),TRUSS_FRONT],[COLX[4]+0.25,Tz(TRUSS_FRONT),TRUSS_FRONT],'0.508',[0.15,0,0],{size:0.36,off:[0.6,0,0]});
+label('ميل الألواح\n≈ 10.4°',{pos:[XR, Tz(8)+2.2, 8],size:0.75,bg:'#0f2347',color:'#fff'});
+label(`${count} لوح شمسي`,{pos:[XR, Tz(7)+3.6, 7],size:1.1,bg:'#f5a524',color:'#111'});
+label('18 × 7 + 5',{pos:[XR+5, Tz(12)+1.4, 12],size:0.5,bg:'#0f2347',color:'#fff'});
+label('PETRA POWER ENERGY',{pos:[XR, 1.4, FE+0.4],size:0.55,bg:'#f5a524',color:'#111'});
+label('Existing Building',{pos:[13, BLD_H+0.7, -2.5],size:0.65,bg:'rgba(255,255,255,.85)'});
+
+// ---- member tags (as on drawings) ----
+const T = groups.tags;
+const tag=(t,pos,bg,col,sz)=>label(t,{pos,size:sz||0.38,bg,color:col||'#111',grp:T});
+tag('Column SHS 120×120×5',[COLX[2]+0.3,1.6,ZF+0.3],'#e8862a');
+tag('Column SHS 120×120×5',[COLX[3]+0.3,2.6,ZM],'#e8862a');
+tag('Truss: SHS 120×120×5 + Web SHS 50×50×3',[COLX[1],Tz(12)+0.9,12],'#e8862a');
+tag('Truss: SHS 120×120×5 + Web SHS 50×50×3',[COLX[3],Tz(5)+0.9,5],'#e8862a');
+tag('Purlin SHS 100×50×4',[16,Tz(15.44)+0.45,15.44],'#f2c94c');
+tag('Purlin SHS 100×50×4',[4,Tz(2.682)+0.45,2.682],'#f2c94c');
+tag('Bracing L50×50×5',[COLX[0]-0.4,2.0,(ZF+ZM)/2],'#2fa36b','#fff');
+tag('Bracing L50×50×5',[COLX[4]+0.4,2.0,(ZF+ZM)/2],'#2fa36b','#fff');
+tag('Bracing L50×50×5',[COLX[2]+0.4,2.6,(ZM+ZB)/2],'#2fa36b','#fff');
+tag('Bracing L50×50×5',[(COLX[3]+COLX[4])/2,2.4,ZB+0.3],'#2fa36b','#fff');
+tag('Knee Brace Angle 50×50×5',[COLX[2]+1.3,Tz(ZF)-0.7,ZF+0.2],'#2fa36b','#fff',0.34);
+tag('Footing 1×1×0.5 m',[COLX[1],0.35,ZF+0.8],'#8a8478','#fff',0.34);
+tag('Base Plate 280×280×12 · 4 M14',[COLX[3],0.4,ZF+0.8],'#555b63','#fff',0.32);
+tag('Existing Concrete Base',[21,0.5,1.3],'#8a8478','#fff',0.34);
+tag('Existing Concrete Base',[4.3,0.5,-0.9],'#8a8478','#fff',0.34);
+tag('Existing Stair',[0.7,1.9,1.4],'rgba(255,255,255,.92)','#1d2b3a',0.32);
+// ---- section cut markers ----
+function cutLine(p1,p2,name,dir){
+  const n=24, a=new THREE.Vector3(...p1), b=new THREE.Vector3(...p2);
+  for(let i=0;i<n;i+=2) rod(a.clone().lerp(b,i/n).toArray(), a.clone().lerp(b,(i+1)/n).toArray(), M.dimHi, 0.05);
+  [p1,p2].forEach(p=>{ label(name,{pos:[p[0],1.0,p[2]],size:1.1,bg:'#b3261e',color:'#fff'});
+    rod([p[0],0.06,p[2]],[p[0]+dir[0]*1.6,0.06,p[2]+dir[2]*1.6],M.dimHi,0.08); });
+}
+cutLine([4.2,0.06,-3.0],[4.2,0.06,FE+3.5],'A',[-1,0,0]);
+cutLine([-3.0,0.06,ZM+0.9],[W+3.0,0.06,ZM+0.9],'B',[0,0,-1]);
+cutLine([-3.0,0.06,13.9],[W+3.0,0.06,13.9],'C',[0,0,-1]);
+
+// ===================== VIEWS =====================
+const C = new THREE.Vector3(XR, 7.5, L/2);
+const VIEWS = {
+  iso:  {p:[-14, 20, 44], t:[XR,3.5,8], r:17},
+  iso2: {p:[46, 22, 34], t:[XR,3.5,8], r:17},
+  front:{p:[XR, 4.5, 62], t:[XR,3.8,8], r:14},
+  side: {p:[62, 5, 8.5], t:[XR,3.8,8.5], r:12},
+  top:  {p:[XR, 60, 8.01], t:[XR,3,8], r:14},
+};
+let anim=null, curView='iso';
+function setView(k, instant){
+  curView=k; const v=VIEWS[k]; const from=camera.position.clone(), ft=controls.target.clone();
+  const to=new THREE.Vector3(...v.p), tt=new THREE.Vector3(...v.t);
+  // fit distance for narrow (portrait) screens
+  const vf = THREE.MathUtils.degToRad(camera.fov), hf = 2*Math.atan(Math.tan(vf/2)*camera.aspect);
+  const dist = (v.r||19)*(camera.aspect<0.7?0.88:1) / Math.sin(Math.min(vf,hf)/2);
+  to.sub(tt).normalize().multiplyScalar(dist).add(tt);
+  if(instant){camera.position.copy(to);controls.target.copy(tt);controls.update();return;}
+  const t0=performance.now(); anim=(now)=>{const a=Math.min(1,(now-t0)/700), e=a<.5?2*a*a:1-Math.pow(-2*a+2,2)/2;
+    camera.position.lerpVectors(from,to,e); controls.target.lerpVectors(ft,tt,e); if(a>=1) anim=null;};
+  document.querySelectorAll('#views button[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===k));
+}
+document.querySelectorAll('#views button[data-v]').forEach(b=>b.onclick=()=>setView(b.dataset.v));
+document.querySelectorAll('#toggles button').forEach(b=>b.onclick=()=>{
+  const g=groups[b.dataset.t]; g.visible=!g.visible; b.classList.toggle('off',!g.visible);
+});
+const info=document.getElementById('info');
+document.getElementById('infoHead').onclick=()=>{info.classList.toggle('min');info.querySelector('h2 span').textContent=info.classList.contains('min')?'إظهار ▴':'إخفاء ▾';};
+if(window.innerWidth<700 || window.innerHeight<500){info.classList.add('min');info.querySelector('h2 span').textContent='إظهار ▴';}
+document.getElementById('snap').onclick=()=>{
+  renderer.render(scene,camera);
+  document.getElementById('shotImg').src=renderer.domElement.toDataURL('image/png');
+  document.getElementById('shot').style.display='flex';
+};
+document.getElementById('shotClose').onclick=()=>document.getElementById('shot').style.display='none';
+
+// ---------- in-page landscape mode (works even with auto-rotate off) ----------
+const app=document.getElementById('app'), rotBtn=document.getElementById('rot');
+let rotated=false;
+function layoutApp(){
+  const vw=window.innerWidth, vh=window.innerHeight;
+  const portrait = vh>vw;
+  rotBtn.classList.toggle('show', portrait);
+  if(!portrait && rotated) rotated=false;          // phone physically rotated -> normal mode
+  app.classList.toggle('rot', rotated);
+  if(rotated){ app.style.width=vh+'px'; app.style.height=vw+'px'; app.style.transform=`translateX(${vw}px) rotate(90deg)`; }
+  else { app.style.width='100%'; app.style.height='100%'; app.style.transform=''; }
+  rotBtn.textContent = rotated ? '⟲ عرض عمودي' : '⟲ عرض أفقي';
+  const cw = rotated? vh : vw, ch = rotated? vw : vh;
+  app.classList.toggle('land', cw>ch && ch<520);
+}
+rotBtn.onclick=()=>{ rotated=!rotated; layoutApp(); resize(); setView(curView,true); };
+// remap touch coordinates when the page is rotated so drag/zoom feel natural
+function mapT(list){ return Array.from(list).map(t=>new Touch({identifier:t.identifier,target:canvas,
+  clientX:t.clientY, clientY:window.innerWidth-t.clientX, pageX:t.clientY, pageY:window.innerWidth-t.clientX,
+  screenX:t.screenX, screenY:t.screenY, radiusX:t.radiusX||1, radiusY:t.radiusY||1, force:t.force||1})); }
+['touchstart','touchmove','touchend','touchcancel'].forEach(type=>window.addEventListener(type,e=>{
+  if(!rotated || !e.isTrusted || e.target!==canvas) return;
+  e.stopImmediatePropagation(); if(e.cancelable) e.preventDefault();
+  try{ canvas.dispatchEvent(new TouchEvent(type,{touches:mapT(e.touches),targetTouches:mapT(e.targetTouches),
+    changedTouches:mapT(e.changedTouches),bubbles:true,cancelable:true})); }catch(err){}
+},{capture:true,passive:false}));
+function resize(){
+  layoutApp();
+  const w=app.clientWidth||window.innerWidth, h=app.clientHeight||window.innerHeight;
+  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+}
+window.addEventListener('resize',()=>{resize(); setView(curView,true);}); resize();
+setView('iso',true);
+groups.tags.visible=false; document.querySelector('#toggles button[data-t="tags"]').classList.add('off');
+// keep labels a fixed size on screen and hide the ones that would overlap
+const _v = new THREE.Vector3();
+function updateLabels(){
+  const H = renderer.domElement.clientHeight || window.innerHeight, Wd = renderer.domElement.clientWidth || window.innerWidth;
+  const k = 2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))/H;
+  const mob = Math.min(Wd,H) < 500 ? 0.9 : 1;
+  const items = [];
+  for(const sp of LABELS){
+    let vis = true, o = sp.parent; while(o){ if(!o.visible){vis=false;break;} o=o.parent; }
+    if(!vis){ continue; }
+    sp.getWorldPosition(_v);
+    const d = _v.distanceTo(camera.position);
+    const px = sp.userData.px*mob;
+    sp.scale.set(px*k*d*sp.userData.ar, px*k*d, 1);
+    _v.project(camera);
+    if(_v.z>1 || Math.abs(_v.x)>1.2 || Math.abs(_v.y)>1.2){ sp.visible=false; continue; }
+    let cx=(_v.x+1)/2*Wd, cy=(1-_v.y)/2*H; const w=px*sp.userData.ar, h=px;
+    const m=6; let sx=0, sy=0;
+    if(cx-w/2<m) sx=m-(cx-w/2); else if(cx+w/2>Wd-m) sx=(Wd-m)-(cx+w/2);
+    if(cy-h/2<m) sy=m-(cy-h/2); else if(cy+h/2>H-m) sy=(H-m)-(cy+h/2);
+    sp.center.set(0.5 - sx/w, 0.5 + sy/h); cx+=sx; cy+=sy;
+    items.push({sp,d,prio:sp.userData.prio,r:[cx-w/2-3,cy-h/2-2,cx+w/2+3,cy+h/2+2]});
+  }
+  items.sort((a,b)=>b.prio-a.prio || a.d-b.d);
+  const placed=[];
+  for(const it of items){
+    const r=it.r; let ok=true;
+    for(const q of placed){ if(r[0]<q[2]&&r[2]>q[0]&&r[1]<q[3]&&r[3]>q[1]){ok=false;break;} }
+    it.sp.visible=ok; if(ok) placed.push(r);
+  }
+}
+function loop(now){ if(anim) anim(now); controls.update(); updateLabels(); renderer.render(scene,camera); requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+document.getElementById('load').style.display='none';
+// ---- BOM ----
+(function(){
+  const colL = COLX.reduce((t,x,i)=>t+Bz(ZF)+Bz(ZM)+Bz(ZB)+(i<2?Bz(ZE):0),0);
+  const chordL = 2*COLX.reduce((t,x,i)=>t+(TRUSS_FRONT-TRUSS_BACK[i])/Math.cos(TH),0);
+  const webL = COLX.reduce((t,x,i)=>{const n=Math.round((TRUSS_FRONT-TRUSS_BACK[i])/0.85), dz=(TRUSS_FRONT-TRUSS_BACK[i])/n; return t+(n+1)*0.39+n*Math.hypot(dz,0.39);},0);
+  const purL = 6.94 + 10*25.06;
+  const brL = 4*Math.hypot(8.5,Bz(ZM)-1) + 2*Math.hypot(8.5,Bz(ZB)-1) + 2*Math.hypot(6,Bz(ZB)-1) + 2*Math.hypot(5,Bz(ZE)-1) + 27*Math.hypot(1.06,1.015) + 9*Math.hypot(1.06,0.6);
+  const rows=[['Columns SHS 120×120×5 (17)',colL,17.8],['Truss chords SHS 120×120×5',chordL,17.8],['Truss web SHS 50×50×3',webL,4.25],
+    ['Purlins SHS 100×50×4 (11)',purL,8.59],['Bracing + Knee/Fly L50×50×5',brL,3.77]];
+  let tot=0; const tb=document.getElementById('bom');
+  rows.forEach(([n,l,kg])=>{tot+=l*kg; const tr=document.createElement('tr'); tr.innerHTML=`<td>${n}</td><td>${l.toFixed(0)} m · ${Math.round(l*kg)} kg</td>`; tb.appendChild(tr);});
+  const tr=document.createElement('tr'); tr.innerHTML=`<td><b>المجموع التقريبي</b></td><td>≈ ${(tot/1000).toFixed(2)} t</td>`; tb.appendChild(tr);
+  const tr2=document.createElement('tr'); tr2.innerHTML=`<td>خرسانة القواعد</td><td>13 × 0.5 = 6.5 m³</td>`; tb.appendChild(tr2);
+  window.__bom={colL,chordL,webL,purL,brL,tot};
+})();
+window.__pv = {count, K, TH:TH*180/Math.PI, Bz_ZM:Bz(ZM), Bz_ZB:Bz(ZB), Bz_ZE:Bz(ZE)};
+})();
+</script>
+</body>
+</html>
