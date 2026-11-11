@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V85';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V86';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2264,7 +2264,7 @@ function edit(p){
   </details>
  </form>`;
  modal(p?'✏️ تعديل المنتج':'＋ إضافة منتج جديد',main,
- `<button class="btn" data-action="close-modal">إلغاء</button><button class="btn gold pp44-save-btn" data-action="save-product">💾 حفظ المنتج</button>${p?`<button type="button" class="btn danger pp85-del" data-action="pp85-delete" data-id="${esc(p.id)}" style="width:100%;margin-top:8px;border:2px solid #c0392b;color:#c0392b;background:#fff1ef;font-weight:800">🗑 حذف هذا المنتج نهائياً (بكل تفاصيله وصوره)</button>`:''}`);
+ `<button class="btn" data-action="close-modal">إلغاء</button><button class="btn gold pp44-save-btn" data-action="save-product">💾 حفظ المنتج</button>${p?`<button type="button" class="btn danger pp85-del" data-action="pp85-delete" data-id="${esc(p.id)}" >🗑 حذف هذا المنتج نهائياً</button>`:''}`);
  renderFormImages();renderRelatedPicker();
  const f=$('product-form');f.addEventListener('input',pp35Preview);f.addEventListener('change',pp35Preview);pp35Preview();pp49CodeRefresh(true);const rowSelect=f.querySelector('select[name="pp45RowCols"]');if(rowSelect){pp50RenderProductImageSize(rowSelect.value);rowSelect.addEventListener('change',()=>pp50RenderProductImageSize(rowSelect.value));}else{pp50RenderProductImageSize(0);}
  const related=$('related-search');if(related)related.oninput=renderRelatedPicker;
@@ -5714,6 +5714,10 @@ document.addEventListener('click',async e=>{
   try{document.getElementById('modal')?.classList.add('hide')}catch(_){}
   await changed();try{drawAdmin()}catch(_){}try{render()}catch(_){}note('✓ تم حذف المنتج');
 },true);
+
+/* ===== V86: delete button on its own row under Save/Cancel ===== */
+(function(){const st=document.createElement('style');st.textContent=`#modal-foot:has(.pp85-del){flex-wrap:wrap!important}
+#modal-foot .pp85-del{flex:0 0 100%!important;width:100%!important;order:9;margin:14px 0 0!important;padding:9px 10px!important;min-height:0!important;font-size:12px!important;font-weight:800;border:2px solid #c0392b!important;color:#c0392b!important;background:#fff1ef!important}`;document.head.appendChild(st);})();
 
 ppBoot();
 })();
