@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V73';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V74';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -5182,6 +5182,18 @@ document.addEventListener('change',e=>{
 },true);
 
 (function(){const st=document.createElement('style');st.textContent='.pp72-out{position:absolute;inset-inline:0;top:46%;z-index:3;text-align:center;background:#000b;color:#fff;font-weight:900;padding:8px 0;font-size:14px}.pp72-banner{background:#fde7e4;border:1.5px solid #e4a59c;color:#a02a1c;border-radius:10px;padding:10px;font-weight:900;text-align:center;margin-bottom:8px}.product .photo{position:relative}';document.head.appendChild(st);})();
+
+/* ===== V74: move the sizes editor to the top of the product form (under price / out-of-stock) ===== */
+new MutationObserver(()=>{
+  const ta=document.querySelector('#modal-body textarea[name="sizes"]:not([data-pp74])');if(!ta)return;
+  const anchor=document.querySelector('#modal-body input[name="pp72out"]')?.closest('label');if(!anchor)return;
+  ta.dataset.pp74='1';
+  const lab=ta.closest('label');if(!lab)return;
+  const sl=document.querySelector('#modal-body input[name="sizeLabel"]')?.closest('label');
+  lab.style.cssText+=';border:2px solid #c8962e;border-radius:14px;padding:12px;background:#fffaf0;display:block';
+  anchor.insertAdjacentElement('afterend',lab);
+  if(sl)lab.insertAdjacentElement('afterend',sl);
+}).observe(document.body,{childList:true,subtree:true});
 
 ppBoot();
 })();
