@@ -9,22 +9,31 @@
   :root{--bg:#0f1720;--card:rgba(15,23,32,.88);--acc:#f5a524;--txt:#eef2f6;--mut:#9fb0c2}
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;overflow:hidden;background:#cfdbe6;font-family:Cairo,system-ui,sans-serif;color:var(--txt)}
-  #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
-  .bar{position:fixed;top:8px;left:8px;right:8px;display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;justify-content:center;z-index:6;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  #c{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  .bar{position:absolute;top:8px;left:8px;right:8px;display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;justify-content:center;z-index:6;scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .bar::-webkit-scrollbar,.tg::-webkit-scrollbar{display:none}
   .bar button,.tg button{flex:0 0 auto;white-space:nowrap;font-family:inherit;border:0;border-radius:10px;padding:7px 12px;background:var(--card);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;backdrop-filter:blur(6px)}
   .bar button.on{background:var(--acc);color:#111}
-  .title{position:fixed;top:52px;right:8px;z-index:4;background:var(--card);padding:8px 14px;border-radius:12px;max-width:300px}
+  .title{position:absolute;top:52px;right:8px;z-index:4;background:var(--card);padding:8px 14px;border-radius:12px;max-width:300px}
   .brand{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:1.5px;font-weight:600;color:#fff;margin-bottom:4px;direction:ltr;justify-content:flex-end}
   .brand b{color:var(--acc)}
   .logo{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;background:var(--acc);color:#111;font-weight:800;letter-spacing:0;font-size:12px}
   .title h1{margin:0;font-size:15px;font-weight:800}
   .title p{margin:2px 0 0;font-size:12px;color:var(--mut)}
-  .tg{position:fixed;bottom:12px;left:12px;z-index:5;display:flex;flex-direction:column;gap:6px}
+  .tg{position:absolute;bottom:12px;left:12px;z-index:5;display:flex;flex-direction:column;gap:6px}
   .tg button.off{opacity:.45}
-  #info{position:fixed;bottom:12px;right:12px;z-index:5;background:var(--card);border-radius:14px;padding:12px 14px;width:min(340px,calc(100vw - 150px));max-height:62vh;overflow:auto;font-size:12.5px;line-height:1.7;backdrop-filter:blur(6px)}
+  #info{position:absolute;bottom:12px;right:12px;z-index:5;background:var(--card);border-radius:14px;padding:12px 14px;width:min(340px,calc(100vw - 150px));max-height:62vh;overflow:auto;font-size:12.5px;line-height:1.7;backdrop-filter:blur(6px)}
   #info.min .body{display:none}
-  #hint{position:fixed;top:52px;left:8px;z-index:4;background:var(--card);border-radius:10px;padding:5px 10px;font-size:11px;color:var(--mut);display:none}
+  #app{position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden}
+  #app.rot{transform-origin:top left}
+  #rot{display:none;position:absolute;top:52px;left:8px;z-index:6;font-family:inherit;border:0;border-radius:10px;padding:7px 12px;background:#2b6cb0;color:#fff;font-size:13px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  #rot.show{display:block}
+  #app.land #info{left:auto;right:8px;bottom:8px;width:270px;max-height:70%}
+  #app.land .tg{flex-direction:row;left:8px;right:290px;bottom:8px;overflow-x:auto;flex-wrap:nowrap}
+  #app.land .tg button{padding:6px 10px;font-size:12px}
+  #app.land .title{padding:5px 10px}#app.land .title p{display:none}#app.land .title h1{font-size:12px}
+  #app.land .bar{justify-content:flex-start}
+  #app.land .bar button{padding:6px 10px;font-size:12px}
   @media (max-width:700px){
     .bar{justify-content:flex-start}
     .bar button{padding:6px 10px;font-size:12px}
@@ -35,7 +44,7 @@
     #info{left:8px;right:8px;bottom:50px;width:auto;padding:8px 12px;max-height:55vh}
     #info h2{font-size:13px}
   }
-  @media (max-width:700px) and (orientation:portrait){ #hint{display:block} }
+
   #info h2{margin:0;font-size:14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:8px}
   #info h2 span{font-size:11px;color:var(--acc)}
   table{width:100%;border-collapse:collapse;margin-top:6px}
@@ -46,7 +55,7 @@
   .lowhigh div{flex:1;border-radius:10px;padding:6px 8px;text-align:center}
   .lowhigh b{display:block;font-size:17px;direction:ltr}
   .note{color:var(--mut);font-size:11px;margin-top:6px}
-  #shot{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:20;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px}
+  #shot{position:absolute;inset:0;background:rgba(0,0,0,.85);z-index:20;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px}
   #shot img{max-width:100%;max-height:80vh;border-radius:8px;box-shadow:0 6px 30px #000}
   #shot p{margin:0;font-size:14px}
   #shot button{font-family:inherit;border:0;border-radius:10px;padding:8px 18px;background:var(--acc);font-weight:700}
@@ -55,6 +64,7 @@
 </head>
 <body>
 <div id="load">جاري تحميل النموذج…</div>
+<div id="app">
 <canvas id="c"></canvas>
 
 <div class="bar" id="views">
@@ -66,6 +76,7 @@
   <button id="snap">📷 صورة</button>
 </div>
 
+<button id="rot">⟲ عرض أفقي</button>
 <div class="title">
   <div class="brand"><span class="logo">PE</span><span>PETRA POWER <b>ENERGY</b></span></div>
   <h1>Golden Plaza – Warehouse PV Roof</h1>
@@ -80,7 +91,6 @@
   <button data-t="building">🏭 المستودع</button>
 </div>
 
-<div id="hint">↻ قلّب الموبايل بالعرض لعرض أوضح</div>
 <div id="info">
   <h2 id="infoHead">تفاصيل المشروع <span>إخفاء ▾</span></h2>
   <div class="body">
@@ -117,6 +127,7 @@
 
 <div id="shot"><p>اضغط مطوّلاً على الصورة لحفظها</p><img id="shotImg" alt="snapshot"><button id="shotClose">إغلاق</button></div>
 
+</div>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
@@ -480,8 +491,35 @@ document.getElementById('snap').onclick=()=>{
 };
 document.getElementById('shotClose').onclick=()=>document.getElementById('shot').style.display='none';
 
+// ---------- in-page landscape mode (works even with auto-rotate off) ----------
+const app=document.getElementById('app'), rotBtn=document.getElementById('rot');
+let rotated=false;
+function layoutApp(){
+  const vw=window.innerWidth, vh=window.innerHeight;
+  const portrait = vh>vw;
+  rotBtn.classList.toggle('show', portrait);
+  if(!portrait && rotated) rotated=false;          // phone physically rotated -> normal mode
+  app.classList.toggle('rot', rotated);
+  if(rotated){ app.style.width=vh+'px'; app.style.height=vw+'px'; app.style.transform=`translateX(${vw}px) rotate(90deg)`; }
+  else { app.style.width='100%'; app.style.height='100%'; app.style.transform=''; }
+  rotBtn.textContent = rotated ? '⟲ عرض عمودي' : '⟲ عرض أفقي';
+  const cw = rotated? vh : vw, ch = rotated? vw : vh;
+  app.classList.toggle('land', cw>ch && ch<520);
+}
+rotBtn.onclick=()=>{ rotated=!rotated; layoutApp(); resize(); setView(curView,true); };
+// remap touch coordinates when the page is rotated so drag/zoom feel natural
+function mapT(list){ return Array.from(list).map(t=>new Touch({identifier:t.identifier,target:canvas,
+  clientX:t.clientY, clientY:window.innerWidth-t.clientX, pageX:t.clientY, pageY:window.innerWidth-t.clientX,
+  screenX:t.screenX, screenY:t.screenY, radiusX:t.radiusX||1, radiusY:t.radiusY||1, force:t.force||1})); }
+['touchstart','touchmove','touchend','touchcancel'].forEach(type=>window.addEventListener(type,e=>{
+  if(!rotated || !e.isTrusted || e.target!==canvas) return;
+  e.stopImmediatePropagation(); if(e.cancelable) e.preventDefault();
+  try{ canvas.dispatchEvent(new TouchEvent(type,{touches:mapT(e.touches),targetTouches:mapT(e.targetTouches),
+    changedTouches:mapT(e.changedTouches),bubbles:true,cancelable:true})); }catch(err){}
+},{capture:true,passive:false}));
 function resize(){
-  const w=window.innerWidth,h=window.innerHeight;
+  layoutApp();
+  const w=app.clientWidth||window.innerWidth, h=app.clientHeight||window.innerHeight;
   renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
 }
 window.addEventListener('resize',()=>{resize(); setView(curView,true);}); resize();
