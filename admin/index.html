@@ -4737,8 +4737,7 @@ function ppSendWA(branch,text){
   const phone=(state.settings[branch==='SY'?'phoneSY':'phoneLB']||'').replace(/[^0-9]/g,'');
   if(!phone){copyText(text);note(T('رقم واتساب غير مضبوط. تم نسخ النص.','WhatsApp number missing. Order copied.'));return;}
   const url='https://wa.me/'+encodeURIComponent(phone)+'?text='+encodeURIComponent(text);
-  const w=window.open(url,'_blank','noopener,noreferrer');
-  if(!w){location.href=url;}
+  const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.style.display='none';document.body.appendChild(a);a.click();a.remove();
 }
 function whatsapp(branch){ppSendWA(branch,orderText());}
 function drawCart(){
