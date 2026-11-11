@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V84';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V85';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2264,7 +2264,7 @@ function edit(p){
   </details>
  </form>`;
  modal(p?'✏️ تعديل المنتج':'＋ إضافة منتج جديد',main,
- `<button class="btn" data-action="close-modal">إلغاء</button><button class="btn gold pp44-save-btn" data-action="save-product">💾 حفظ المنتج</button>`);
+ `<button class="btn" data-action="close-modal">إلغاء</button><button class="btn gold pp44-save-btn" data-action="save-product">💾 حفظ المنتج</button>${p?`<button type="button" class="btn danger pp85-del" data-action="pp85-delete" data-id="${esc(p.id)}" style="width:100%;margin-top:8px;border:2px solid #c0392b;color:#c0392b;background:#fff1ef;font-weight:800">🗑 حذف هذا المنتج نهائياً (بكل تفاصيله وصوره)</button>`:''}`);
  renderFormImages();renderRelatedPicker();
  const f=$('product-form');f.addEventListener('input',pp35Preview);f.addEventListener('change',pp35Preview);pp35Preview();pp49CodeRefresh(true);const rowSelect=f.querySelector('select[name="pp45RowCols"]');if(rowSelect){pp50RenderProductImageSize(rowSelect.value);rowSelect.addEventListener('change',()=>pp50RenderProductImageSize(rowSelect.value));}else{pp50RenderProductImageSize(0);}
  const related=$('related-search');if(related)related.oninput=renderRelatedPicker;
@@ -5701,6 +5701,19 @@ document.addEventListener('input',e=>{
     if(e.target.closest('#pp82-panel [data-pp82x]')){clearTimeout(pp82T);try{changed()}catch(_){}try{note('✓ '+T('تم الحفظ','Saved'))}catch(_){}}
   },true);
 })();
+
+/* ===== V85: delete a product from inside its edit form ===== */
+document.addEventListener('click',async e=>{
+  const b=e.target.closest&&e.target.closest('[data-action="pp85-delete"]');if(!b||!visibleAdmin())return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const p=state.products.find(x=>x.id===b.dataset.id);if(!p)return;
+  if(!confirm('حذف نهائي للمنتج «'+(p.nameAr||p.nameEn||p.sku)+'» كاملاً مع صوره من السيرفر؟ لا يمكن التراجع.'))return;
+  state.products=state.products.filter(x=>x.id!==p.id);
+  state.products.forEach(x=>{if(Array.isArray(x.relatedIds))x.relatedIds=x.relatedIds.filter(i=>i!==p.id);});
+  (state.settings.homeSections||[]).forEach(s=>{if(Array.isArray(s.productIds))s.productIds=s.productIds.filter(i=>i!==p.id);});
+  try{document.getElementById('modal')?.classList.add('hide')}catch(_){}
+  await changed();try{drawAdmin()}catch(_){}try{render()}catch(_){}note('✓ تم حذف المنتج');
+},true);
 
 ppBoot();
 })();
