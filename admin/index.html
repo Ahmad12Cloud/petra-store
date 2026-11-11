@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V68';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V69';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -5052,7 +5052,59 @@ function detail(p){detailBase(p);try{ppDetailEnhance(p);}catch(err){console.erro
     if(ds)h+=`<a class="pp68-ds" href="${esc(ds)}" target="_blank" rel="noopener">⬇ ${T('تحميل ورقة البيانات (Datasheet)','Download datasheet')}</a>`;
     if(h)box.insertAdjacentHTML('beforebegin',h);
   }catch(err){console.error(err);}
+  try{pp69OwnerBox(p);}catch(err){console.error(err);}
 }
+
+/* ===== V69: owner controls each size box — add / delete per product (form + product page) ===== */
+(function(){const st=document.createElement('style');st.textContent=`
+.pp69-own{margin:8px 0;padding:8px;border:1px dashed #c8962e;border-radius:12px;background:#fffaf0}
+.pp69-own b{display:block;font-size:12px;margin-bottom:6px;color:#7a5410}
+.pp69-pill{display:inline-flex;align-items:center;gap:4px;margin:3px;padding:3px 4px 3px 9px;border:1px solid #d8c28d;border-radius:999px;background:#fff;font-weight:800;font-size:12px}
+.pp69-pill button{border:0;background:#f3d9d6;color:#b00;border-radius:50%;width:20px;height:20px;line-height:18px;padding:0;font-weight:900;cursor:pointer}
+.pp69-add{display:flex;gap:6px;margin-top:6px}.pp69-add input{flex:1;min-width:0;padding:7px;border:1px solid #cdb98f;border-radius:8px;font:inherit}
+.pp69-add button{border:0;border-radius:8px;background:#c8962e;color:#fff;font-weight:800;padding:0 14px}
+`;document.head.appendChild(st);})();
+function pp69Pills(list,attr){return list.map((s,i)=>`<span class="pp69-pill">${esc(s)}<button type="button" ${attr}="${i}" aria-label="حذف">✕</button></span>`).join('')||'<small>لا توجد قياسات</small>';}
+/* 1) product edit form: chip editor kept in sync with the sizes textarea */
+function pp69FormSync(ta){
+  const box=ta.parentElement.querySelector('.pp69-form');if(!box)return;
+  box.querySelector('.pp69-list').innerHTML=pp69Pills(ppParseSizes(ta.value),'data-pp69-fdel');
+}
+new MutationObserver(()=>{
+  document.querySelectorAll('textarea[name="sizes"]:not([data-pp69])').forEach(ta=>{
+    ta.dataset.pp69='1';
+    const box=document.createElement('div');box.className='pp69-own pp69-form';
+    box.innerHTML='<b>🔲 مربعات القياسات: احذف أي قياس بالـ ✕ أو أضف قياس جديد</b><div class="pp69-list"></div><div class="pp69-add"><input data-pp69-fin placeholder="مثلاً: 80A" maxlength="30"><button type="button" data-pp69-fadd>＋ إضافة</button></div>';
+    ta.insertAdjacentElement('afterend',box);pp69FormSync(ta);ta.addEventListener('input',()=>pp69FormSync(ta));
+  });
+}).observe(document.body,{childList:true,subtree:true});
+document.addEventListener('click',e=>{
+  const d=e.target.closest('[data-pp69-fdel]'),a=e.target.closest('[data-pp69-fadd]');if(!d&&!a)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const ta=(d||a).closest('label,div.pp69-form')?.closest('form')?.querySelector('textarea[name="sizes"]');if(!ta)return;
+  const list=ppParseSizes(ta.value);
+  if(d)list.splice(+d.dataset.pp69Fdel,1);
+  else{const inp=a.parentElement.querySelector('[data-pp69-fin]');const v=(inp.value||'').trim();if(!v)return;if(!list.includes(v))list.push(v);inp.value='';}
+  ta.value=list.join(', ');ta.dispatchEvent(new Event('input',{bubbles:true}));
+},true);
+/* 2) product page, owner only: delete / add sizes directly, saved immediately */
+function pp69OwnerBox(p){
+    if(!(typeof visibleAdmin==='function'&&visibleAdmin()))return;
+    const box=document.getElementById('pp64-order');if(!box)return;
+    const list=ppSizes(p);
+    const own=document.createElement('div');own.className='pp69-own';own.id='pp69-own';own.dataset.id=p.id;
+    own.innerHTML=`<b>👑 للمالك فقط: عدّل مربعات القياس لهذا المنتج (يُحفظ فوراً)</b><div>${pp69Pills(list,'data-pp69-ddel')}</div><div class="pp69-add"><input data-pp69-din placeholder="أضف قياس جديد مثلاً: 80A" maxlength="30"><button type="button" data-pp69-dadd>＋ إضافة</button></div>`;
+    const chips=box.querySelector('.pp64-chips');(chips||box.firstChild)&&box.insertBefore(own,chips?chips.nextSibling:box.firstChild);
+}
+document.addEventListener('click',async e=>{
+  const d=e.target.closest('[data-pp69-ddel]'),a=e.target.closest('[data-pp69-dadd]');if(!d&&!a)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const own=e.target.closest('#pp69-own');const p=state.products.find(x=>x.id===own?.dataset.id);if(!p||!visibleAdmin())return;
+  const list=ppSizes(p).slice();
+  if(d)list.splice(+d.dataset.pp69Ddel,1);
+  else{const inp=own.querySelector('[data-pp69-din]');const v=(inp.value||'').trim();if(!v)return;if(!list.includes(v))list.push(v);}
+  p.sizes=list;await changed();detail(p);note('✓ '+T('تم حفظ القياسات','Sizes saved'));
+},true);
 
 ppBoot();
 })();
