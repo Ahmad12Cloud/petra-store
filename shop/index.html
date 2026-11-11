@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V71';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V72';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2211,6 +2211,7 @@ function edit(p){
   <div class="pp44-essential">
    ${input('nameAr','اسم المنتج *','Product name *',p?.nameAr,'required maxlength="180" placeholder="مثلاً: قاطع كهربائي 32A"')}
    ${input('price','السعر — اختياري','Price — optional',p?.price,'type="number" min="0" step="any" inputmode="decimal" placeholder="مثلاً 12.50"')}
+   <label class="stack full" style="flex-direction:row;align-items:center;gap:10px;background:#fff1ef;border:1.5px solid #e4a59c;border-radius:12px;padding:12px;font-weight:800"><input type="checkbox" name="pp72out" ${p&&p.stock===0?'checked':''} style="width:22px;height:22px"> ⛔ نفد المخزون — المنتج غير متوفر حالياً<small style="font-weight:500;color:#777;display:block">لما تفعّلها بيظهر للزبون «غير متوفر حالياً» وبيتعطّل زر السلة. لا تنسى تلغيها لما يتوفر.</small></label>
    <div class="pp44-image-field" id="editor-photo-section"><b>📷 صورة المنتج — اختيارية</b><input type="file" id="image-upload" accept="image/png,image/jpeg,image/webp,image/gif" multiple class="field"><div class="pp44-note">فيك ترفع لغاية 6 صور، وتختار الصورة الأساسية.</div><div class="pp50-size-card pp50-product-size" id="pp50-product-size-card" aria-live="polite"></div><div id="form-images"></div></div>
    <label class="stack">وصف المنتج — اختياري<textarea name="descriptionAr" class="field" rows="2" placeholder="إذا حابب تضيف وصف مختصر">${esc(p?.descriptionAr||'')}</textarea></label>
   </div>
@@ -5168,6 +5169,13 @@ function pp71MenuBtn(){
 }
 new MutationObserver(()=>{try{pp71MenuBtn()}catch(e){}}).observe(document.body,{childList:true,subtree:true});
 (function(){const st=document.createElement('style');st.textContent='.pp35-grid .pp35-card.pp35-layout-stack{aspect-ratio:auto!important;height:auto!important}';document.head.appendChild(st);})();
+
+/* ===== V72: visible "out of stock" checkbox in the product form, synced with the stock field ===== */
+document.addEventListener('change',e=>{
+  const c=e.target.closest('input[name="pp72out"]');if(!c)return;
+  const f=c.closest('form');const s=f&&f.querySelector('[name="stock"]');if(!s)return;
+  if(c.checked)s.value='0';else if(String(s.value).trim()==='0')s.value='';
+},true);
 
 ppBoot();
 })();
