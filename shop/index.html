@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V79';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V80';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2843,7 +2843,7 @@ function pp29ApplyTheme(){
  const hdr=document.querySelector('.v12-header');if(!hdr)return;
  for(const key of PP29_HEADER_KEYS){const el=hdr.querySelector(`[data-pp29-item="${key}"]`);if(!el)continue;
   const item=pp29ItemRecord(key);el.style.setProperty('--pp29-x',pp29Clamp(item.x,-170,170)+'px');el.style.setProperty('--pp29-y',pp29Clamp(item.y,-70,70)+'px');
-  const fallbackBg=key==='brand'?'#ffffff':key==='new'?'#c62828':key==='tag'?'':(st.headerIconBg||'#fff8ef');const fallbackFg=key==='new'?'#ffffff':key==='tag'?'#dcae4d':(st.headerFg||'#35261d');
+  const fallbackBg=key==='brand'?'#ffffff':key==='new'?'#000000':key==='tag'?'':(st.headerIconBg||'#fff8ef');const fallbackFg=key==='new'?'#e0b552':key==='tag'?'#dcae4d':(st.headerFg||'#35261d');
   hdr.style.setProperty(`--pp29-${key}-bg`,safeColor(item.bg,fallbackBg));
   hdr.style.setProperty(`--pp29-${key}-fg`,safeColor(item.fg,fallbackFg));
  }
@@ -4418,8 +4418,9 @@ document.addEventListener('click',e=>{
 let ppChipT=0;
 function ppChipHtml(){
   const n=state.products.filter(ppIsNew).length;if(!n)return '';
-  const dot=ppHasDot();
-  return '<button type="button" id="pp56-new" class="'+(ppOnlyNew?'pp56-on ':'')+(dot?'pp56-dot':'')+'" data-action="pp56-new" data-pp29-item="new" aria-label="'+T('المنتجات الجديدة','New products')+'"><i>'+(ppOnlyNew?'✕':'🔔')+'</i>'+T('جديد','New')+'<b>'+n+'</b></button>';
+  const seen=Number(ppLS.get(PP_SEEN_KEY)||0);const un=state.products.filter(p=>ppIsNew(p)&&(Number(p.createdAt)||0)>seen).length;
+  const dot=false;
+  return '<button type="button" id="pp56-new" class="'+(ppOnlyNew?'pp56-on ':'')+(dot?'pp56-dot':'')+'" data-action="pp56-new" data-pp29-item="new" aria-label="'+T('المنتجات الجديدة','New products')+'"><i>'+(ppOnlyNew?'✕':'🔔')+'</i>'+T('جديد','New')+(un>0&&!ppOnlyNew?'<b>'+un+'</b>':'')+'</button>';
 }
 function ppPlaceChip(){
   const chip=document.getElementById('pp56-new'),bar=document.querySelector('.v12-headbar'),act=document.querySelector('.v12-top-actions');if(!chip||!bar||!act)return;
@@ -5438,6 +5439,9 @@ window.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data
 
 /* ===== V79: product page photo shows fully (frame follows the image height) ===== */
 (function(){const st=document.createElement('style');st.textContent='#detail-photo.photo.big{height:auto!important;max-height:none!important;aspect-ratio:auto!important}#detail-photo.photo.big img{width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important}';document.head.appendChild(st);})();
+
+/* ===== V80: bell chip matches the cart button (gold icon on black by default, owner-editable), count only for unseen new products ===== */
+(function(){const st=document.createElement('style');st.textContent='#pp56-new{box-shadow:inset 0 0 0 1.5px #c9a24a}#pp56-new.pp56-on{background:var(--pp29-new-bg,#000)!important}#pp56-new b{background:#d69821!important;color:#fff!important;border:0!important;font-weight:900!important;min-width:19px;line-height:19px;padding:0 3px!important;top:-8px!important}#pp56-new.pp56-dot::after{display:none!important}';document.head.appendChild(st);})();
 
 ppBoot();
 })();
