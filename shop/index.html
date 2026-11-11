@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V69';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V70';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -5052,7 +5052,12 @@ function detail(p){detailBase(p);try{ppDetailEnhance(p);}catch(err){console.erro
     if(ds)h+=`<a class="pp68-ds" href="${esc(ds)}" target="_blank" rel="noopener">⬇ ${T('تحميل ورقة البيانات (Datasheet)','Download datasheet')}</a>`;
     if(h)box.insertAdjacentHTML('beforebegin',h);
   }catch(err){console.error(err);}
+  try{pp69MarkOut(p);}catch(err){console.error(err);}
   try{pp69OwnerBox(p);}catch(err){console.error(err);}
+}
+function pp69MarkOut(p){
+  const outs=Array.isArray(p.soldOut)?p.soldOut:[];if(!outs.length)return;const txt=(p.soldOutText&&String(p.soldOutText).trim())||T('نفد','Sold out');
+  document.querySelectorAll('#pp64-order .pp64-chip').forEach(c=>{const s=c.dataset.pp64Size;if(outs.includes(s)){c.removeAttribute('data-pp64-size');c.classList.add('pp69-out');c.setAttribute('aria-disabled','true');c.insertAdjacentHTML('beforeend','<small>'+esc(txt)+'</small>');}});
 }
 
 /* ===== V69: owner controls each size box — add / delete per product (form + product page) ===== */
@@ -5061,6 +5066,9 @@ function detail(p){detailBase(p);try{ppDetailEnhance(p);}catch(err){console.erro
 .pp69-own b{display:block;font-size:12px;margin-bottom:6px;color:#7a5410}
 .pp69-pill{display:inline-flex;align-items:center;gap:4px;margin:3px;padding:3px 4px 3px 9px;border:1px solid #d8c28d;border-radius:999px;background:#fff;font-weight:800;font-size:12px}
 .pp69-pill button{border:0;background:#f3d9d6;color:#b00;border-radius:50%;width:20px;height:20px;line-height:18px;padding:0;font-weight:900;cursor:pointer}
+
+.pp69-pill.out{background:#eee;color:#888;text-decoration:line-through}.pp69-pill .pp69-o{width:auto;border-radius:10px;padding:0 7px;background:#fde7c4;color:#7a5410;font-size:11px}
+.pp64-chip.pp69-out{opacity:.55;text-decoration:line-through;cursor:not-allowed;position:relative}.pp64-chip.pp69-out small{display:block;text-decoration:none;font-size:10px;color:#b00;font-weight:800}
 .pp69-add{display:flex;gap:6px;margin-top:6px}.pp69-add input{flex:1;min-width:0;padding:7px;border:1px solid #cdb98f;border-radius:8px;font:inherit}
 .pp69-add button{border:0;border-radius:8px;background:#c8962e;color:#fff;font-weight:800;padding:0 14px}
 `;document.head.appendChild(st);})();
@@ -5093,10 +5101,13 @@ function pp69OwnerBox(p){
     const box=document.getElementById('pp64-order');if(!box)return;
     const list=ppSizes(p);
     const own=document.createElement('div');own.className='pp69-own';own.id='pp69-own';own.dataset.id=p.id;
-    own.innerHTML=`<b>👑 للمالك فقط: عدّل مربعات القياس لهذا المنتج (يُحفظ فوراً)</b><div>${pp69Pills(list,'data-pp69-ddel')}</div><div class="pp69-add"><input data-pp69-din placeholder="أضف قياس جديد مثلاً: 80A" maxlength="30"><button type="button" data-pp69-dadd>＋ إضافة</button></div>`;
+    const outs=Array.isArray(p.soldOut)?p.soldOut:[];
+    const pills=list.map((s,i)=>`<span class="pp69-pill ${outs.includes(s)?'out':''}">${esc(s)}<button type="button" class="pp69-o" data-pp69-dout="${i}" title="نفد / متوفر">${outs.includes(s)?'↺ متوفر':'نفد'}</button><button type="button" data-pp69-ddel="${i}" aria-label="حذف">✕</button></span>`).join('')||'<small>لا توجد قياسات</small>';
+    own.innerHTML=`<b>👑 للمالك فقط: عدّل مربعات القياس لهذا المنتج (يُحفظ فوراً)</b><div>${pills}</div><label style="display:block;margin-top:6px;font-size:12px;font-weight:700">الجملة اللي بتظهر على القياس الناضب<input data-pp69-otext value="${esc(p.soldOutText||'')}" placeholder="نفد" maxlength="40" style="width:100%;box-sizing:border-box;padding:7px;border:1px solid #cdb98f;border-radius:8px;font:inherit"></label><div class="pp69-add"><input data-pp69-din placeholder="أضف قياس جديد مثلاً: 80A" maxlength="30"><button type="button" data-pp69-dadd>＋ إضافة</button></div>`;
     const chips=box.querySelector('.pp64-chips');(chips||box.firstChild)&&box.insertBefore(own,chips?chips.nextSibling:box.firstChild);
 }
 document.addEventListener('click',async e=>{
+  const o=e.target.closest('[data-pp69-dout]');if(o){e.preventDefault();e.stopImmediatePropagation();const own=o.closest('#pp69-own');const p=state.products.find(x=>x.id===own?.dataset.id);if(!p||!visibleAdmin())return;const s=ppSizes(p)[+o.dataset.pp69Dout];const outs=new Set(Array.isArray(p.soldOut)?p.soldOut:[]);outs.has(s)?outs.delete(s):outs.add(s);p.soldOut=[...outs];await changed();detail(p);return;}
   const d=e.target.closest('[data-pp69-ddel]'),a=e.target.closest('[data-pp69-dadd]');if(!d&&!a)return;
   e.preventDefault();e.stopImmediatePropagation();
   const own=e.target.closest('#pp69-own');const p=state.products.find(x=>x.id===own?.dataset.id);if(!p||!visibleAdmin())return;
@@ -5104,6 +5115,11 @@ document.addEventListener('click',async e=>{
   if(d)list.splice(+d.dataset.pp69Ddel,1);
   else{const inp=own.querySelector('[data-pp69-din]');const v=(inp.value||'').trim();if(!v)return;if(!list.includes(v))list.push(v);}
   p.sizes=list;await changed();detail(p);note('✓ '+T('تم حفظ القياسات','Sizes saved'));
+},true);
+
+document.addEventListener('change',async e=>{
+  const i=e.target.closest('[data-pp69-otext]');if(!i)return;const own=i.closest('#pp69-own');const p=state.products.find(x=>x.id===own?.dataset.id);if(!p||!visibleAdmin())return;
+  p.soldOutText=i.value.trim().slice(0,40);await changed();note('✓ '+T('تم الحفظ','Saved'));
 },true);
 
 ppBoot();
