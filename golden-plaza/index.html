@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Petra Power Energy – Golden Plaza Warehouse PV (3D)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0f1720;--card:rgba(15,23,32,.88);--acc:#f5a524;--txt:#eef2f6;--mut:#9fb0c2}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:#cfdbe6;font-family:Cairo,system-ui,sans-serif;color:var(--txt)}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  .bar{position:fixed;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;flex-wrap:wrap;justify-content:center;z-index:5;max-width:96vw}
+  .bar button,.tg button{font-family:inherit;border:0;border-radius:10px;padding:7px 12px;background:var(--card);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;backdrop-filter:blur(6px)}
+  .bar button.on{background:var(--acc);color:#111}
+  .title{position:fixed;top:56px;right:12px;z-index:4;background:var(--card);padding:8px 14px;border-radius:12px;max-width:300px}
+  .brand{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:1.5px;font-weight:600;color:#fff;margin-bottom:4px;direction:ltr;justify-content:flex-end}
+  .brand b{color:var(--acc)}
+  .logo{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;background:var(--acc);color:#111;font-weight:800;letter-spacing:0;font-size:12px}
+  .title h1{margin:0;font-size:15px;font-weight:800}
+  .title p{margin:2px 0 0;font-size:12px;color:var(--mut)}
+  .tg{position:fixed;bottom:12px;left:12px;z-index:5;display:flex;flex-direction:column;gap:6px}
+  .tg button.off{opacity:.45}
+  #info{position:fixed;bottom:12px;right:12px;z-index:5;background:var(--card);border-radius:14px;padding:12px 14px;width:min(340px,calc(100vw - 150px));max-height:62vh;overflow:auto;font-size:12.5px;line-height:1.7;backdrop-filter:blur(6px)}
+  #info.min .body{display:none}
+  #info h2{margin:0;font-size:14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:8px}
+  #info h2 span{font-size:11px;color:var(--acc)}
+  table{width:100%;border-collapse:collapse;margin-top:6px}
+  td{padding:2px 4px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top}
+  td:last-child{text-align:left;direction:ltr;font-weight:600;white-space:nowrap}
+  .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-left:6px;vertical-align:middle}
+  .lowhigh{display:flex;gap:6px;margin:8px 0}
+  .lowhigh div{flex:1;border-radius:10px;padding:6px 8px;text-align:center}
+  .lowhigh b{display:block;font-size:17px;direction:ltr}
+  .note{color:var(--mut);font-size:11px;margin-top:6px}
+  #shot{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:20;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px}
+  #shot img{max-width:100%;max-height:80vh;border-radius:8px;box-shadow:0 6px 30px #000}
+  #shot p{margin:0;font-size:14px}
+  #shot button{font-family:inherit;border:0;border-radius:10px;padding:8px 18px;background:var(--acc);font-weight:700}
+  #load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;color:#223;z-index:30;background:#cfdbe6}
+</style>
+</head>
+<body>
+<div id="load">جاري تحميل النموذج…</div>
+<canvas id="c"></canvas>
+
+<div class="bar" id="views">
+  <button data-v="iso" class="on">3D</button>
+  <button data-v="iso2">3D خلفي</button>
+  <button data-v="front">أمامي (Section A)</button>
+  <button data-v="side">جانبي (Section B)</button>
+  <button data-v="top">علوي (Plan)</button>
+  <button id="snap">📷 صورة</button>
+</div>
+
+<div class="title">
+  <div class="brand"><span class="logo">PE</span><span>PETRA POWER <b>ENERGY</b></span></div>
+  <h1>Golden Plaza – Warehouse PV Roof</h1>
+  <p>162 لوح شمسي على هيكل حديد فوق السقف القائم</p>
+</div>
+
+<div class="tg" id="toggles">
+  <button data-t="dims">📏 الأبعاد</button>
+  <button data-t="panels">🔷 الألواح</button>
+  <button data-t="steel">🟧 الهيكل</button>
+  <button data-t="building">🏭 المستودع</button>
+</div>
+
+<div id="info">
+  <h2 id="infoHead">تفاصيل المشروع <span>إخفاء ▾</span></h2>
+  <div class="body">
+    <div class="lowhigh">
+      <div style="background:#1f7a4d">أوطى نقطة (يسار)<b>1.618 m</b></div>
+      <div style="background:#b3261e">أعلى نقطة (يمين)<b>3.392 m</b></div>
+    </div>
+    <table>
+      <tr><td>عدد الألواح</td><td>162 Panels</td></tr>
+      <tr><td>التوزيع</td><td>6 Blocks × 3 × 9 Rows</td></tr>
+      <tr><td>مقاس اللوح (معتمد بالنموذج)</td><td>2384 × 1303 mm</td></tr>
+      <tr><td>طول المبنى (Section B)</td><td>26.550 m</td></tr>
+      <tr><td>عرض المبنى (Section A)</td><td>23.860 m</td></tr>
+      <tr><td>فتحات الإطارات</td><td>5.0 / 5.5 / 5.5 / 5.5 / 5.0</td></tr>
+      <tr><td>تباعد الأعمدة بالعرض</td><td>4×2.75 + 1.0 + 4×2.75</td></tr>
+      <tr><td>ميل الألواح (Mono-pitch)</td><td>≈ 4.4° (يسار ← يمين)</td></tr>
+      <tr><td>ميل السقف القائم</td><td>≈ 10.4° (Gable)</td></tr>
+      <tr><td>فرق الارتفاع يسار/يمين</td><td>1.774 m</td></tr>
+      <tr><td><span class="sw" style="background:#e8862a"></span>أعمدة + جسور رئيسية</td><td>SHS 100×100×3</td></tr>
+      <tr><td><span class="sw" style="background:#f2c94c"></span>مدادات (Purlins)</td><td>SHS 100×50×3</td></tr>
+      <tr><td><span class="sw" style="background:#2fa36b"></span>تربيط (Bracing)</td><td>Angle 50×50×5</td></tr>
+      <tr><td>عدد الإطارات × الأعمدة</td><td>6 × 10 = 60 Columns</td></tr>
+    </table>
+    <table>
+      <tr><td colspan="2" style="color:var(--acc);font-weight:700">ارتفاعات الأعمدة فوق الجسر القائم (m)</td></tr>
+      <tr><td>يسار ← القمة</td><td>1.618 · 1.327 · 1.037 · 0.747 · 0.456</td></tr>
+      <tr><td>القمة ← يمين</td><td>0.533 · 1.248 · 1.962 · 2.666 · 3.392</td></tr>
+    </table>
+    <div class="note" style="color:#f5a524;font-weight:600">إعداد وتصميم: Petra Power Energy</div>
+    <div class="note">ارتفاع جدران المستودع في النموذج توضيحي (6.0 m). الأبعاد والارتفاعات والتوزيع مأخوذة من المخططات.</div>
+  </div>
+</div>
+
+<div id="shot"><p>اضغط مطوّلاً على الصورة لحفظها</p><img id="shotImg" alt="snapshot"><button id="shotClose">إغلاق</button></div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+// ===================== DATA FROM DRAWINGS =====================
+const W = 23.86;            // building width (Section A)
+const L = 26.55;            // building length (Section B / plan)
+const XR = W/2;             // ridge
+const EAVE = 6.0;           // assumed wall height (illustrative)
+const S_ROOF = 0.1829;      // existing rafter slope (~10.4°)
+const COL_OFF = 0.43;
+const COLS = [0,2.75,5.5,8.25,11,12,14.75,17.5,20.25,23].map(v=>v+COL_OFF);
+const HTS  = [1.618,1.327,1.037,0.747,0.456,0.533,1.248,1.962,2.666,3.392];
+const FRAMES = [0,5,10.5,16,21.5,26.5].map(v=>v+0.025);
+const PURL = [];
+for(let i=0;i<=8;i++) PURL.push(COL_OFF+i*1.375);
+for(let i=0;i<=8;i++) PURL.push(COL_OFF+12+i*1.375);
+const PANEL_L = 2.384, PANEL_W = 1.303, PANEL_T = 0.035;
+const ROWS = 9, BLOCKS = 6, PER_BLOCK = 3;
+const ROW_GAP = 0.10, PANEL_GAP = 0.02, BLOCK_GAP = 0.40;
+
+const roofTop = x => EAVE + S_ROOF*(XR - Math.abs(x - XR));
+const yTop0 = roofTop(COLS[0]) + HTS[0];
+const yTop9 = roofTop(COLS[9]) + HTS[9];
+const S_PV = (yTop9 - yTop0)/(COLS[9]-COLS[0]);
+const TH = Math.atan(S_PV);
+const yTop = x => yTop0 + S_PV*(x - COLS[0]);   // top of new main beam
+
+// ===================== SCENE =====================
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputEncoding = THREE.sRGBEncoding;
+const scene = new THREE.Scene();
+scene.background = skyTexture();
+scene.fog = new THREE.Fog(0xcfdbe6, 120, 260);
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 600);
+const controls = new THREE.OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.maxPolarAngle = Math.PI*0.495;
+controls.minDistance = 8; controls.maxDistance = 180;
+
+scene.add(new THREE.HemisphereLight(0xdfefff, 0x6b6250, 0.75));
+const sun = new THREE.DirectionalLight(0xfff3e0, 0.95);
+sun.position.set(-25, 45, 35); sun.target.position.set(XR, 6, L/2);
+sun.castShadow = true; sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-35,right:35,top:35,bottom:-35,near:1,far:150});
+sun.shadow.bias = -0.0004;
+scene.add(sun, sun.target);
+
+const groups = {dims:new THREE.Group(), panels:new THREE.Group(), steel:new THREE.Group(), building:new THREE.Group()};
+Object.values(groups).forEach(g=>scene.add(g));
+
+// ===================== MATERIALS =====================
+const M = {
+  steel:  new THREE.MeshStandardMaterial({color:0xe8862a, metalness:.35, roughness:.45}),
+  purlin: new THREE.MeshStandardMaterial({color:0xf2c94c, metalness:.35, roughness:.45}),
+  brace:  new THREE.MeshStandardMaterial({color:0x2fa36b, metalness:.3, roughness:.5}),
+  plate:  new THREE.MeshStandardMaterial({color:0x555b63, metalness:.5, roughness:.4}),
+  wall:   new THREE.MeshStandardMaterial({color:0xe9ecef, roughness:.9}),
+  wall2:  new THREE.MeshStandardMaterial({color:0xd5dae0, roughness:.9}),
+  parapet:new THREE.MeshStandardMaterial({color:0xc4cad1, roughness:.85}),
+  roof:   new THREE.MeshStandardMaterial({map:corrugTex(), color:0xffffff, roughness:.6, metalness:.25, side:THREE.DoubleSide}),
+  rafter: new THREE.MeshStandardMaterial({color:0x7d8794, metalness:.4, roughness:.5}),
+  door:   new THREE.MeshStandardMaterial({color:0x8a939e, roughness:.6, metalness:.3}),
+  frameAl:new THREE.MeshStandardMaterial({color:0xc9ced4, metalness:.8, roughness:.3}),
+  pvTop:  new THREE.MeshStandardMaterial({map:pvTex(), roughness:.25, metalness:.4}),
+  pvBack: new THREE.MeshStandardMaterial({color:0xf0f0f0, roughness:.8}),
+  ground: new THREE.MeshStandardMaterial({color:0xa9b2a0, roughness:1}),
+  dim:    new THREE.MeshBasicMaterial({color:0x1d2b3a}),
+  dimHi:  new THREE.MeshBasicMaterial({color:0xb3261e}),
+  dimLo:  new THREE.MeshBasicMaterial({color:0x1f7a4d}),
+};
+
+// ===================== HELPERS =====================
+function box(w,h,d,mat,x,y,z,grp){
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat);
+  m.position.set(x,y,z); m.castShadow = m.receiveShadow = true; grp.add(m); return m;
+}
+function beam(p1,p2,w,h,mat,grp){ // box from p1 to p2 (local z along length)
+  const a = new THREE.Vector3(...p1), b = new THREE.Vector3(...p2);
+  const len = a.distanceTo(b);
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,len), mat);
+  m.position.copy(a).add(b).multiplyScalar(.5);
+  m.lookAt(b); m.castShadow = m.receiveShadow = true; grp.add(m); return m;
+}
+function label(text, opt={}){
+  const fs = 64, pad = 22;
+  const c = document.createElement('canvas'), ctx = c.getContext('2d');
+  const font = `${opt.bold===false?600:800} ${fs}px Cairo, Arial, sans-serif`;
+  ctx.font = font;
+  const tw = Math.ceil(ctx.measureText(text).width);
+  c.width = tw + pad*2; c.height = fs + pad*1.4;
+  ctx.font = font;
+  ctx.fillStyle = opt.bg || 'rgba(255,255,255,.92)';
+  const r = 18; roundRect(ctx,0,0,c.width,c.height,r); ctx.fill();
+  if(opt.border){ctx.lineWidth=5;ctx.strokeStyle=opt.border;roundRect(ctx,2.5,2.5,c.width-5,c.height-5,r);ctx.stroke();}
+  ctx.fillStyle = opt.color || '#1d2b3a';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.direction = /[؀-ۿ]/.test(text) ? 'rtl':'ltr';
+  ctx.fillText(text, c.width/2, c.height/2+3);
+  const tex = new THREE.CanvasTexture(c); tex.encoding = THREE.sRGBEncoding; tex.anisotropy = 4;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:tex, depthTest:false, transparent:true}));
+  const hgt = opt.size || 0.55;
+  sp.scale.set(hgt*c.width/c.height, hgt, 1);
+  sp.renderOrder = 10;
+  if(opt.pos) sp.position.set(...opt.pos);
+  (opt.grp||groups.dims).add(sp);
+  return sp;
+}
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function rod(p1,p2,mat,r){
+  const a = new THREE.Vector3(...p1), b = new THREE.Vector3(...p2);
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r||0.025,r||0.025,a.distanceTo(b),6), mat||M.dim);
+  m.position.copy(a).add(b).multiplyScalar(.5);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), b.clone().sub(a).normalize());
+  m.renderOrder = 9; groups.dims.add(m); return m;
+}
+// dimension line along axis between p1,p2 with ticks in direction "tick"
+function dim(p1,p2,text,tick,opt={}){
+  const mat = opt.mat || M.dim;
+  rod(p1,p2,mat,opt.r);
+  const t = tick || [0,0.25,0];
+  [p1,p2].forEach(p=>rod([p[0]-t[0],p[1]-t[1],p[2]-t[2]],[p[0]+t[0],p[1]+t[1],p[2]+t[2]],mat,opt.r));
+  const mid = [(p1[0]+p2[0])/2+(opt.off?opt.off[0]:0),(p1[1]+p2[1])/2+(opt.off?opt.off[1]:0.35),(p1[2]+p2[2])/2+(opt.off?opt.off[2]:0)];
+  label(text,{pos:mid,size:opt.size||0.55,color:opt.color,bg:opt.bg,border:opt.border});
+}
+
+// ===================== TEXTURES =====================
+function skyTexture(){
+  const c=document.createElement('canvas');c.width=2;c.height=256;const g=c.getContext('2d');
+  const gr=g.createLinearGradient(0,0,0,256);gr.addColorStop(0,'#6fa3d8');gr.addColorStop(.6,'#bcd4ea');gr.addColorStop(1,'#e6eef5');
+  g.fillStyle=gr;g.fillRect(0,0,2,256);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t;
+}
+function corrugTex(){
+  const c=document.createElement('canvas');c.width=256;c.height=256;const g=c.getContext('2d');
+  for(let i=0;i<256;i++){const v=Math.round(178+28*Math.sin(i/256*Math.PI*2*8));g.fillStyle=`rgb(${v},${v+4},${v+8})`;g.fillRect(0,i,256,1);}
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(1,12);t.encoding=THREE.sRGBEncoding;return t;
+}
+function pvTex(){ // texture mapped on box top face: u along slope (2.384), v along width (1.303)
+  const c=document.createElement('canvas');c.width=1024;c.height=560;const g=c.getContext('2d');
+  g.fillStyle='#c9ced4';g.fillRect(0,0,1024,560);
+  const m=14; g.fillStyle='#0f2347';g.fillRect(m,m,1024-2*m,560-2*m);
+  const nx=22, ny=6, cw=(1024-2*m)/nx, ch=(560-2*m)/ny;
+  for(let i=0;i<nx;i++)for(let j=0;j<ny;j++){
+    const x=m+i*cw+1.5,y=m+j*ch+1.5;
+    const gr=g.createLinearGradient(x,y,x+cw,y+ch);gr.addColorStop(0,'#1d3f7a');gr.addColorStop(1,'#132d5c');
+    g.fillStyle=gr;g.fillRect(x,y,cw-3,ch-3);
+    g.fillStyle='rgba(200,215,240,.18)';g.fillRect(x,y+ch*.33,cw-3,1);g.fillRect(x,y+ch*.66,cw-3,1);
+  }
+  g.fillStyle='#c9ced4';g.fillRect(512-2,m,4,560-2*m); // half-cut split
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;return t;
+}
+
+// ===================== GROUND & BUILDING =====================
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(220,220), M.ground);
+ground.rotation.x=-Math.PI/2; ground.position.set(XR,0,L/2); ground.receiveShadow=true; scene.add(ground);
+const B = groups.building;
+const PAR_TOP = EAVE + 2.0, PAR_T = 0.25;
+// side (parapet) walls
+box(PAR_T, PAR_TOP, L, M.wall2, -PAR_T/2, PAR_TOP/2, L/2, B);
+box(PAR_T, PAR_TOP, L, M.wall2, W+PAR_T/2, PAR_TOP/2, L/2, B);
+box(PAR_T+0.08, 0.08, L+0.08, M.parapet, -PAR_T/2, PAR_TOP+0.04, L/2, B);
+box(PAR_T+0.08, 0.08, L+0.08, M.parapet, W+PAR_T/2, PAR_TOP+0.04, L/2, B);
+// gable walls
+[0, L].forEach((z,k)=>{
+  const sh = new THREE.Shape();
+  sh.moveTo(0,0); sh.lineTo(W,0); sh.lineTo(W,EAVE); sh.lineTo(XR,roofTop(XR)); sh.lineTo(0,EAVE); sh.lineTo(0,0);
+  const g = new THREE.ExtrudeGeometry(sh,{depth:0.2,bevelEnabled:false});
+  const m = new THREE.Mesh(g, M.wall); m.position.set(0,0,k? L : -0.2); m.castShadow=m.receiveShadow=true; B.add(m);
+  // parapet ends (closing parapet walls above eave at gable corners)
+});
+// roller doors on front gable (z = L)
+[[6,4.5],[17.86,4.5]].forEach(([cx,w])=>{
+  box(w,4.6,0.05,M.door,cx,2.3,L+0.23,B);
+  for(let i=1;i<12;i++) box(w,0.02,0.06,M.rafter,cx,i*0.38,L+0.25,B);
+});
+// windows strip
+for(let i=0;i<6;i++) box(1.6,0.6,0.05,new THREE.MeshStandardMaterial({color:0x6d8fb3,roughness:.2,metalness:.5}),2+i*4,5.2,L+0.23,B);
+// roof sheets
+function roofPlane(x1,x2){
+  const y1=roofTop(x1), y2=roofTop(x2);
+  const g = new THREE.BufferGeometry();
+  const v = new Float32Array([x1,y1,0, x2,y2,0, x2,y2,L, x1,y1,0, x2,y2,L, x1,y1,L]);
+  const uv = new Float32Array([0,0, 0,1, 1,1, 0,0, 1,1, 1,0]);
+  g.setAttribute('position',new THREE.BufferAttribute(v,3)); g.setAttribute('uv',new THREE.BufferAttribute(uv,2));
+  g.computeVertexNormals();
+  const m = new THREE.Mesh(g,M.roof); m.receiveShadow = true; m.castShadow=true; B.add(m);
+}
+roofPlane(0,XR); roofPlane(XR,W);
+// existing rafters (0.3 deep) under roof at frame lines – visible at gable ends
+FRAMES.forEach(z=>{
+  beam([0,EAVE-0.15,z],[XR,roofTop(XR)-0.15,z],0.18,0.3,M.rafter,B);
+  beam([XR,roofTop(XR)-0.15,z],[W,EAVE-0.15,z],0.18,0.3,M.rafter,B);
+});
+// ridge cap
+box(0.5,0.06,L,M.parapet,XR,roofTop(XR)+0.03,L/2,B);
+
+// ===================== NEW STEEL STRUCTURE =====================
+const S = groups.steel;
+FRAMES.forEach(z=>{
+  // main sloped beam SHS100x100
+  beam([0.05, yTop(0.05)-0.05, z],[W-0.05, yTop(W-0.05)-0.05, z],0.1,0.1,M.steel,S);
+  COLS.forEach((x,i)=>{
+    const yb = roofTop(x), yt = yTop(x)-0.1;
+    box(0.1, yt-yb, 0.1, M.steel, x, (yb+yt)/2, z, S);
+    box(0.3,0.02,0.3,M.plate,x,yb+0.01,z,S);   // base plate
+    box(0.22,0.012,0.22,M.plate,x,yt+0.006,z,S); // cap plate
+  });
+});
+// purlins SHS100x50 along length
+PURL.forEach(x=>{ box(0.05,0.1,L-0.0,M.purlin,x,yTop(x)+0.05,L/2,S); });
+// bracing Angle 50x50x5 (Section B) on column lines with enough height
+COLS.forEach((x,i)=>{
+  const h = HTS[i]; if(h<0.7) return;
+  const yb = roofTop(x), yt = yTop(x)-0.12, ylo = yb + 0.28*(yt-yb);
+  const F = FRAMES;
+  beam([x,yt,F[0]],[x,ylo,F[1]],0.05,0.05,M.brace,S);              // bay 1
+  beam([x,yt,F[2]],[x,ylo,F[3]],0.05,0.05,M.brace,S);              // bay 3 (X)
+  beam([x,ylo,F[2]],[x,yt,F[3]],0.05,0.05,M.brace,S);
+  beam([x,ylo,F[4]],[x,yt,F[5]],0.05,0.05,M.brace,S);              // bay 5
+});
+
+// ===================== PV PANELS =====================
+const P = groups.panels;
+const slopeLen = W/Math.cos(TH);
+const rowsLen = ROWS*PANEL_L + (ROWS-1)*ROW_GAP;
+const u0 = (slopeLen - rowsLen)/2;
+const blockW = PER_BLOCK*PANEL_W + (PER_BLOCK-1)*PANEL_GAP;
+const zLen = BLOCKS*blockW + (BLOCKS-1)*BLOCK_GAP;
+const z0 = (L - zLen)/2;
+const pvGeo = new THREE.BoxGeometry(PANEL_L, PANEL_T, PANEL_W);
+const pvMats = [M.frameAl,M.frameAl,M.pvTop,M.pvBack,M.frameAl,M.frameAl];
+let count = 0;
+for(let r=0;r<ROWS;r++){
+  const u = u0 + r*(PANEL_L+ROW_GAP) + PANEL_L/2;
+  const x = u*Math.cos(TH);
+  const y = yTop(x) + 0.1 + PANEL_T/2 + 0.01;
+  for(let b=0;b<BLOCKS;b++) for(let k=0;k<PER_BLOCK;k++){
+    const z = z0 + b*(blockW+BLOCK_GAP) + k*(PANEL_W+PANEL_GAP) + PANEL_W/2;
+    const m = new THREE.Mesh(pvGeo,pvMats);
+    m.position.set(x,y,z); m.rotation.z = TH; m.castShadow = m.receiveShadow = true; P.add(m); count++;
+  }
+}
+
+// ===================== DIMENSIONS & LABELS =====================
+const zF = FRAMES[5];              // front frame (Section A view side)
+const dz = L + 1.6;                // dimension plane in front
+// overall width
+dim([0,0.25,dz+1.6],[W,0.25,dz+1.6],'23.860 m',[0,0,0.3],{size:0.75});
+// column spacing along top
+const yDimTop = yTop(W)+1.4;
+for(let i=0;i<COLS.length-1;i++){
+  const a=COLS[i], b=COLS[i+1];
+  const yy = yDimTop;
+  dim([a,yy,zF],[b,yy,zF],(b-a).toFixed(3),[0,0.2,0],{size:0.42,off:[0,0.32,0]});
+}
+COLS.forEach(x=>rod([x,yTop(x)+0.15,zF],[x,yDimTop,zF],M.dim,0.008));
+// column heights on front frame
+COLS.forEach((x,i)=>{
+  const yb = roofTop(x), yt = yTop(x);
+  const lo = i===0, hi = i===9;
+  const mat = lo?M.dimLo:hi?M.dimHi:M.dim;
+  rod([x+0.25,yb,zF+0.25],[x+0.25,yt,zF+0.25],mat,0.02);
+  label(HTS[i].toFixed(3),{pos:[x+(i<5?-0.55:0.55),(yb+yt)/2,zF+0.4],size:0.42,
+     bg: lo?'#1f7a4d':hi?'#b3261e':'rgba(255,255,255,.92)', color:(lo||hi)?'#fff':'#1d2b3a'});
+});
+// LOW / HIGH callouts
+label('أوطى درجة — 1.618 m',{pos:[COLS[0]+0.3, yTop(0)+2.6, zF+0.6],size:0.85,bg:'#1f7a4d',color:'#fff'});
+label('أعلى درجة — 3.392 m',{pos:[COLS[9]-1.0, yTop(W)+3.3, zF+0.6],size:0.85,bg:'#b3261e',color:'#fff'});
+rod([COLS[0]+0.3,yTop(0)+2.2,zF+0.6],[COLS[0]+0.3,yTop(0)+0.2,zF+0.6],M.dimLo,0.04);
+rod([COLS[9]-0.2,yTop(W)+2.9,zF+0.6],[COLS[9]-0.05,yTop(W)+0.25,zF+0.6],M.dimHi,0.04);
+// slope labels
+label('ميل الألواح ≈ 4.4°  ↗',{pos:[XR, yTop(XR)+2.5, L/2],size:0.75,bg:'#0f2347',color:'#fff'});
+label('ميل السقف القائم ≈ 10.4°',{pos:[XR*0.45, roofTop(XR*0.45)+0.6, -1.0],size:0.5});
+label('Ridge',{pos:[XR, roofTop(XR)+0.35, -0.8],size:0.4});
+// building length & bays (left side, x<0)
+const xd = -2.2;
+dim([xd,0.25,0],[xd,0.25,L],'26.550 m',[0.3,0,0],{size:0.75});
+for(let i=0;i<FRAMES.length-1;i++){
+  dim([xd+0.9,yTop(0)+0.6,FRAMES[i]],[xd+0.9,yTop(0)+0.6,FRAMES[i+1]],(FRAMES[i+1]-FRAMES[i]).toFixed(3),[0,0.2,0],{size:0.45});
+}
+FRAMES.forEach(z=>rod([0,yTop(0),z],[xd+0.9,yTop(0)+0.6,z],M.dim,0.008));
+// panel field dims
+const xr0 = u0*Math.cos(TH), xr1 = (u0+rowsLen)*Math.cos(TH);
+const yP = x=>yTop(x)+0.4;
+dim([xr0,yP(xr0),z0-0.6],[xr1,yP(xr1),z0-0.6],`9 صفوف × 2.384 = ${rowsLen.toFixed(2)} m (على الميل)`,[0,0,0.2],{size:0.5});
+dim([xr1+0.6,yP(xr1),z0],[xr1+0.6,yP(xr1),z0+zLen],`${zLen.toFixed(2)} m`,[0.2,0,0],{size:0.5});
+for(let b=0;b<BLOCKS;b++){
+  const zc = z0 + b*(blockW+BLOCK_GAP) + blockW/2;
+  label(`Block ${b+1} · 27`,{pos:[xr1+0.2, yP(xr1)+0.9, zc],size:0.42,bg:'#0f2347',color:'#fff'});
+}
+label(`${count} لوح شمسي`,{pos:[XR, yTop(XR)+4.0, L/2],size:1.1,bg:'#f5a524',color:'#111'});
+// member tags
+label('SHS 100×100×3',{pos:[COLS[7]+0.4, yTop(COLS[7])-0.9, zF+0.35],size:0.36,bg:'#e8862a',color:'#111'});
+label('SHS 100×50×3 Purlin',{pos:[PURL[13], yTop(PURL[13])+0.45, L+0.6],size:0.36,bg:'#f2c94c',color:'#111'});
+label('Angle 50×50×5',{pos:[COLS[9]+0.35, roofTop(COLS[9])+1.4, (FRAMES[0]+FRAMES[1])/2],size:0.36,bg:'#2fa36b',color:'#fff'});
+label('Existing Parapet',{pos:[-0.2, PAR_TOP+0.45, L-1.2],size:0.38});
+label('PETRA POWER ENERGY',{pos:[XR, 1.6, L+0.6],size:0.55,bg:'#f5a524',color:'#111'});
+label('Existing Steel Warehouse',{pos:[XR, 3.2, L+0.6],size:0.7,bg:'rgba(255,255,255,.75)'});
+
+// ===================== VIEWS =====================
+const C = new THREE.Vector3(XR, 7.5, L/2);
+const VIEWS = {
+  iso:  {p:[-16, 26, 58], t:[XR,7,L/2]},
+  iso2: {p:[46, 28, -26], t:[XR,7,L/2]},
+  front:{p:[XR, 9, 62],  t:[XR,8,L/2]},
+  side: {p:[-52, 10, L/2], t:[XR,8,L/2]},
+  top:  {p:[XR, 70, L/2+0.01], t:[XR,8,L/2]},
+};
+let anim=null;
+function setView(k, instant){
+  const v=VIEWS[k]; const from=camera.position.clone(), ft=controls.target.clone();
+  const to=new THREE.Vector3(...v.p), tt=new THREE.Vector3(...v.t);
+  // fit distance for narrow (portrait) screens
+  const asp = camera.aspect; const f = asp<1 ? Math.min(1.9, 1/asp*0.95) : 1;
+  to.sub(tt).multiplyScalar(f).add(tt);
+  if(instant){camera.position.copy(to);controls.target.copy(tt);controls.update();return;}
+  const t0=performance.now(); anim=(now)=>{const a=Math.min(1,(now-t0)/700), e=a<.5?2*a*a:1-Math.pow(-2*a+2,2)/2;
+    camera.position.lerpVectors(from,to,e); controls.target.lerpVectors(ft,tt,e); if(a>=1) anim=null;};
+  document.querySelectorAll('#views button[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===k));
+}
+document.querySelectorAll('#views button[data-v]').forEach(b=>b.onclick=()=>setView(b.dataset.v));
+document.querySelectorAll('#toggles button').forEach(b=>b.onclick=()=>{
+  const g=groups[b.dataset.t]; g.visible=!g.visible; b.classList.toggle('off',!g.visible);
+});
+const info=document.getElementById('info');
+document.getElementById('infoHead').onclick=()=>{info.classList.toggle('min');info.querySelector('h2 span').textContent=info.classList.contains('min')?'إظهار ▴':'إخفاء ▾';};
+if(window.innerWidth<700){info.classList.add('min');info.querySelector('h2 span').textContent='إظهار ▴';}
+document.getElementById('snap').onclick=()=>{
+  renderer.render(scene,camera);
+  document.getElementById('shotImg').src=renderer.domElement.toDataURL('image/png');
+  document.getElementById('shot').style.display='flex';
+};
+document.getElementById('shotClose').onclick=()=>document.getElementById('shot').style.display='none';
+
+function resize(){
+  const w=window.innerWidth,h=window.innerHeight;
+  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+}
+window.addEventListener('resize',resize); resize();
+setView('iso',true);
+function loop(now){ if(anim) anim(now); controls.update(); renderer.render(scene,camera); requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+document.getElementById('load').style.display='none';
+window.__pv = {count, TH:TH*180/Math.PI, S_PV, yTop0, yTop9, zLen, rowsLen};
+})();
+</script>
+</body>
+</html>
