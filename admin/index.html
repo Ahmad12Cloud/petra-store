@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V75';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V76';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -5316,6 +5316,70 @@ function pp75MenuBtn(){
   list.insertBefore(b,list.firstChild);
 }
 new MutationObserver(()=>{try{pp75MenuBtn()}catch(e){}}).observe(document.body,{childList:true,subtree:true});
+
+/* ===== V76: multi-size selection (+select all), note on top of WhatsApp message, one image per product ===== */
+const pp76Sel=new Set();
+function ppOrderTextFor(lines,note){
+  if(!lines.length)return'';
+  const groups=[];for(const l of lines){let g=groups.find(x=>x.p===l.p);if(!g){g={p:l.p,items:[]};groups.push(g);}g.items.push(l);}
+  let n=0;
+  const body=groups.map(g=>{
+    if(g.items.length===1){return ppItemLine(g.p,g.items[0].qty,g.items[0].size,n++);}
+    const p=g.p;const im=(Array.isArray(p.images)?p.images:[]).find(x=>typeof x==='string'&&/^https:\/\//.test(x));
+    const price=p.price==null?T('السعر عند الطلب','Price on request'):(p.price+' '+(p.currency||'USD'));
+    n++;
+    return n+'. '+(p.nameAr||p.nameEn)+' ['+p.sku+']'+(im?'\n🖼 '+T('الصورة: ','Photo: ')+im:'')+'\n'+g.items.map(l=>'   • '+(l.size?ppSizeLabel(p)+': '+l.size+' × ':'× ')+l.qty+' — '+price).join('\n');
+  }).join('\n\n');
+  return T('مرحباً Petra Power، أريد الاستفسار عن المنتجات التالية:','Hello Petra Power, please quote the following products:')+'\n\n'+(note&&note.trim()?'📝 '+T('ملاحظتي: ','My note: ')+note.trim()+'\n\n':'')+body+'\n\n'+T('يرجى تأكيد التوافر والأسعار، وشكراً.','Please confirm availability and prices. Thank you.');
+}
+function ppPick(){
+  const box=document.getElementById('pp64-order');if(!box)return null;const p=state.products.find(x=>x.id===box.dataset.id);if(!p)return null;
+  const sizes=[...box.querySelectorAll('.pp64-chip[data-pp64-size]')].map(c=>c.dataset.pp64Size).filter(s=>pp76Sel.has(s));
+  if(ppSizes(p).length>0&&!sizes.length){box.querySelector('.pp64-chips')?.classList.add('need');const m=document.getElementById('pp64-msg');if(m){m.style.color='#b00';m.textContent=T('اختر قياساً واحداً على الأقل','Choose at least one size');}return null;}
+  return{p,size:sizes[0]||'',sizes:sizes.length?sizes:[''],qty:ppSel.qty,note:(document.getElementById('pp64-note')?.value||'').trim()};
+}
+function pp76Lines(s){return s.sizes.map(z=>({p:s.p,qty:s.qty,size:z}));}
+const pp76Set=(el,k,v)=>{if(el&&el[k]!==v)el[k]=v;};
+function pp76Sync(){
+  const box=document.getElementById('pp64-order');if(!box)return;
+  const chips=[...box.querySelectorAll('.pp64-chip[data-pp64-size]')];
+  chips.forEach(c=>{const w=pp76Sel.has(c.dataset.pp64Size);if(c.classList.contains('on')!==w)c.classList.toggle('on',w);});
+  const all=box.querySelector('.pp76-all');if(all){const full=chips.length&&chips.every(c=>pp76Sel.has(c.dataset.pp64Size));if(all.classList.contains('on')!==!!full)all.classList.toggle('on',!!full);pp76Set(all,'textContent',full?'✕ '+T('إلغاء الكل','Clear all'):'✓ '+T('تحديد الكل','Select all'));}
+  const k=chips.filter(c=>pp76Sel.has(c.dataset.pp64Size)).length;ppSel.size=k?'x':'';
+  const c=box.querySelector('#pp76-cnt');if(c)pp76Set(c,'textContent',k>1?T('مختار: '+k+' قياسات — كل قياس بكميته','Selected: '+k+' sizes — each with the chosen quantity'):'');
+  const add=box.querySelector('[data-pp64-add]');if(add&&!add.dataset.pp76busy)pp76Set(add,'textContent','🛒 '+T('أضف للسلة','Add to cart')+(k>1?' ('+k+' '+T('قياسات','sizes')+')':''));
+}
+function pp76Enhance(){
+  const box=document.getElementById('pp64-order');if(!box)return;
+  if(box.dataset.pp76id!==box.dataset.id){box.dataset.pp76id=box.dataset.id;pp76Sel.clear();}
+  const chips=box.querySelector('.pp64-chips');if(!chips)return;
+  const sm=box.querySelector('.pp64-l small');pp76Set(sm,'textContent',T('اختر واحداً أو أكثر','pick one or more'));
+  const n=chips.querySelectorAll('.pp64-chip[data-pp64-size]').length;
+  if(n>1&&!chips.querySelector('.pp76-all')){const b=document.createElement('button');b.type='button';b.className='pp64-chip pp76-all';b.setAttribute('data-pp76-all','1');chips.insertBefore(b,chips.firstChild);}
+  if(!box.querySelector('#pp76-cnt')){const d=document.createElement('div');d.id='pp76-cnt';d.style.cssText='font-size:12px;color:#7a4f00;margin:2px 0 6px';chips.insertAdjacentElement('afterend',d);}
+  pp76Sync();
+}
+(function(){const st=document.createElement('style');st.textContent='.pp64-chip.on:not(.pp76-all)::before{content:"✓ "}.pp76-all{background:#2b1b06!important;color:#ffd36b!important;border-color:#2b1b06!important}';document.head.appendChild(st);})();
+new MutationObserver(()=>{try{pp76Enhance()}catch(e){}}).observe(document.body,{childList:true,subtree:true});
+window.addEventListener('click',e=>{
+  const t=e.target;if(!t||!t.closest)return;
+  let b=t.closest('[data-pp76-all]');
+  if(b){e.preventDefault();e.stopPropagation();const box=document.getElementById('pp64-order');const chips=[...box.querySelectorAll('.pp64-chip[data-pp64-size]')];const full=chips.every(c=>pp76Sel.has(c.dataset.pp64Size));chips.forEach(c=>full?pp76Sel.delete(c.dataset.pp64Size):pp76Sel.add(c.dataset.pp64Size));box.querySelector('.pp64-chips')?.classList.remove('need');const m=document.getElementById('pp64-msg');if(m)m.textContent='';pp76Sync();return;}
+  b=t.closest('#pp64-order [data-pp64-size]');
+  if(b){e.preventDefault();e.stopPropagation();const z=b.dataset.pp64Size;pp76Sel.has(z)?pp76Sel.delete(z):pp76Sel.add(z);document.querySelector('.pp64-chips')?.classList.remove('need');const m=document.getElementById('pp64-msg');if(m)m.textContent='';pp76Sync();return;}
+  b=t.closest('[data-pp64-add]');
+  if(b){e.preventDefault();e.stopPropagation();const s=ppPick();if(!s)return;
+    if(s.note)ppSaveNote((ppCartNote?ppCartNote+'\n':'')+s.p.nameAr+(s.sizes[0]?' ('+s.sizes.join(', ')+')':'')+': '+s.note);
+    let ok=false;for(const z of s.sizes){if(addCart(s.p.id,z,s.qty))ok=true;}
+    if(ok){const m=document.getElementById('pp64-msg');if(m){m.style.color='#1c6b32';m.innerHTML='✓ '+T('تمت الإضافة للسلة','Added to cart')+' ('+countCart()+') — <a href="#" data-action="cart" style="color:#7a4f00;text-decoration:underline">'+T('افتح السلة','Open cart')+'</a>';}
+      b.dataset.pp76busy='1';b.textContent='✓ '+T('تمت الإضافة','Added');const nt=document.getElementById('pp64-note');if(nt)nt.value='';pp76Sel.clear();ppSel={size:'',qty:1};const qv=document.getElementById('pp64-qv');if(qv)qv.textContent='1';pp76Sync();
+      setTimeout(()=>{delete b.dataset.pp76busy;if(b.isConnected)pp76Sync();},1600);}
+    return;}
+  b=t.closest('[data-pp64-wa]');
+  if(b){e.preventDefault();e.stopPropagation();const s=ppPick();if(!s)return;ppSendWA(b.dataset.pp64Wa,ppOrderTextFor(pp76Lines(s),s.note));return;}
+  b=t.closest('#pp64-order [data-pp75-send]');
+  if(b){e.preventDefault();e.stopPropagation();const br=ppBranches().find(x=>String(x.id)===b.dataset.pp75Send);if(!br)return;const s=ppPick();if(!s)return;ppSendPhone(ppBranchPhone(br),ppOrderTextFor(pp76Lines(s),s.note));return;}
+},true);
 
 ppBoot();
 })();
