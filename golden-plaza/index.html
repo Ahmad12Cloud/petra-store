@@ -60,6 +60,7 @@
 </div>
 
 <div class="tg" id="toggles">
+  <button data-t="tags">🏷️ المقاطع والحديد</button>
   <button data-t="dims">📏 الأبعاد</button>
   <button data-t="panels">🔷 الألواح</button>
   <button data-t="steel">🟧 الهيكل</button>
@@ -76,7 +77,7 @@
     <table>
       <tr><td>عدد الألواح</td><td>162 Panels</td></tr>
       <tr><td>التوزيع</td><td>6 Blocks × 3 × 9 Rows</td></tr>
-      <tr><td>مقاس اللوح (معتمد بالنموذج)</td><td>2384 × 1303 mm</td></tr>
+      <tr><td>مقاس اللوح (حسب Solar Plan)</td><td>≈ 2400 × 1300 mm</td></tr>
       <tr><td>طول المبنى (Section B)</td><td>26.550 m</td></tr>
       <tr><td>عرض المبنى (Section A)</td><td>23.860 m</td></tr>
       <tr><td>فتحات الإطارات</td><td>5.0 / 5.5 / 5.5 / 5.5 / 5.0</td></tr>
@@ -86,7 +87,7 @@
       <tr><td>فرق الارتفاع يسار/يمين</td><td>1.774 m</td></tr>
       <tr><td><span class="sw" style="background:#e8862a"></span>أعمدة + جسور رئيسية</td><td>SHS 100×100×3</td></tr>
       <tr><td><span class="sw" style="background:#f2c94c"></span>مدادات (Purlins)</td><td>SHS 100×50×3</td></tr>
-      <tr><td><span class="sw" style="background:#2fa36b"></span>تربيط (Bracing)</td><td>Angle 50×50×5</td></tr>
+      <tr><td><span class="sw" style="background:#2fa36b"></span>تربيط (Bracing) – خط الأعمدة العالي</td><td>L50×50×5</td></tr>
       <tr><td>عدد الإطارات × الأعمدة</td><td>6 × 10 = 60 Columns</td></tr>
     </table>
     <table>
@@ -94,6 +95,7 @@
       <tr><td>يسار ← القمة</td><td>1.618 · 1.327 · 1.037 · 0.747 · 0.456</td></tr>
       <tr><td>القمة ← يمين</td><td>0.533 · 1.248 · 1.962 · 2.666 · 3.392</td></tr>
     </table>
+    <table id="bom"><tr><td colspan="2" style="color:var(--acc);font-weight:700">كميات الحديد (تقديرية من المخططات)</td></tr></table>
     <div class="note" style="color:#f5a524;font-weight:600">إعداد وتصميم: Petra Power Energy</div>
     <div class="note">ارتفاع جدران المستودع في النموذج توضيحي (6.0 m). الأبعاد والارتفاعات والتوزيع مأخوذة من المخططات.</div>
   </div>
@@ -118,9 +120,12 @@ const FRAMES = [0,5,10.5,16,21.5,26.5].map(v=>v+0.025);
 const PURL = [];
 for(let i=0;i<=8;i++) PURL.push(COL_OFF+i*1.375);
 for(let i=0;i<=8;i++) PURL.push(COL_OFF+12+i*1.375);
-const PANEL_L = 2.384, PANEL_W = 1.303, PANEL_T = 0.035;
+// --- Solar Plan (exact from drawing) ---
+const PANEL_L = 2.397, PANEL_W = 1.3007, PANEL_T = 0.035;   // plan: 2.40 x 1.30
 const ROWS = 9, BLOCKS = 6, PER_BLOCK = 3;
-const ROW_GAP = 0.10, PANEL_GAP = 0.02, BLOCK_GAP = 0.40;
+const ROW_X0 = 0.712, ROW_PITCH = 2.500;                    // plan x of first panel edge, pitch
+const BLOCK_Z = [0.549, 4.800, 9.404, 13.654, 17.900, 22.150]; // block start (from frame end z=0)
+const BRACE_X = 23.432;                                     // bracing only on high column line (Columns Plan)
 
 const roofTop = x => EAVE + S_ROOF*(XR - Math.abs(x - XR));
 const yTop0 = roofTop(COLS[0]) + HTS[0];
@@ -152,7 +157,7 @@ Object.assign(sun.shadow.camera,{left:-35,right:35,top:35,bottom:-35,near:1,far:
 sun.shadow.bias = -0.0004;
 scene.add(sun, sun.target);
 
-const groups = {dims:new THREE.Group(), panels:new THREE.Group(), steel:new THREE.Group(), building:new THREE.Group()};
+const groups = {tags:new THREE.Group(), dims:new THREE.Group(), panels:new THREE.Group(), steel:new THREE.Group(), building:new THREE.Group()};
 Object.values(groups).forEach(g=>scene.add(g));
 
 // ===================== MATERIALS =====================
@@ -315,9 +320,8 @@ FRAMES.forEach(z=>{
 // purlins SHS100x50 along length
 PURL.forEach(x=>{ box(0.05,0.1,L-0.0,M.purlin,x,yTop(x)+0.05,L/2,S); });
 // bracing Angle 50x50x5 (Section B) on column lines with enough height
-COLS.forEach((x,i)=>{
-  const h = HTS[i]; if(h<0.7) return;
-  const yb = roofTop(x), yt = yTop(x)-0.12, ylo = yb + 0.28*(yt-yb);
+[BRACE_X].forEach(x=>{
+  const yb = roofTop(x), yt = yTop(x)-0.12, ylo = yb + 1.0;
   const F = FRAMES;
   beam([x,yt,F[0]],[x,ylo,F[1]],0.05,0.05,M.brace,S);              // bay 1
   beam([x,yt,F[2]],[x,ylo,F[3]],0.05,0.05,M.brace,S);              // bay 3 (X)
@@ -327,21 +331,18 @@ COLS.forEach((x,i)=>{
 
 // ===================== PV PANELS =====================
 const P = groups.panels;
-const slopeLen = W/Math.cos(TH);
-const rowsLen = ROWS*PANEL_L + (ROWS-1)*ROW_GAP;
-const u0 = (slopeLen - rowsLen)/2;
-const blockW = PER_BLOCK*PANEL_W + (PER_BLOCK-1)*PANEL_GAP;
-const zLen = BLOCKS*blockW + (BLOCKS-1)*BLOCK_GAP;
-const z0 = (L - zLen)/2;
-const pvGeo = new THREE.BoxGeometry(PANEL_L, PANEL_T, PANEL_W);
+const blockW = PER_BLOCK*PANEL_W;
+const z0 = BLOCK_Z[0], zLen = BLOCK_Z[5]+blockW - z0;
+const xr0 = ROW_X0, xr1 = ROW_X0 + (ROWS-1)*ROW_PITCH + PANEL_L;
+const rowsLen = xr1 - xr0;
+const pvGeo = new THREE.BoxGeometry(PANEL_L/Math.cos(TH), PANEL_T, PANEL_W);
 const pvMats = [M.frameAl,M.frameAl,M.pvTop,M.pvBack,M.frameAl,M.frameAl];
 let count = 0;
 for(let r=0;r<ROWS;r++){
-  const u = u0 + r*(PANEL_L+ROW_GAP) + PANEL_L/2;
-  const x = u*Math.cos(TH);
+  const x = ROW_X0 + r*ROW_PITCH + PANEL_L/2;
   const y = yTop(x) + 0.1 + PANEL_T/2 + 0.01;
   for(let b=0;b<BLOCKS;b++) for(let k=0;k<PER_BLOCK;k++){
-    const z = z0 + b*(blockW+BLOCK_GAP) + k*(PANEL_W+PANEL_GAP) + PANEL_W/2;
+    const z = BLOCK_Z[b] + k*PANEL_W + PANEL_W/2;
     const m = new THREE.Mesh(pvGeo,pvMats);
     m.position.set(x,y,z); m.rotation.z = TH; m.castShadow = m.receiveShadow = true; P.add(m); count++;
   }
@@ -379,27 +380,48 @@ label('ميل الألواح ≈ 4.4°  ↗',{pos:[XR, yTop(XR)+2.5, L/2],size:0
 label('ميل السقف القائم ≈ 10.4°',{pos:[XR*0.45, roofTop(XR*0.45)+0.6, -1.0],size:0.5});
 label('Ridge',{pos:[XR, roofTop(XR)+0.35, -0.8],size:0.4});
 // building length & bays (left side, x<0)
-const xd = -2.2;
+const xd = W + 2.2;
 dim([xd,0.25,0],[xd,0.25,L],'26.550 m',[0.3,0,0],{size:0.75});
 for(let i=0;i<FRAMES.length-1;i++){
-  dim([xd+0.9,yTop(0)+0.6,FRAMES[i]],[xd+0.9,yTop(0)+0.6,FRAMES[i+1]],(FRAMES[i+1]-FRAMES[i]).toFixed(3),[0,0.2,0],{size:0.45});
+  dim([xd-0.9,yTop(W)+0.6,FRAMES[i]],[xd-0.9,yTop(W)+0.6,FRAMES[i+1]],(FRAMES[i+1]-FRAMES[i]).toFixed(3),[0,0.2,0],{size:0.45});
 }
-FRAMES.forEach(z=>rod([0,yTop(0),z],[xd+0.9,yTop(0)+0.6,z],M.dim,0.008));
+FRAMES.forEach(z=>rod([W,yTop(W),z],[xd-0.9,yTop(W)+0.6,z],M.dim,0.008));
 // panel field dims
-const xr0 = u0*Math.cos(TH), xr1 = (u0+rowsLen)*Math.cos(TH);
 const yP = x=>yTop(x)+0.4;
-dim([xr0,yP(xr0),z0-0.6],[xr1,yP(xr1),z0-0.6],`9 صفوف × 2.384 = ${rowsLen.toFixed(2)} m (على الميل)`,[0,0,0.2],{size:0.5});
-dim([xr1+0.6,yP(xr1),z0],[xr1+0.6,yP(xr1),z0+zLen],`${zLen.toFixed(2)} m`,[0.2,0,0],{size:0.5});
+dim([xr0,yP(xr0),z0-0.6],[xr1,yP(xr1),z0-0.6],`9 × 2.40 (pitch 2.50) = ${rowsLen.toFixed(2)} m`,[0,0,0.2],{size:0.5});
+dim([xr0-0.5,yP(xr0),z0],[xr0-0.5,yP(xr0),z0+zLen],`${zLen.toFixed(2)} m`,[0.2,0,0],{size:0.5});
 for(let b=0;b<BLOCKS;b++){
-  const zc = z0 + b*(blockW+BLOCK_GAP) + blockW/2;
-  label(`Block ${b+1} · 27`,{pos:[xr1+0.2, yP(xr1)+0.9, zc],size:0.42,bg:'#0f2347',color:'#fff'});
+  const zc = BLOCK_Z[b] + blockW/2;
+  label(`Block ${b+1} · 27`,{pos:[xr0+1.2, yP(xr0)+0.9, zc],size:0.42,bg:'#0f2347',color:'#fff'});
 }
 label(`${count} لوح شمسي`,{pos:[XR, yTop(XR)+4.0, L/2],size:1.1,bg:'#f5a524',color:'#111'});
 // member tags
-label('SHS 100×100×3',{pos:[COLS[7]+0.4, yTop(COLS[7])-0.9, zF+0.35],size:0.36,bg:'#e8862a',color:'#111'});
-label('SHS 100×50×3 Purlin',{pos:[PURL[13], yTop(PURL[13])+0.45, L+0.6],size:0.36,bg:'#f2c94c',color:'#111'});
-label('Angle 50×50×5',{pos:[COLS[9]+0.35, roofTop(COLS[9])+1.4, (FRAMES[0]+FRAMES[1])/2],size:0.36,bg:'#2fa36b',color:'#fff'});
-label('Existing Parapet',{pos:[-0.2, PAR_TOP+0.45, L-1.2],size:0.38});
+// ---- member tags (as on drawings) ----
+const T = groups.tags;
+const tag=(t,pos,bg,col,sz)=>label(t,{pos,size:sz||0.38,bg,color:col||'#111',grp:T});
+FRAMES.forEach((z,i)=>{ const x = i%2? 16.5 : 6.0;
+  tag('Main Beam SHS 100×100×3',[x, yTop(x)+0.55, z],'#e8862a'); });
+[[COLS[1],FRAMES[5]],[COLS[7],FRAMES[3]],[COLS[3],FRAMES[1]],[COLS[8],FRAMES[0]]].forEach(([x,z])=>{
+  const yb=roofTop(x), yt=yTop(x); tag('Column SHS 100×100×3',[x+0.2,(yb+yt)/2,z+0.35],'#e8862a',null,0.34); });
+[[2,2.5],[6,8],[11,13],[15,19],[16,24],[8,24.3]].forEach(([i,z])=>{
+  const x=PURL[i]; tag('Purlin SHS 100×50×3',[x, yTop(x)+0.4, z],'#f2c94c',null,0.34); });
+[[FRAMES[0],FRAMES[1]],[FRAMES[2],FRAMES[3]],[FRAMES[4],FRAMES[5]]].forEach(([a,b])=>{
+  tag('Bracing L50×50×5',[BRACE_X+0.35, roofTop(BRACE_X)+1.9, (a+b)/2],'#2fa36b','#fff',0.36); });
+tag('Base Plate',[COLS[9]+0.3, roofTop(COLS[9])+0.15, FRAMES[5]+0.45],'#555b63','#fff',0.3);
+tag('Existing Rafter (d=0.300)',[3.2, roofTop(3.2)-0.55, L+0.35],'#7d8794','#fff',0.36);
+tag('Existing Parapet',[-0.2, PAR_TOP+0.45, L-1.2],'rgba(255,255,255,.92)','#1d2b3a',0.38);
+// ---- section cut markers (plan) ----
+const ZA = 22.48, XB = 24.97, yS = 0.06;
+function cutLine(p1,p2,name,dir){
+  const n=24, a=new THREE.Vector3(...p1), b=new THREE.Vector3(...p2);
+  for(let i=0;i<n;i+=2){ rod(a.clone().lerp(b,i/n).toArray(), a.clone().lerp(b,(i+1)/n).toArray(), M.dimHi, 0.05); }
+  [p1,p2].forEach(p=>{ label(name,{pos:[p[0],1.0,p[2]],size:1.1,bg:'#b3261e',color:'#fff'});
+    rod([p[0],yS,p[2]],[p[0]+dir[0]*1.6,yS,p[2]+dir[2]*1.6],M.dimHi,0.08); });
+}
+cutLine([-4.5,yS,ZA],[W+4.5,yS,ZA],'A',[0,0,-1]);
+cutLine([XB,yS,-3.5],[XB,yS,L+3.5],'B',[-1,0,0]);
+label('Section A – A',{pos:[XR,yS+0.5,ZA+1.6],size:0.6,bg:'#b3261e',color:'#fff'});
+label('Section B – B',{pos:[XB+1.6,yS+0.5,L/2],size:0.6,bg:'#b3261e',color:'#fff'});
 label('PETRA POWER ENERGY',{pos:[XR, 1.6, L+0.6],size:0.55,bg:'#f5a524',color:'#111'});
 label('Existing Steel Warehouse',{pos:[XR, 3.2, L+0.6],size:0.7,bg:'rgba(255,255,255,.75)'});
 
@@ -409,7 +431,7 @@ const VIEWS = {
   iso:  {p:[-16, 26, 58], t:[XR,7,L/2]},
   iso2: {p:[46, 28, -26], t:[XR,7,L/2]},
   front:{p:[XR, 9, 62],  t:[XR,8,L/2]},
-  side: {p:[-52, 10, L/2], t:[XR,8,L/2]},
+  side: {p:[W+52, 10, L/2], t:[XR,8,L/2]},
   top:  {p:[XR, 70, L/2+0.01], t:[XR,8,L/2]},
 };
 let anim=null;
@@ -447,6 +469,20 @@ setView('iso',true);
 function loop(now){ if(anim) anim(now); controls.update(); renderer.render(scene,camera); requestAnimationFrame(loop); }
 requestAnimationFrame(loop);
 document.getElementById('load').style.display='none';
+// ---- BOM ----
+(function(){
+  const colL = 6*HTS.reduce((a,b)=>a+b,0);
+  const beamL = 6*(W-0.1)/Math.cos(TH);
+  const purL = PURL.length*L;
+  const hB = (yTop(BRACE_X)-0.12) - (roofTop(BRACE_X)+1.0);
+  const brL = 2*Math.hypot(5.0,hB) + 2*Math.hypot(5.5,hB);
+  const rows=[['Columns SHS 100×100×3 (60 pcs)',colL,8.96],['Main Beams SHS 100×100×3 (6 pcs)',beamL,8.96],
+    ['Purlins SHS 100×50×3 (18 pcs)',purL,6.60],['Bracing L50×50×5 (4 pcs)',brL,3.77]];
+  let tot=0; const tb=document.getElementById('bom');
+  rows.forEach(([n,l,kg])=>{tot+=l*kg; const tr=document.createElement('tr'); tr.innerHTML=`<td>${n}</td><td>${l.toFixed(1)} m · ${Math.round(l*kg)} kg</td>`; tb.appendChild(tr);});
+  const tr=document.createElement('tr'); tr.innerHTML=`<td><b>المجموع التقريبي</b></td><td>≈ ${(tot/1000).toFixed(2)} t</td>`; tb.appendChild(tr);
+  window.__bom={colL,beamL,purL,brL,tot};
+})();
 window.__pv = {count, TH:TH*180/Math.PI, S_PV, yTop0, yTop9, zLen, rowsLen};
 })();
 </script>
