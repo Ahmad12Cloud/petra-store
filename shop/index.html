@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V89';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V90';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -5591,14 +5591,15 @@ function pp83Apply(force){
   const s=state.settings,r=document.documentElement,bar=document.querySelector('.v12-headbar'),act=document.querySelector('.v12-top-actions');
   if(!bar||!act)return;
   const W=bar.getBoundingClientRect().width;
-  const key=JSON.stringify([s.hdrAlign,s.hdrX,s.hdrY,s.hdrWord,s.hdrWordFg,s.hdrWordBg,s.hdrWordSize,s.hdrWordX,s.hdrL2Hide,s.headerBg,s.pp30NameLine1,s.pp30NameLine2,s.pp30ColorLine1,s.pp30ColorLine2,s.pp30SizeLine1,s.pp30SizeLine2,s.hdrBtnSize,s.hdrGap,Math.round(W)]);
+  const ltr=document.documentElement.dir==='ltr',al=ltr?({l:'r',r:'l'}[s.hdrAlign]||s.hdrAlign):s.hdrAlign,dx=pp83Num(s.hdrX,-200,200,0)*(ltr?-1:1);
+  const key=JSON.stringify([ltr,s.hdrAlign,s.hdrX,s.hdrY,s.hdrWord,s.hdrWordFg,s.hdrWordBg,s.hdrWordSize,s.hdrWordX,s.hdrL2Hide,s.headerBg,s.pp30NameLine1,s.pp30NameLine2,s.pp30ColorLine1,s.pp30ColorLine2,s.pp30SizeLine1,s.pp30SizeLine2,s.hdrBtnSize,s.hdrGap,Math.round(W)]);
   if(!force&&key===pp83Last)return;pp83Last=key;
   const cur=Number(r.style.getPropertyValue('--pp83-ax').replace('px',''))||0;
   const hb=bar.getBoundingClientRect(),ar=act.getBoundingClientRect(),nat={l:ar.left-cur,r:ar.right-cur};
-  let ax=0;if(s.hdrAlign==='l')ax=hb.left-nat.l;else if(s.hdrAlign==='r')ax=hb.right-nat.r;else if(s.hdrAlign==='c')ax=(hb.left+hb.right)/2-(nat.l+nat.r)/2;
+  let ax=0;if(al==='l')ax=hb.left-nat.l;else if(al==='r')ax=hb.right-nat.r;else if(al==='c')ax=(hb.left+hb.right)/2-(nat.l+nat.r)/2;
   ax=Math.round(ax);
   r.style.setProperty('--pp83-ax',ax+'px');
-  r.style.setProperty('--pp83-x',(ax+pp83Num(s.hdrX,-200,200,0))+'px');
+  r.style.setProperty('--pp83-x',(ax+dx)+'px');
   r.style.setProperty('--pp83-y',pp83Num(s.hdrY,-24,24,0)+'px');
   r.style.setProperty('--pp83-wx',pp83Num(s.hdrWordX,-150,150,0)+'px');
   r.style.setProperty('--pp83-ws',pp83Num(s.hdrWordSize,8,30,13)+'px');
