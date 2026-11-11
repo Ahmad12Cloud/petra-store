@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V67';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V68';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2241,6 +2241,9 @@ function edit(p){
       <label class="stack">🗂 القسم${p?'':' (إجباري)'}<select class="field" name="category" ${p?'':'required'}>${p?'':'<option value="">— اختر القسم —</option>'}<option value="" ${p&&!p.category?'selected':''}>بدون قسم</option>${[...new Set([...allCategories(),p?.category].filter(Boolean))].map(c=>`<option value="${esc(c)}" ${p?.category===c?'selected':''}>${esc(c)}</option>`).join('')}</select></label>
       <label class="stack full">📏 القياسات / الخيارات المتاحة (اختياري)<textarea class="field" name="sizes" rows="2" placeholder="مثلاً: 2A, 4A, 6A, 10A, 16A, 20A, 25A, 32A, 40A, 50A, 63A">${esc((p?.sizes||[]).join(', '))}</textarea><small>افصل بفاصلة أو سطر جديد. الزبون لازم يختار واحد منها قبل الطلب، وبيظهر بالطلب اللي بينبعتلك على واتساب.</small><button type="button" class="btn small" data-action="pp64-breaker">⚡ تعبئة قياسات القواطع 2→63 أمبير</button></label>
       <label class="stack">اسم الخيار (اختياري)<input class="field" name="sizeLabel" value="${esc(p?.sizeLabel||'')}" placeholder="القياس (الافتراضي)"></label>
+      <label class="stack full">🏷 سطر مواصفات قصير يظهر على البطاقة<input class="field" name="specLine" maxlength="120" value="${esc(p?.specLine||'')}" placeholder="مثلاً: 1P · 2–63A · 6kA · 230/400V"></label>
+      <label class="stack full">📋 جدول المواصفات (سطر لكل مواصفة بالشكل: الاسم: القيمة)<textarea class="field" name="specTable" rows="5" placeholder="عدد الأقطاب: 1P&#10;التيار المقنن: 2 - 63 A&#10;قدرة القطع: 6 kA">${esc(p?.specTable||'')}</textarea></label>
+      <label class="stack full">⬇ رابط ورقة البيانات Datasheet (اختياري، رابط https لملف PDF)<input class="field" name="datasheet" dir="ltr" value="${esc(p?.datasheet||'')}" placeholder="https://..."></label>
       ${input('brand','الماركة','Brand',p?.brand)}
       ${input('model','الموديل','Model',p?.model)}
       <label class="stack">العملة<select class="field" name="currency">${['USD','LBP','SYP','EUR'].map(c=>`<option value="${c}" ${c===(p?.currency||'USD')?'selected':''}>${c}</option>`).join('')}</select></label>
@@ -2285,7 +2288,7 @@ async function saveProduct(){
  if((price!==''&&(!Number.isFinite(+price)||+price<0))||(stock!==''&&!/^\d+$/.test(stock))){note('راجع السعر والكمية');return;}
  const visibility={showName:fd.has('showName'),showPrice:fd.has('showPrice'),showDesc:fd.has('showDesc'),showCode:fd.has('showCode'),showCategory:fd.has('showCategory'),showBrandModel:fd.has('showBrandModel'),showSpecs:fd.has('showSpecs')};
  const p={id:old?.id||id(),demoOnly:old?.demoOnly===true,createdAt:old?.createdAt||Date.now(),
- nameAr:v('nameAr'),nameEn:v('nameEn'),sku,productCode,pp49CodeMode:mode,pp49CodePrefix:prefix,barcode:v('barcode'),category:v('category'),sizes:ppParseSizes(v('sizes')),sizeLabel:v('sizeLabel'),brand:v('brand'),model:v('model'),
+ nameAr:v('nameAr'),nameEn:v('nameEn'),sku,productCode,pp49CodeMode:mode,pp49CodePrefix:prefix,barcode:v('barcode'),category:v('category'),sizes:ppParseSizes(v('sizes')),sizeLabel:v('sizeLabel'),specLine:v('specLine'),specTable:v('specTable'),datasheet:v('datasheet'),brand:v('brand'),model:v('model'),
  currency:v('currency')||'USD',price:price===''?null:Number(price),stock:stock===''?null:Number(stock),specs:v('specs'),
  descriptionAr:v('descriptionAr'),descriptionEn:v('descriptionEn'),images:[...formImages],
  photoBg:fd.has('customPhotoBg')?safeColor(fd.get('photoBg'),safeColor(state.settings.productPhotoBg,'#ffffff')):'',
@@ -4800,7 +4803,6 @@ document.addEventListener('click',e=>{
   e.preventDefault();e.stopImmediatePropagation();
   const ta=b.closest('form')?.querySelector('[name="sizes"]');if(ta){ta.value='2A, 4A, 6A, 10A, 16A, 20A, 25A, 32A, 40A, 50A, 63A';ta.dispatchEvent(new Event('input',{bubbles:true}));}
 },true);
-function detail(p){detailBase(p);try{ppDetailEnhance(p);}catch(err){console.error(err);}}
 
 /* V64b: on the cart page the footer WhatsApp cards send the full order */
 function ppCartFooterOn(){return tab==='cart'&&cart.length>0;}
@@ -5023,6 +5025,34 @@ function pp66EnhanceColors(root){
   });
 }
 new MutationObserver(()=>{const s=document.getElementById('pp49-sheet');if(s)pp66EnhanceColors(s);const d=document.getElementById('pp-live-dock');if(d)pp66EnhanceColors(d);}).observe(document.body,{childList:true,subtree:true});
+
+/* ===== V68: product card brand chip + spec line; product page spec table + datasheet ===== */
+(function(){const st=document.createElement('style');st.textContent=`
+.pp68-meta{display:flex;flex-wrap:wrap;gap:5px;margin:3px 0}.pp68-chip{border:1px solid #d8c28d;background:#fff8eb;color:#6f4b1e;border-radius:8px;padding:1px 8px;font-size:11px;font-weight:800}
+.pp68-spec{font-size:12px;color:#6b6b6b;line-height:1.5;margin:2px 0 4px;font-weight:600}
+#pp68-specs{margin:14px 0 4px}#pp68-specs h4{margin:0 0 6px;font-size:14px}
+#pp68-specs table{width:100%;border-collapse:collapse;font-size:13px}#pp68-specs td{padding:7px 4px;border-bottom:1px solid #eee}
+#pp68-specs td:first-child{color:#777;width:42%}#pp68-specs td:last-child{font-weight:800}
+.pp68-ds{display:block;text-align:center;margin:10px 0;padding:10px;border:1.5px dashed #c8962e;border-radius:12px;color:#7a5410;font-weight:800;text-decoration:none;background:#fffaf0}
+`;document.head.appendChild(st);})();
+const pp68Rows=t=>String(t||'').split(/\n/).map(l=>l.trim()).filter(Boolean).map(l=>{const m=l.match(/^(.*?)\s*[:：|]\s*(.+)$/);return m?[m[1],m[2]]:null;}).filter(Boolean);
+const pp68SpecLine=p=>(p.specLine&&String(p.specLine).trim())||pp68Rows(p.specTable).slice(0,3).map(r=>r[1]).join(' · ');
+function productCard(p){
+  const h=ppNewBadge(p,productCardBase(p));
+  const chips=[p.brand,p.model].filter(Boolean),spec=pp68SpecLine(p);
+  const block=(chips.length?`<div class="pp68-meta" dir="ltr">${chips.map(c=>`<span class="pp68-chip">${esc(c)}</span>`).join('')}</div>`:'')+(spec?`<div class="pp68-spec">${esc(spec)}</div>`:'');
+  return h.replace(/<div class="product-meta" dir="ltr">[^<]*<\/div>/,block);
+}
+function detail(p){detailBase(p);try{ppDetailEnhance(p);}catch(err){console.error(err);}
+  try{
+    const box=document.getElementById('pp64-order');if(!box)return;
+    const rows=pp68Rows(p.specTable),ds=/^https:\/\//i.test(String(p.datasheet||'').trim())?String(p.datasheet).trim():'';
+    let h='';
+    if(rows.length)h+=`<div id="pp68-specs"><h4>${T('المواصفات الفنية','Technical specifications')}</h4><table>${rows.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('')}</table></div>`;
+    if(ds)h+=`<a class="pp68-ds" href="${esc(ds)}" target="_blank" rel="noopener">⬇ ${T('تحميل ورقة البيانات (Datasheet)','Download datasheet')}</a>`;
+    if(h)box.insertAdjacentHTML('beforebegin',h);
+  }catch(err){console.error(err);}
+}
 
 ppBoot();
 })();
