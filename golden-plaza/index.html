@@ -10,10 +10,11 @@
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;overflow:hidden;background:#cfdbe6;font-family:Cairo,system-ui,sans-serif;color:var(--txt)}
   #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
-  .bar{position:fixed;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;flex-wrap:wrap;justify-content:center;z-index:5;max-width:96vw}
-  .bar button,.tg button{font-family:inherit;border:0;border-radius:10px;padding:7px 12px;background:var(--card);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;backdrop-filter:blur(6px)}
+  .bar{position:fixed;top:8px;left:8px;right:8px;display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;justify-content:center;z-index:6;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .bar::-webkit-scrollbar,.tg::-webkit-scrollbar{display:none}
+  .bar button,.tg button{flex:0 0 auto;white-space:nowrap;font-family:inherit;border:0;border-radius:10px;padding:7px 12px;background:var(--card);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;backdrop-filter:blur(6px)}
   .bar button.on{background:var(--acc);color:#111}
-  .title{position:fixed;top:56px;right:12px;z-index:4;background:var(--card);padding:8px 14px;border-radius:12px;max-width:300px}
+  .title{position:fixed;top:52px;right:8px;z-index:4;background:var(--card);padding:8px 14px;border-radius:12px;max-width:300px}
   .brand{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:1.5px;font-weight:600;color:#fff;margin-bottom:4px;direction:ltr;justify-content:flex-end}
   .brand b{color:var(--acc)}
   .logo{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;background:var(--acc);color:#111;font-weight:800;letter-spacing:0;font-size:12px}
@@ -23,6 +24,18 @@
   .tg button.off{opacity:.45}
   #info{position:fixed;bottom:12px;right:12px;z-index:5;background:var(--card);border-radius:14px;padding:12px 14px;width:min(340px,calc(100vw - 150px));max-height:62vh;overflow:auto;font-size:12.5px;line-height:1.7;backdrop-filter:blur(6px)}
   #info.min .body{display:none}
+  #hint{position:fixed;top:52px;left:8px;z-index:4;background:var(--card);border-radius:10px;padding:5px 10px;font-size:11px;color:var(--mut);display:none}
+  @media (max-width:700px){
+    .bar{justify-content:flex-start}
+    .bar button{padding:6px 10px;font-size:12px}
+    .title{padding:5px 10px;max-width:62vw}
+    .title h1{font-size:12px}.title p{display:none}.brand{font-size:10px;margin-bottom:2px}.logo{width:20px;height:20px;font-size:10px}
+    .tg{flex-direction:row;left:8px;right:8px;bottom:8px;overflow-x:auto;flex-wrap:nowrap}
+    .tg button{padding:6px 10px;font-size:12px}
+    #info{left:8px;right:8px;bottom:50px;width:auto;padding:8px 12px;max-height:55vh}
+    #info h2{font-size:13px}
+  }
+  @media (max-width:700px) and (orientation:portrait){ #hint{display:block} }
   #info h2{margin:0;font-size:14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:8px}
   #info h2 span{font-size:11px;color:var(--acc)}
   table{width:100%;border-collapse:collapse;margin-top:6px}
@@ -67,6 +80,7 @@
   <button data-t="building">🏭 المستودع</button>
 </div>
 
+<div id="hint">↻ قلّب الموبايل بالعرض لعرض أوضح</div>
 <div id="info">
   <h2 id="infoHead">تفاصيل المشروع <span>إخفاء ▾</span></h2>
   <div class="body">
@@ -193,26 +207,31 @@ function beam(p1,p2,w,h,mat,grp){ // box from p1 to p2 (local z along length)
   m.position.copy(a).add(b).multiplyScalar(.5);
   m.lookAt(b); m.castShadow = m.receiveShadow = true; grp.add(m); return m;
 }
+const LABELS = [];
 function label(text, opt={}){
   const fs = 64, pad = 22;
   const c = document.createElement('canvas'), ctx = c.getContext('2d');
   const font = `${opt.bold===false?600:800} ${fs}px Cairo, Arial, sans-serif`;
   ctx.font = font;
-  const tw = Math.ceil(ctx.measureText(text).width);
-  c.width = tw + pad*2; c.height = fs + pad*1.4;
+  const lines = String(text).split('\n');
+  const tw = Math.ceil(Math.max(...lines.map(t=>ctx.measureText(t).width)));
+  const lh = fs*1.15;
+  c.width = tw + pad*2; c.height = lh*lines.length + pad*1.1;
   ctx.font = font;
   ctx.fillStyle = opt.bg || 'rgba(255,255,255,.92)';
   const r = 18; roundRect(ctx,0,0,c.width,c.height,r); ctx.fill();
   if(opt.border){ctx.lineWidth=5;ctx.strokeStyle=opt.border;roundRect(ctx,2.5,2.5,c.width-5,c.height-5,r);ctx.stroke();}
   ctx.fillStyle = opt.color || '#1d2b3a';
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.direction = /[؀-ۿ]/.test(text) ? 'rtl':'ltr';
-  ctx.fillText(text, c.width/2, c.height/2+3);
+  lines.forEach((t,i)=>{ ctx.direction = /[؀-ۿ]/.test(t) ? 'rtl':'ltr';
+    ctx.fillText(t, c.width/2, c.height/2 + (i-(lines.length-1)/2)*lh + 3); });
   const tex = new THREE.CanvasTexture(c); tex.encoding = THREE.sRGBEncoding; tex.anisotropy = 4;
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:tex, depthTest:false, transparent:true}));
   const hgt = opt.size || 0.55;
   sp.scale.set(hgt*c.width/c.height, hgt, 1);
   sp.renderOrder = 10;
+  sp.userData = {ar:c.width/c.height, px: (13 + hgt*13)*(c.height/(lh+pad*1.1)), prio: opt.prio || (opt.grp===groups.tags?2.2:(hgt>=0.75?3:2))};
+  LABELS.push(sp);
   if(opt.pos) sp.position.set(...opt.pos);
   (opt.grp||groups.dims).add(sp);
   return sp;
@@ -371,13 +390,13 @@ COLS.forEach((x,i)=>{
      bg: lo?'#1f7a4d':hi?'#b3261e':'rgba(255,255,255,.92)', color:(lo||hi)?'#fff':'#1d2b3a'});
 });
 // LOW / HIGH callouts
-label('أوطى درجة — 1.618 m',{pos:[COLS[0]+0.3, yTop(0)+2.6, zF+0.6],size:0.85,bg:'#1f7a4d',color:'#fff'});
-label('أعلى درجة — 3.392 m',{pos:[COLS[9]-1.0, yTop(W)+3.3, zF+0.6],size:0.85,bg:'#b3261e',color:'#fff'});
+label('أوطى درجة\n1.618 m',{pos:[COLS[0]+0.3, yTop(0)+2.6, zF+0.6],size:0.85,bg:'#1f7a4d',color:'#fff'});
+label('أعلى درجة\n3.392 m',{pos:[COLS[9]-1.0, yTop(W)+3.3, zF+0.6],size:0.85,bg:'#b3261e',color:'#fff'});
 rod([COLS[0]+0.3,yTop(0)+2.2,zF+0.6],[COLS[0]+0.3,yTop(0)+0.2,zF+0.6],M.dimLo,0.04);
 rod([COLS[9]-0.2,yTop(W)+2.9,zF+0.6],[COLS[9]-0.05,yTop(W)+0.25,zF+0.6],M.dimHi,0.04);
 // slope labels
-label('ميل الألواح ≈ 4.4°  ↗',{pos:[XR, yTop(XR)+2.5, L/2],size:0.75,bg:'#0f2347',color:'#fff'});
-label('ميل السقف القائم ≈ 10.4°',{pos:[XR*0.45, roofTop(XR*0.45)+0.6, -1.0],size:0.5});
+label('ميل الألواح\n≈ 4.4°',{pos:[XR, yTop(XR)+2.5, L/2],size:0.75,bg:'#0f2347',color:'#fff'});
+label('ميل السقف القائم\n≈ 10.4°',{pos:[XR*0.45, roofTop(XR*0.45)+0.6, -1.0],size:0.5});
 label('Ridge',{pos:[XR, roofTop(XR)+0.35, -0.8],size:0.4});
 // building length & bays (left side, x<0)
 const xd = W + 2.2;
@@ -428,19 +447,20 @@ label('Existing Steel Warehouse',{pos:[XR, 3.2, L+0.6],size:0.7,bg:'rgba(255,255
 // ===================== VIEWS =====================
 const C = new THREE.Vector3(XR, 7.5, L/2);
 const VIEWS = {
-  iso:  {p:[-16, 26, 58], t:[XR,7,L/2]},
-  iso2: {p:[46, 28, -26], t:[XR,7,L/2]},
-  front:{p:[XR, 9, 62],  t:[XR,8,L/2]},
-  side: {p:[W+52, 10, L/2], t:[XR,8,L/2]},
-  top:  {p:[XR, 70, L/2+0.01], t:[XR,8,L/2]},
+  iso:  {p:[-16, 26, 58], t:[XR,7,L/2], r:20},
+  iso2: {p:[46, 28, -26], t:[XR,7,L/2], r:20},
+  front:{p:[XR, 9, 62],  t:[XR,7,L/2], r:15},
+  side: {p:[W+52, 10, L/2], t:[XR,7,L/2], r:16},
+  top:  {p:[XR, 70, L/2+0.01], t:[XR,8,L/2], r:17},
 };
-let anim=null;
+let anim=null, curView='iso';
 function setView(k, instant){
-  const v=VIEWS[k]; const from=camera.position.clone(), ft=controls.target.clone();
+  curView=k; const v=VIEWS[k]; const from=camera.position.clone(), ft=controls.target.clone();
   const to=new THREE.Vector3(...v.p), tt=new THREE.Vector3(...v.t);
   // fit distance for narrow (portrait) screens
-  const asp = camera.aspect; const f = asp<1 ? Math.min(1.9, 1/asp*0.95) : 1;
-  to.sub(tt).multiplyScalar(f).add(tt);
+  const vf = THREE.MathUtils.degToRad(camera.fov), hf = 2*Math.atan(Math.tan(vf/2)*camera.aspect);
+  const dist = (v.r||19)*(camera.aspect<0.7?0.88:1) / Math.sin(Math.min(vf,hf)/2);
+  to.sub(tt).normalize().multiplyScalar(dist).add(tt);
   if(instant){camera.position.copy(to);controls.target.copy(tt);controls.update();return;}
   const t0=performance.now(); anim=(now)=>{const a=Math.min(1,(now-t0)/700), e=a<.5?2*a*a:1-Math.pow(-2*a+2,2)/2;
     camera.position.lerpVectors(from,to,e); controls.target.lerpVectors(ft,tt,e); if(a>=1) anim=null;};
@@ -452,7 +472,7 @@ document.querySelectorAll('#toggles button').forEach(b=>b.onclick=()=>{
 });
 const info=document.getElementById('info');
 document.getElementById('infoHead').onclick=()=>{info.classList.toggle('min');info.querySelector('h2 span').textContent=info.classList.contains('min')?'إظهار ▴':'إخفاء ▾';};
-if(window.innerWidth<700){info.classList.add('min');info.querySelector('h2 span').textContent='إظهار ▴';}
+if(window.innerWidth<700 || window.innerHeight<500){info.classList.add('min');info.querySelector('h2 span').textContent='إظهار ▴';}
 document.getElementById('snap').onclick=()=>{
   renderer.render(scene,camera);
   document.getElementById('shotImg').src=renderer.domElement.toDataURL('image/png');
@@ -464,9 +484,41 @@ function resize(){
   const w=window.innerWidth,h=window.innerHeight;
   renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
 }
-window.addEventListener('resize',resize); resize();
+window.addEventListener('resize',()=>{resize(); setView(curView,true);}); resize();
 setView('iso',true);
-function loop(now){ if(anim) anim(now); controls.update(); renderer.render(scene,camera); requestAnimationFrame(loop); }
+groups.tags.visible=false; document.querySelector('#toggles button[data-t="tags"]').classList.add('off');
+// keep labels a fixed size on screen and hide the ones that would overlap
+const _v = new THREE.Vector3();
+function updateLabels(){
+  const H = renderer.domElement.clientHeight || window.innerHeight, Wd = renderer.domElement.clientWidth || window.innerWidth;
+  const k = 2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))/H;
+  const mob = Math.min(Wd,H) < 500 ? 0.9 : 1;
+  const items = [];
+  for(const sp of LABELS){
+    let vis = true, o = sp.parent; while(o){ if(!o.visible){vis=false;break;} o=o.parent; }
+    if(!vis){ continue; }
+    sp.getWorldPosition(_v);
+    const d = _v.distanceTo(camera.position);
+    const px = sp.userData.px*mob;
+    sp.scale.set(px*k*d*sp.userData.ar, px*k*d, 1);
+    _v.project(camera);
+    if(_v.z>1 || Math.abs(_v.x)>1.2 || Math.abs(_v.y)>1.2){ sp.visible=false; continue; }
+    let cx=(_v.x+1)/2*Wd, cy=(1-_v.y)/2*H; const w=px*sp.userData.ar, h=px;
+    const m=6; let sx=0, sy=0;
+    if(cx-w/2<m) sx=m-(cx-w/2); else if(cx+w/2>Wd-m) sx=(Wd-m)-(cx+w/2);
+    if(cy-h/2<m) sy=m-(cy-h/2); else if(cy+h/2>H-m) sy=(H-m)-(cy+h/2);
+    sp.center.set(0.5 - sx/w, 0.5 + sy/h); cx+=sx; cy+=sy;
+    items.push({sp,d,prio:sp.userData.prio,r:[cx-w/2-3,cy-h/2-2,cx+w/2+3,cy+h/2+2]});
+  }
+  items.sort((a,b)=>b.prio-a.prio || a.d-b.d);
+  const placed=[];
+  for(const it of items){
+    const r=it.r; let ok=true;
+    for(const q of placed){ if(r[0]<q[2]&&r[2]>q[0]&&r[1]<q[3]&&r[3]>q[1]){ok=false;break;} }
+    it.sp.visible=ok; if(ok) placed.push(r);
+  }
+}
+function loop(now){ if(anim) anim(now); controls.update(); updateLabels(); renderer.render(scene,camera); requestAnimationFrame(loop); }
 requestAnimationFrame(loop);
 document.getElementById('load').style.display='none';
 // ---- BOM ----
