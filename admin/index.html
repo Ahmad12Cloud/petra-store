@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V72';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V73';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -5042,7 +5042,9 @@ function productCard(p){
   const h=ppNewBadge(p,productCardBase(p));
   const chips=[p.brand,p.model].filter(Boolean),spec=pp68SpecLine(p);
   const block=(chips.length?`<div class="pp68-meta" dir="ltr">${chips.map(c=>`<span class="pp68-chip">${esc(c)}</span>`).join('')}</div>`:'')+(spec?`<div class="pp68-spec">${esc(spec)}</div>`:'');
-  return h.replace(/<div class="product-meta" dir="ltr">[^<]*<\/div>/,block);
+  let out=h.replace(/<div class="product-meta" dir="ltr">[^<]*<\/div>/,block);
+  if(p.stock===0){out=out.replace('<div class="photo">','<div class="photo"><span class="pp72-out">'+T('غير متوفر حالياً','Out of stock')+'</span>');out=out.replace(/(<span class="pp35-cart-label">)[^<]*(<\/span>)/,'$1'+T('غير متوفر','Unavailable')+'$2');}
+  return out;
 }
 function detail(p){detailBase(p);try{ppDetailEnhance(p);}catch(err){console.error(err);}
   try{
@@ -5054,6 +5056,7 @@ function detail(p){detailBase(p);try{ppDetailEnhance(p);}catch(err){console.erro
     if(h)box.insertAdjacentHTML('beforebegin',h);
   }catch(err){console.error(err);}
   try{pp69MarkOut(p);}catch(err){console.error(err);}
+  try{if(p.stock===0){const box=document.getElementById('pp64-order');if(box){box.querySelectorAll('[data-pp64-add],[data-pp64-wa]').forEach(b=>{b.removeAttribute('data-pp64-add');b.removeAttribute('data-pp64-wa');b.disabled=true;b.style.opacity='.45';});box.insertAdjacentHTML('afterbegin','<div class="pp72-banner">⛔ '+T('هذا المنتج غير متوفر حالياً','This product is currently unavailable')+'</div>');}}}catch(err){console.error(err);}
   try{pp69OwnerBox(p);}catch(err){console.error(err);}
 }
 function pp69MarkOut(p){
@@ -5104,10 +5107,11 @@ function pp69OwnerBox(p){
     const own=document.createElement('div');own.className='pp69-own';own.id='pp69-own';own.dataset.id=p.id;
     const outs=Array.isArray(p.soldOut)?p.soldOut:[];
     const pills=list.map((s,i)=>`<span class="pp69-pill ${outs.includes(s)?'out':''}">${esc(s)}<button type="button" class="pp69-o" data-pp69-dout="${i}" title="نفد / متوفر">${outs.includes(s)?'↺ متوفر':'نفد'}</button><button type="button" data-pp69-ddel="${i}" aria-label="حذف">✕</button></span>`).join('')||'<small>لا توجد قياسات</small>';
-    own.innerHTML=`<b>👑 للمالك فقط: عدّل مربعات القياس لهذا المنتج (يُحفظ فوراً)</b><div>${pills}</div><label style="display:block;margin-top:6px;font-size:12px;font-weight:700">الجملة اللي بتظهر على القياس الناضب<input data-pp69-otext value="${esc(p.soldOutText||'')}" placeholder="نفد" maxlength="40" style="width:100%;box-sizing:border-box;padding:7px;border:1px solid #cdb98f;border-radius:8px;font:inherit"></label><div class="pp69-add"><input data-pp69-din placeholder="أضف قياس جديد مثلاً: 80A" maxlength="30"><button type="button" data-pp69-dadd>＋ إضافة</button></div>`;
+    own.innerHTML=`<b>👑 للمالك فقط: عدّل مربعات القياس لهذا المنتج (يُحفظ فوراً)</b><div>${pills}</div><label style="display:block;margin-top:6px;font-size:12px;font-weight:700">الجملة اللي بتظهر على القياس الناضب<input data-pp69-otext value="${esc(p.soldOutText||'')}" placeholder="نفد" maxlength="40" style="width:100%;box-sizing:border-box;padding:7px;border:1px solid #cdb98f;border-radius:8px;font:inherit"></label><div class="pp69-add"><input data-pp69-din placeholder="أضف قياس جديد مثلاً: 80A" maxlength="30"><button type="button" data-pp69-dadd>＋ إضافة</button></div><button type="button" data-pp69-preset style="margin-top:8px;width:100%;padding:9px;border:1.5px solid #c8962e;border-radius:10px;background:#fff;font-weight:800">⚡ تعبئة قياسات القواطع الجاهزة (2A … 63A)</button>`;
     const chips=box.querySelector('.pp64-chips');(chips||box.firstChild)&&box.insertBefore(own,chips?chips.nextSibling:box.firstChild);
 }
 document.addEventListener('click',async e=>{
+  const pr=e.target.closest('[data-pp69-preset]');if(pr){e.preventDefault();e.stopImmediatePropagation();const own=pr.closest('#pp69-own');const p=state.products.find(x=>x.id===own?.dataset.id);if(!p||!visibleAdmin())return;p.sizes=['2A','4A','6A','10A','16A','20A','25A','32A','40A','50A','63A'];await changed();detail(p);note('✓ '+T('تمت تعبئة القياسات','Sizes filled'));return;}
   const o=e.target.closest('[data-pp69-dout]');if(o){e.preventDefault();e.stopImmediatePropagation();const own=o.closest('#pp69-own');const p=state.products.find(x=>x.id===own?.dataset.id);if(!p||!visibleAdmin())return;const s=ppSizes(p)[+o.dataset.pp69Dout];const outs=new Set(Array.isArray(p.soldOut)?p.soldOut:[]);outs.has(s)?outs.delete(s):outs.add(s);p.soldOut=[...outs];await changed();detail(p);return;}
   const d=e.target.closest('[data-pp69-ddel]'),a=e.target.closest('[data-pp69-dadd]');if(!d&&!a)return;
   e.preventDefault();e.stopImmediatePropagation();
@@ -5176,6 +5180,8 @@ document.addEventListener('change',e=>{
   const f=c.closest('form');const s=f&&f.querySelector('[name="stock"]');if(!s)return;
   if(c.checked)s.value='0';else if(String(s.value).trim()==='0')s.value='';
 },true);
+
+(function(){const st=document.createElement('style');st.textContent='.pp72-out{position:absolute;inset-inline:0;top:46%;z-index:3;text-align:center;background:#000b;color:#fff;font-weight:900;padding:8px 0;font-size:14px}.pp72-banner{background:#fde7e4;border:1.5px solid #e4a59c;color:#a02a1c;border-radius:10px;padding:10px;font-weight:900;text-align:center;margin-bottom:8px}.product .photo{position:relative}';document.head.appendChild(st);})();
 
 ppBoot();
 })();
