@@ -4725,7 +4725,8 @@ function addCart(id,size,qty){
 }
 function ppItemLine(p,qty,size,i){
   const price=p.price==null?T('السعر عند الطلب','Price on request'):(p.price+' '+(p.currency||'USD'));
-  return (i+1)+'. '+(p.nameAr||p.nameEn)+' ['+p.sku+']'+(size?' — '+ppSizeLabel(p)+': '+size:'')+' × '+qty+' — '+price;
+  const im=(Array.isArray(p.images)?p.images:[]).find(x=>typeof x==='string'&&/^https:\/\//.test(x));
+  return (i+1)+'. '+(p.nameAr||p.nameEn)+' ['+p.sku+']'+(size?' — '+ppSizeLabel(p)+': '+size:'')+' × '+qty+' — '+price+(im?'\n🖼 '+T('الصورة: ','Photo: ')+im:'');
 }
 function ppOrderTextFor(lines,note){
   if(!lines.length)return'';
