@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V83';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V84';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -5547,7 +5547,7 @@ function pp82Open(){
   const row=(f,label,def)=>`<div style="margin:4px 0">${label}: ${sw(f,['#000000','#2b1b06','#ffffff','#e0b552','#c9a24a','#f4a62f','#d41921'])}<input type="color" data-pp82col="${f}" value="${cur(f,def)}"> <input type="text" data-pp82hex="${f}" value="${cur(f,def)}" maxlength="7" aria-label="كود اللون"></div>`;
   const body_b=`<div class="tabs" style="margin-top:8px">${o.map(x=>`<button type="button" class="tab ${x===k?'on':''}" data-pp82t="${x}">${PP82_ICO[x]}</button>`).join('')}</div>
   <div class="lbl">الزر المختار: ${PP82_NAME[k]}</div>
-  <div>مكانه: <button type="button" class="op" data-pp82m="-1">◀ يسار</button><button type="button" class="op" data-pp82m="1">يمين ▶</button></div>
+  <div style="font-size:12px;color:#6b5320">👆 اسحب أي زر من الصف أعلاه بإصبعك لتغيّر مكانه، واضغطه فقط لاختياره.</div>
   <div class="lbl">ألوانه (اضغط لون أو اكتب الكود)</div>${row('bg','خلفية','#000000')}${row('fg','أيقونة','#e0b552')}${row('bd','إطار','#c9a24a')}
   <div style="margin-top:6px"><button type="button" class="op" data-pp82r>↺ إعادة ألوانه</button><button type="button" class="op" data-pp82copy>⧉ نسخ شكله على الأربعة</button></div>
   <div class="lbl">للأربعة مع بعض</div>
@@ -5644,7 +5644,7 @@ function pp83Render(p,bodyB){
     ${pp83Col('hdrWordFg','لون الكلمة','#e0b552')}${pp83Col('hdrWordBg','خلفية الكلمة','#000000')}
     <div><button type="button" class="op" data-pp83clr="hdrWordBg">بدون خلفية</button></div>${pp83Rg('hdrWordX','يمين/يسار الكلمة',-150,150,0)}`;
   }
-  p.innerHTML=`<div class="hd"><span>🔲 الصف العلوي</span><button type="button" class="x" data-pp82x>✔ تم</button></div>
+  p.innerHTML=`<div class="hd"><span>🔲 الصف العلوي</span><button type="button" class="x" data-pp82x>💾 حفظ</button></div>
   <div class="m3"><button type="button" class="${m==='b'?'on':''}" data-pp83mode="b">الأزرار</button><button type="button" class="${m==='p'?'on':''}" data-pp83mode="p">المكان</button><button type="button" class="${m==='s'?'on':''}" data-pp83mode="s">الشريط والكلمات</button></div>`+body;
 }
 function pp83Live(){pp83Apply(true);}
@@ -5666,6 +5666,41 @@ document.addEventListener('input',e=>{
   if((r=e.target.closest('[data-pp83hex]'))){let v=r.value.trim();if(v&&v[0]!=='#')v='#'+v;if(/^#[0-9a-fA-F]{6}$/.test(v)){s[r.dataset.pp83hex]=v.toLowerCase();pp83Live();pp82Save();}return;}
   if((r=e.target.closest('[data-pp83tx]'))){s[r.dataset.pp83tx]=r.value;pp83Live();pp82Save();return;}
 },true);
+
+/* ===== V84: drag the buttons in the panel row to reorder; Save button ===== */
+(function(){
+  const st=document.createElement('style');st.textContent=`#pp82-panel .tabs [data-pp82t]{touch-action:none;user-select:none;-webkit-user-select:none;position:relative}
+#pp82-panel .tabs [data-pp82t].pp84-drag{z-index:5;box-shadow:0 8px 18px #0008;transform:scale(1.12) rotate(-3deg);transition:none}`;document.head.appendChild(st);
+  let D=null;
+  document.addEventListener('pointerdown',e=>{
+    if(!visibleAdmin())return;const t=e.target.closest&&e.target.closest('#pp82-panel .tabs [data-pp82t]');if(!t)return;
+    const wrap=t.parentElement,els=[...wrap.querySelectorAll('[data-pp82t]')];
+    D={t,wrap,els,key:t.dataset.pp82t,x0:e.clientX,moved:false,id:e.pointerId,centers:els.map(b=>{const r=b.getBoundingClientRect();return r.left+r.width/2}),idx:els.indexOf(t)};
+    try{t.setPointerCapture(e.pointerId)}catch(_){}
+  },true);
+  document.addEventListener('pointermove',e=>{
+    if(!D||e.pointerId!==D.id)return;const dx=e.clientX-D.x0;
+    if(!D.moved){if(Math.abs(dx)<8)return;D.moved=true;D.t.classList.add('pp84-drag');}
+    e.preventDefault();
+    let j=0,best=1e9;D.centers.forEach((c,i)=>{const d=Math.abs(e.clientX-c);if(d<best){best=d;j=i}});
+    if(j!==D.idx){
+      const o=pp82Order(),from=o.indexOf(D.key);o.splice(from,1);o.splice(j,0,D.key);state.settings.hdrOrder=o;
+      const sibs=[...D.wrap.querySelectorAll('[data-pp82t]')].filter(x=>x!==D.t);D.wrap.insertBefore(D.t,sibs[j]||null);D.idx=j;
+      pp82Live();pp82Save();
+    }
+    D.t.style.left=(e.clientX-D.centers[D.idx])+'px';
+  },true);
+  const end=e=>{
+    if(!D||e.pointerId!==D.id)return;const d=D;D=null;
+    if(d.moved){d.t.classList.remove('pp84-drag');d.t.style.left='';pp82Sel=d.key;pp82Live();pp82Save();pp82Open();window.__pp84drag=Date.now();}
+  };
+  document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',end,true);
+  window.addEventListener('click',e=>{
+    if(!visibleAdmin()||!e.target.closest)return;
+    if(window.__pp84drag&&Date.now()-window.__pp84drag<400&&e.target.closest('#pp82-panel [data-pp82t]')){e.preventDefault();e.stopImmediatePropagation();return;}
+    if(e.target.closest('#pp82-panel [data-pp82x]')){clearTimeout(pp82T);try{changed()}catch(_){}try{note('✓ '+T('تم الحفظ','Saved'))}catch(_){}}
+  },true);
+})();
 
 ppBoot();
 })();
