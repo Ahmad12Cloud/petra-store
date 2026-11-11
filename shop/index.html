@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V76';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V77';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -5318,7 +5318,7 @@ function pp75MenuBtn(){
 new MutationObserver(()=>{try{pp75MenuBtn()}catch(e){}}).observe(document.body,{childList:true,subtree:true});
 
 /* ===== V76: multi-size selection (+select all), note on top of WhatsApp message, one image per product ===== */
-const pp76Sel=new Set();
+const pp76Sel=new Set();const pp76Q={};
 function ppOrderTextFor(lines,note){
   if(!lines.length)return'';
   const groups=[];for(const l of lines){let g=groups.find(x=>x.p===l.p);if(!g){g={p:l.p,items:[]};groups.push(g);}g.items.push(l);}
@@ -5336,9 +5336,9 @@ function ppPick(){
   const box=document.getElementById('pp64-order');if(!box)return null;const p=state.products.find(x=>x.id===box.dataset.id);if(!p)return null;
   const sizes=[...box.querySelectorAll('.pp64-chip[data-pp64-size]')].map(c=>c.dataset.pp64Size).filter(s=>pp76Sel.has(s));
   if(ppSizes(p).length>0&&!sizes.length){box.querySelector('.pp64-chips')?.classList.add('need');const m=document.getElementById('pp64-msg');if(m){m.style.color='#b00';m.textContent=T('اختر قياساً واحداً على الأقل','Choose at least one size');}return null;}
-  return{p,size:sizes[0]||'',sizes:sizes.length?sizes:[''],qty:ppSel.qty,note:(document.getElementById('pp64-note')?.value||'').trim()};
+  const multi=sizes.length>1;const ss=sizes.length?sizes:[''];return{p,size:sizes[0]||'',sizes:ss,qtys:ss.map(z=>multi?(pp76Q[z]||1):ppSel.qty),qty:ppSel.qty,note:(document.getElementById('pp64-note')?.value||'').trim()};
 }
-function pp76Lines(s){return s.sizes.map(z=>({p:s.p,qty:s.qty,size:z}));}
+function pp76Lines(s){return s.sizes.map((z,i)=>({p:s.p,qty:s.qtys[i],size:z}));}
 const pp76Set=(el,k,v)=>{if(el&&el[k]!==v)el[k]=v;};
 function pp76Sync(){
   const box=document.getElementById('pp64-order');if(!box)return;
@@ -5346,20 +5346,26 @@ function pp76Sync(){
   chips.forEach(c=>{const w=pp76Sel.has(c.dataset.pp64Size);if(c.classList.contains('on')!==w)c.classList.toggle('on',w);});
   const all=box.querySelector('.pp76-all');if(all){const full=chips.length&&chips.every(c=>pp76Sel.has(c.dataset.pp64Size));if(all.classList.contains('on')!==!!full)all.classList.toggle('on',!!full);pp76Set(all,'textContent',full?'✕ '+T('إلغاء الكل','Clear all'):'✓ '+T('تحديد الكل','Select all'));}
   const k=chips.filter(c=>pp76Sel.has(c.dataset.pp64Size)).length;ppSel.size=k?'x':'';
-  const c=box.querySelector('#pp76-cnt');if(c)pp76Set(c,'textContent',k>1?T('مختار: '+k+' قياسات — كل قياس بكميته','Selected: '+k+' sizes — each with the chosen quantity'):'');
+  const sel=chips.filter(c=>pp76Sel.has(c.dataset.pp64Size)).map(c=>c.dataset.pp64Size);
+  const c=box.querySelector('#pp76-cnt');
+  if(c){const tot=sel.reduce((a,z)=>a+(pp76Q[z]||1),0);pp76Set(c,'textContent',k>1?T('المجموع: '+tot+' قطعة — '+k+' قياسات','Total: '+tot+' pcs — '+k+' sizes'):'');}
+  const qs=box.querySelector('#pp76-qs');
+  if(qs){const h=k>1?'<div style="font-weight:800;margin:6px 0 2px">'+T('الكمية لكل قياس','Quantity per size')+'</div>'+sel.map(z=>'<div class="pp76-r"><b class="pp76-s">'+esc(z)+'</b><span style="flex:1"></span><button type="button" data-pp76q="'+esc(z)+'|-1">−</button><span class="pp76-q">'+(pp76Q[z]||1)+'</span><button type="button" data-pp76q="'+esc(z)+'|1">＋</button></div>').join(''):'';pp76Set(qs,'innerHTML',h);}
+  const mq=box.querySelector('.pp64-qty');if(mq){const hide=k>1?'none':'';if(mq.style.display!==hide)mq.style.display=hide;}
   const add=box.querySelector('[data-pp64-add]');if(add&&!add.dataset.pp76busy)pp76Set(add,'textContent','🛒 '+T('أضف للسلة','Add to cart')+(k>1?' ('+k+' '+T('قياسات','sizes')+')':''));
 }
 function pp76Enhance(){
   const box=document.getElementById('pp64-order');if(!box)return;
-  if(box.dataset.pp76id!==box.dataset.id){box.dataset.pp76id=box.dataset.id;pp76Sel.clear();}
+  if(box.dataset.pp76id!==box.dataset.id){box.dataset.pp76id=box.dataset.id;pp76Sel.clear();for(const k in pp76Q)delete pp76Q[k];}
   const chips=box.querySelector('.pp64-chips');if(!chips)return;
   const sm=box.querySelector('.pp64-l small');pp76Set(sm,'textContent',T('اختر واحداً أو أكثر','pick one or more'));
   const n=chips.querySelectorAll('.pp64-chip[data-pp64-size]').length;
   if(n>1&&!chips.querySelector('.pp76-all')){const b=document.createElement('button');b.type='button';b.className='pp64-chip pp76-all';b.setAttribute('data-pp76-all','1');chips.insertBefore(b,chips.firstChild);}
-  if(!box.querySelector('#pp76-cnt')){const d=document.createElement('div');d.id='pp76-cnt';d.style.cssText='font-size:12px;color:#7a4f00;margin:2px 0 6px';chips.insertAdjacentElement('afterend',d);}
+  if(!box.querySelector('#pp76-qs')){const q=document.createElement('div');q.id='pp76-qs';chips.insertAdjacentElement('afterend',q);}
+  if(!box.querySelector('#pp76-cnt')){const d=document.createElement('div');d.id='pp76-cnt';d.style.cssText='font-size:12px;color:#7a4f00;margin:2px 0 6px';box.querySelector('#pp76-qs').insertAdjacentElement('afterend',d);}
   pp76Sync();
 }
-(function(){const st=document.createElement('style');st.textContent='.pp64-chip.on:not(.pp76-all)::before{content:"✓ "}.pp76-all{background:#2b1b06!important;color:#ffd36b!important;border-color:#2b1b06!important}';document.head.appendChild(st);})();
+(function(){const st=document.createElement('style');st.textContent='.pp76-r{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e2d3ae;border-radius:14px;padding:6px 10px;margin-top:6px}.pp76-r button{width:34px;height:34px;border:1.5px solid #e2d3ae;border-radius:10px;background:#fffaf0;font-size:20px}.pp76-s{background:#f4c04e;border-radius:10px;padding:6px 12px;min-width:34px;text-align:center}.pp76-q{min-width:28px;text-align:center;font-weight:800;font-size:17px}.pp64-chip.on:not(.pp76-all)::before{content:"✓ "}.pp76-all{background:#2b1b06!important;color:#ffd36b!important;border-color:#2b1b06!important}';document.head.appendChild(st);})();
 new MutationObserver(()=>{try{pp76Enhance()}catch(e){}}).observe(document.body,{childList:true,subtree:true});
 window.addEventListener('click',e=>{
   const t=e.target;if(!t||!t.closest)return;
@@ -5367,12 +5373,14 @@ window.addEventListener('click',e=>{
   if(b){e.preventDefault();e.stopPropagation();const box=document.getElementById('pp64-order');const chips=[...box.querySelectorAll('.pp64-chip[data-pp64-size]')];const full=chips.every(c=>pp76Sel.has(c.dataset.pp64Size));chips.forEach(c=>full?pp76Sel.delete(c.dataset.pp64Size):pp76Sel.add(c.dataset.pp64Size));box.querySelector('.pp64-chips')?.classList.remove('need');const m=document.getElementById('pp64-msg');if(m)m.textContent='';pp76Sync();return;}
   b=t.closest('#pp64-order [data-pp64-size]');
   if(b){e.preventDefault();e.stopPropagation();const z=b.dataset.pp64Size;pp76Sel.has(z)?pp76Sel.delete(z):pp76Sel.add(z);document.querySelector('.pp64-chips')?.classList.remove('need');const m=document.getElementById('pp64-msg');if(m)m.textContent='';pp76Sync();return;}
+  b=t.closest('[data-pp76q]');
+  if(b){e.preventDefault();e.stopPropagation();const [z,dl]=b.dataset.pp76q.split('|');pp76Q[z]=Math.max(1,Math.min(999,(pp76Q[z]||1)+Number(dl)));pp76Sync();return;}
   b=t.closest('[data-pp64-add]');
   if(b){e.preventDefault();e.stopPropagation();const s=ppPick();if(!s)return;
     if(s.note)ppSaveNote((ppCartNote?ppCartNote+'\n':'')+s.p.nameAr+(s.sizes[0]?' ('+s.sizes.join(', ')+')':'')+': '+s.note);
-    let ok=false;for(const z of s.sizes){if(addCart(s.p.id,z,s.qty))ok=true;}
+    let ok=false;s.sizes.forEach((z,i)=>{if(addCart(s.p.id,z,s.qtys[i]))ok=true;});
     if(ok){const m=document.getElementById('pp64-msg');if(m){m.style.color='#1c6b32';m.innerHTML='✓ '+T('تمت الإضافة للسلة','Added to cart')+' ('+countCart()+') — <a href="#" data-action="cart" style="color:#7a4f00;text-decoration:underline">'+T('افتح السلة','Open cart')+'</a>';}
-      b.dataset.pp76busy='1';b.textContent='✓ '+T('تمت الإضافة','Added');const nt=document.getElementById('pp64-note');if(nt)nt.value='';pp76Sel.clear();ppSel={size:'',qty:1};const qv=document.getElementById('pp64-qv');if(qv)qv.textContent='1';pp76Sync();
+      b.dataset.pp76busy='1';b.textContent='✓ '+T('تمت الإضافة','Added');const nt=document.getElementById('pp64-note');if(nt)nt.value='';pp76Sel.clear();for(const k in pp76Q)delete pp76Q[k];ppSel={size:'',qty:1};const qv=document.getElementById('pp64-qv');if(qv)qv.textContent='1';pp76Sync();
       setTimeout(()=>{delete b.dataset.pp76busy;if(b.isConnected)pp76Sync();},1600);}
     return;}
   b=t.closest('[data-pp64-wa]');
