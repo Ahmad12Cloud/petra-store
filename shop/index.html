@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V80';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V81';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -5442,6 +5442,62 @@ window.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data
 
 /* ===== V80: bell chip matches the cart button (gold icon on black by default, owner-editable), count only for unseen new products ===== */
 (function(){const st=document.createElement('style');st.textContent='#pp56-new{box-shadow:inset 0 0 0 1.5px #c9a24a}#pp56-new.pp56-on{background:var(--pp29-new-bg,#000)!important}#pp56-new b{background:#d69821!important;color:#fff!important;border:0!important;font-weight:900!important;min-width:19px;line-height:19px;padding:0 3px!important;top:-8px!important}#pp56-new.pp56-dot::after{display:none!important}';document.head.appendChild(st);})();
+
+/* ===== V81: top-row buttons — gold frame on all / none, owner-controlled size (icons scale with the box) ===== */
+function pp81Cfg(){const s=state.settings||{};return{frame:s.hdrFrame==='none'?'none':'gold',color:safeColor(s.hdrFrameColor,'#c9a24a'),thick:Number(s.hdrFrameW)||2,size:Number(s.hdrBtnSize)||0};}
+let pp81Last='';
+function pp81Apply(){
+  const c=pp81Cfg(),k=JSON.stringify(c);if(k===pp81Last)return;pp81Last=k;
+  const r=document.documentElement;
+  r.setAttribute('data-pp81-frame',c.frame);r.style.setProperty('--pp81-fc',c.color);r.style.setProperty('--pp81-fw',c.thick+'px');
+  if(c.size>0){r.setAttribute('data-pp81-size','1');const s=c.size;r.style.setProperty('--pp81-w',s+'px');r.style.setProperty('--pp81-h',Math.round(s*1.04)+'px');r.style.setProperty('--pp81-ic',Math.round(s*0.55)+'px');r.style.setProperty('--pp81-bi',Math.round(s*0.42)+'px');r.style.setProperty('--pp81-bt',Math.max(8,Math.round(s*0.23))+'px');}
+  else{r.removeAttribute('data-pp81-size');}
+  try{ppPlaceChip()}catch(_){}
+}
+(function(){const st=document.createElement('style');st.textContent=`
+html[data-pp81-frame="gold"] .v12-top-actions .v12-icon,html[data-pp81-frame="gold"] #pp56-new{border:var(--pp81-fw) solid var(--pp81-fc)!important;box-shadow:none!important}
+html[data-pp81-frame="none"] .v12-top-actions .v12-icon,html[data-pp81-frame="none"] #pp56-new{border:0!important;box-shadow:none!important}
+html[data-pp81-size] .v12-top-actions .v12-icon{width:var(--pp81-w)!important;height:var(--pp81-h)!important;padding:0!important;min-width:0!important}
+html[data-pp81-size] .v12-top-actions .v12-icon svg{width:var(--pp81-ic)!important;height:var(--pp81-ic)!important}
+html[data-pp81-size] #pp56-new{width:var(--pp81-w)!important;height:var(--pp81-h)!important;margin-top:calc(var(--pp81-h)/-2)!important}
+html[data-pp81-size] #pp56-new i{font-size:var(--pp81-bi)!important}
+html[data-pp81-size] #pp56-new{font-size:var(--pp81-bt)!important}
+.pp81-ed label{display:block;margin-top:10px;font-weight:800}.pp81-ed .row{display:flex;gap:8px;margin-top:6px}.pp81-ed .row button{flex:1;padding:11px;border-radius:12px;border:1.5px solid #d8c28d;background:#fff8eb;font-weight:800}.pp81-ed .row button.chosen{background:#2b1b06;color:#ffd36b;border-color:#2b1b06}.pp81-ed input[type=range]{width:100%}.pp81-ed input[type=color]{width:46px;height:36px;border:0;padding:0;background:none}`;document.head.appendChild(st);})();
+new MutationObserver(()=>{try{pp81Apply()}catch(e){}}).observe(document.body,{childList:true,subtree:true});
+window.addEventListener('load',()=>setTimeout(()=>{try{pp81Apply()}catch(e){}},300));
+function pp81Open(){
+  if(!visibleAdmin())return;const c=pp81Cfg();
+  const sz=c.size||36,sw=['#c9a24a','#ffffff','#f4a62f','#000000'];
+  pp49ShowSheet(`<div class="pp81-ed"><p class="pp49-hint">بتنطبق على الأزرار الأربعة بالصف العلوي (⋮ بحث سلة جرس) مع بعض. لما تكبّر المربع بتكبر الأيقونة جواته معه.</p>
+   <label>إطار الأزرار</label><div class="row"><button type="button" class="${c.frame==='gold'?'chosen':''}" data-pp81="frame:gold">إطار ذهبي</button><button type="button" class="${c.frame==='none'?'chosen':''}" data-pp81="frame:none">بدون إطار</button></div>
+   <label>لون الإطار</label><div class="row" style="align-items:center">${sw.map(x=>`<button type="button" data-pp81="color:${x}" style="flex:0 0 40px;height:36px;padding:0;background:${x}"></button>`).join('')}<input type="color" data-pp81c value="${c.color}"></div>
+   <label>سماكة الإطار</label><div class="row">${[[1,'رفيع'],[2,'عادي'],[3,'سميك']].map(([v,t])=>`<button type="button" class="${c.thick===v?'chosen':''}" data-pp81="w:${v}">${t}</button>`).join('')}</div>
+   <label>حجم الأزرار: <b id="pp81-v">${sz}</b>px${c.size?'':' (الافتراضي)'}</label><input type="range" min="26" max="40" step="1" value="${sz}" data-pp81r><div class="row"><button type="button" data-pp81="size:0">↺ الحجم الافتراضي</button></div></div>`,'🔲 إطار وحجم أزرار الصف العلوي');
+}
+let pp81T=0;
+function pp81Save(){clearTimeout(pp81T);pp81T=setTimeout(()=>{try{changed()}catch(_){}},600);}
+document.addEventListener('click',e=>{
+  const o=e.target.closest('[data-action="pp81-open"]');
+  if(o){e.preventDefault();e.stopImmediatePropagation();document.getElementById('v12-menu')?.classList.add('hide');pp81Open();return;}
+  const b=e.target.closest('[data-pp81]');if(!b||!visibleAdmin())return;e.preventDefault();e.stopImmediatePropagation();
+  const [k,v]=b.dataset.pp81.split(':');const s=state.settings;
+  if(k==='frame')s.hdrFrame=v;else if(k==='color')s.hdrFrameColor=v;else if(k==='w')s.hdrFrameW=Number(v);else if(k==='size')s.hdrBtnSize=Number(v);
+  pp81Apply();pp81Save();pp81Open();
+},true);
+document.addEventListener('input',e=>{
+  const r=e.target.closest&&e.target.closest('[data-pp81r]');const c=e.target.closest&&e.target.closest('[data-pp81c]');
+  if(!visibleAdmin())return;
+  if(r){state.settings.hdrBtnSize=Number(r.value);const l=document.getElementById('pp81-v');if(l)l.textContent=r.value;pp81Apply();pp81Save();}
+  if(c){state.settings.hdrFrameColor=c.value;pp81Apply();pp81Save();}
+},true);
+function pp81MenuBtn(){
+  const menu=document.getElementById('v12-menu');if(!(MANAGER&&ownerUnlocked&&menu))return;
+  const list=menu.querySelector('.v12-menu-list');if(!list||list.querySelector('[data-action="pp81-open"]'))return;
+  const ref=list.querySelector('[data-action="menu-all"]');
+  const b=document.createElement('button');b.type='button';b.className=ref?ref.className:'';b.setAttribute('data-action','pp81-open');b.style.cssText='border:2px dashed #c9a24a;font-weight:800';b.textContent='🔲 '+T('إطار وحجم أزرار الصف العلوي','Top-row buttons frame & size');
+  list.insertBefore(b,list.firstChild);
+}
+new MutationObserver(()=>{try{pp81MenuBtn()}catch(e){}}).observe(document.body,{childList:true,subtree:true});
 
 ppBoot();
 })();
