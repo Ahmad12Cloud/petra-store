@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V70';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V71';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1823,7 +1823,7 @@ if(typ==='showcase'){
 function pp24HomeMode(){return tab==='catalog'&&!q&&!cat&&!pp24ShowAllProducts;}
 let ppLiveMode=false,ppLiveSelectedId='',ppLivePalette=false,ppLiveRestore=null,ppLiveDrag=null;
 let pp49EditMode=false,pp49SheetSection=null,pp49PendingProduct=null,pp49Anchor='@footer';
-function renderHomeSections(){
+function renderHomeSectionsBase71(){
  if(!pp24HomeMode())return '';
  pp24Ensure();
  const live=ppLiveMode&&MANAGER&&ownerUnlocked&&!preview;
@@ -5121,6 +5121,53 @@ document.addEventListener('change',async e=>{
   const i=e.target.closest('[data-pp69-otext]');if(!i)return;const own=i.closest('#pp69-own');const p=state.products.find(x=>x.id===own?.dataset.id);if(!p||!visibleAdmin())return;
   p.soldOutText=i.value.trim().slice(0,40);await changed();note('✓ '+T('تم الحفظ','Saved'));
 },true);
+
+/* ===== V71: owner-controlled products-per-row for the whole home page ===== */
+function ppFlowSections(rows,n){
+  const out=[];let grp=null;
+  const flush=()=>{if(!grp)return;out.push(grp);grp=null;};
+  for(const s of rows){
+    const ok=s&&s.type==='products'&&s.visible!==false&&s.pp49Manual&&Array.isArray(s.productIds)&&s.productIds.some(Boolean);
+    if(!ok){flush();out.push(s);continue;}
+    if(!grp)grp={...s,productIds:[],pp49Manual:true};
+    grp.productIds.push(...s.productIds.filter(Boolean));
+  }
+  flush();
+  return out.map(s=>(s&&s.productIds&&s.pp49Manual&&s.type==='products')?{...s,count:Math.max(1,s.productIds.length),pp49Cols:n,columns:n,customColumns:n,pp45RowPattern:String(n)}:s);
+}
+function renderHomeSections(){
+  const n=Number(state.settings&&state.settings.homeFlowCols)||0;
+  if(!n||pp49EditMode||ppLiveMode)return renderHomeSectionsBase71();
+  const orig=state.settings.homeSections;
+  try{pp24Ensure();state.settings.homeSections=ppFlowSections(state.settings.homeSections,n);return renderHomeSectionsBase71();}
+  finally{state.settings.homeSections=orig;}
+}
+function pp71Open(){
+  if(!visibleAdmin())return;
+  const cur=Number(state.settings.homeFlowCols)||0,list=(state.settings.productLayout||{}).mode==='list';
+  const opt=(v,t,d)=>`<button type="button" class="${(v===cur&&!list)||(v==='list'&&list)?'chosen':''}" data-pp71-flow="${v}" style="display:block;width:100%;margin:6px 0;padding:12px;border-radius:12px;border:1.5px solid #d8c28d;background:#fff8eb;font-weight:800;text-align:start">${t}<small style="display:block;font-weight:500;color:#666">${d}</small></button>`;
+  pp49ShowSheet(`<p class="pp49-hint">اختر كم منتج يظهر بالسطر الواحد بالواجهة الرئيسية. بيطبّق على كل المنتجات، وبتقدر تغيّره بأي وقت.</p>
+   ${opt('list','☰ قائمة — منتج بكل سطر (صورة جنب النص)','الشكل القديم')}${opt(1,'▢ منتج واحد كبير بالسطر','بطاقة عريضة')}${opt(2,'▦ منتجين بالسطر','الأنسب للجوال')}${opt(3,'▦▦ 3 منتجات بالسطر','بطاقات أصغر')}${opt(4,'▦▦▦ 4 منتجات بالسطر','مضغوطة جداً')}`,'▦ عدد المنتجات بالسطر');
+}
+document.addEventListener('click',async e=>{
+  const o=e.target.closest('[data-action="pp71-flow"]');
+  if(o){e.preventDefault();e.stopImmediatePropagation();document.getElementById('v12-menu')?.classList.add('hide');pp71Open();return;}
+  const b=e.target.closest('[data-pp71-flow]');if(!b||!visibleAdmin())return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const v=b.dataset.pp71Flow;state.settings.productLayout=state.settings.productLayout||{};
+  if(v==='list'){state.settings.productLayout.mode='list';state.settings.homeFlowCols=0;}
+  else{const n=Number(v);state.settings.productLayout.mode='grid';state.settings.productLayout.cols=Math.min(5,n);state.settings.homeFlowCols=n;}
+  await changed();document.getElementById('pp49-sheet')?.remove();render();note('✓ '+T('تم تغيير عدد المنتجات بالسطر','Products per row updated'));
+},true);
+function pp71MenuBtn(){
+  const menu=document.getElementById('v12-menu');if(!(MANAGER&&ownerUnlocked&&menu))return;
+  const list=menu.querySelector('.v12-menu-list');if(!list||list.querySelector('[data-action="pp71-flow"]'))return;
+  const ref=list.querySelector('[data-action="menu-all"]');
+  const b=document.createElement('button');b.type='button';b.className=ref?ref.className:'';b.setAttribute('data-action','pp71-flow');b.style.cssText='border:2px dashed #c9a24a;font-weight:800';b.textContent='▦ '+T('عدد المنتجات بالسطر (1 / 2 / 3 / 4)','Products per row (1/2/3/4)');
+  list.insertBefore(b,list.firstChild);
+}
+new MutationObserver(()=>{try{pp71MenuBtn()}catch(e){}}).observe(document.body,{childList:true,subtree:true});
+(function(){const st=document.createElement('style');st.textContent='.pp35-grid .pp35-card.pp35-layout-stack{aspect-ratio:auto!important;height:auto!important}';document.head.appendChild(st);})();
 
 ppBoot();
 })();
