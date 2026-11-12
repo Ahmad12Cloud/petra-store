@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V95';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V96';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2163,7 +2163,7 @@ function closeModal(){if($('modal'))$('modal').classList.add('hide');}
 function detailBase(p){
  const images=(p.images||[]).filter(safeImg);
  const extras=[p.brand,p.model].filter(Boolean).join(' • ');
- modal(S(p.nameAr,p.nameEn),`<div class="detail-layout"><div><div class="photo big" id="detail-photo">${photo(p)}</div>${images.length>1?`<div class="thumbs">${images.map((im,i)=>`<button class="thumb" data-action="detail-photo" data-id="${esc(p.id)}" data-index="${i}"><img src="${safeImg(im)}" alt="${i+1}"></button>`).join('')}</div>`:''}</div><div>${pp44Flag(p,'showCategory')?`<div class="pill">${esc(p.category||'PETRA POWER')}</div>`:''}${pp44Flag(p,'showName')?`<h2>${esc(S(p.nameAr,p.nameEn))}</h2>`:''}${pp44Flag(p,'showCode')?`<p class="subtitle">كود: ${esc(p.productCode||p.sku||'')}</p>`:''}${pp44Flag(p,'showBrandModel')&&extras?`<p class="subtitle" dir="ltr">${esc(extras)}</p>`:''}${pp44Flag(p,'showPrice')?`<h2>${money(p.price,p.currency)}</h2>`:''}${pp44Flag(p,'showDesc')?`<p style="white-space:pre-line">${esc(S(p.descriptionAr,p.descriptionEn)||T('للاستفسار عن المواصفات الفنية، تواصل معنا.','Contact us for technical details.'))}</p>`:''}${pp44Flag(p,'showSpecs')&&p.specs?`<div class="notice" style="white-space:pre-line">${esc(p.specs)}</div>`:''}${recommendationsHtml(p)}${p.stock===0?`<p class="lowstock">${T('غير متوفر حالياً','Currently unavailable')}</p>`:''}</div></div>`,`<button class="btn" data-action="close-modal">${T('إغلاق','Close')}</button>${visibleAdmin()?`<button class="btn gold" data-action="edit" data-id="${esc(p.id)}">✏️ ${T('تعديل المنتج','Edit product')}</button>`:''}<button class="btn dark" data-action="add-cart" data-id="${esc(p.id)}">＋ ${T('إضافة إلى الطلب','Add to order')}</button>`);
+ modal(S(p.nameAr,p.nameEn),`<div class="detail-layout"><div><div class="photo big" id="detail-photo">${photo(p)}</div>${images.length>1?`<div class="thumbs">${images.map((im,i)=>`<button class="thumb" data-action="detail-photo" data-id="${esc(p.id)}" data-index="${i}"><img src="${safeImg(im)}" alt="${i+1}"></button>`).join('')}</div>`:''}</div><div>${pp44Flag(p,'showCategory')?`<div class="pill">${esc(p.category||'PETRA POWER')}</div>`:''}${pp44Flag(p,'showName')?`<h2>${esc(S(p.nameAr,p.nameEn))}</h2>`:''}${pp44Flag(p,'showCode')?`<p class="subtitle">كود: ${esc(p.productCode||p.sku||'')}</p>`:''}${pp44Flag(p,'showBrandModel')&&extras?`<p class="subtitle" dir="ltr">${esc(extras)}</p>`:''}${pp44Flag(p,'showPrice')?`<h2>${money(p.price,p.currency)}</h2>`:''}${pp44Flag(p,'showDesc')?`<p style="white-space:pre-line">${esc(S(p.descriptionAr,p.descriptionEn)||T('للاستفسار عن المواصفات الفنية، تواصل معنا.','Contact us for technical details.'))}</p>`:''}${pp44Flag(p,'showSpecs')&&p.specs?`<div class="notice" style="white-space:pre-line">${esc(p.specs)}</div>`:''}${pp96View(p)}${recommendationsHtml(p)}${p.stock===0?`<p class="lowstock">${T('غير متوفر حالياً','Currently unavailable')}</p>`:''}</div></div>`,`<button class="btn" data-action="close-modal">${T('إغلاق','Close')}</button>${visibleAdmin()?`<button class="btn gold" data-action="edit" data-id="${esc(p.id)}">✏️ ${T('تعديل المنتج','Edit product')}</button>`:''}<button class="btn dark" data-action="add-cart" data-id="${esc(p.id)}">＋ ${T('إضافة إلى الطلب','Add to order')}</button>`);
 }
 
 function input(name,ar,en,v,extra=''){return `<label class="stack">${T(ar,en)}<input class="field" name="${name}" value="${esc(v??'')}" ${extra}></label>`}
@@ -2289,7 +2289,7 @@ async function saveProduct(){
  if((price!==''&&(!Number.isFinite(+price)||+price<0))||(stock!==''&&!/^\d+$/.test(stock))){note('راجع السعر والكمية');return;}
  const visibility={showName:fd.has('showName'),showPrice:fd.has('showPrice'),showDesc:fd.has('showDesc'),showCode:fd.has('showCode'),showCategory:fd.has('showCategory'),showBrandModel:fd.has('showBrandModel'),showSpecs:fd.has('showSpecs')};
  const p={id:old?.id||id(),demoOnly:old?.demoOnly===true,createdAt:old?.createdAt||Date.now(),
- nameAr:v('nameAr'),nameEn:v('nameEn'),sku,productCode,pp49CodeMode:mode,pp49CodePrefix:prefix,barcode:v('barcode'),category:v('category'),sizes:ppParseSizes(v('sizes')),sizePrices:ppCleanSP(v('sizePrices'),ppParseSizes(v('sizes'))),sizeLabel:v('sizeLabel'),...ppEnSave(old,v),specLine:v('specLine'),specTable:v('specTable'),datasheet:v('datasheet'),brand:v('brand'),model:v('model'),
+ nameAr:v('nameAr'),nameEn:v('nameEn'),sku,productCode,pp49CodeMode:mode,pp49CodePrefix:prefix,barcode:v('barcode'),category:v('category'),sizes:ppParseSizes(v('sizes')),sizePrices:ppCleanSP(v('sizePrices'),ppParseSizes(v('sizes'))),sizeLabel:v('sizeLabel'),...ppEnSave(old,v),blocks:pp96Take(old),specLine:v('specLine'),specTable:v('specTable'),datasheet:v('datasheet'),brand:v('brand'),model:v('model'),
  currency:v('currency')||'USD',price:price===''?null:Number(price),stock:stock===''?null:Number(stock),specs:v('specs'),
  descriptionAr:v('descriptionAr'),descriptionEn:v('descriptionEn'),images:[...formImages],
  photoBg:fd.has('customPhotoBg')?safeColor(fd.get('photoBg'),safeColor(state.settings.productPhotoBg,'#ffffff')):'',
@@ -4346,6 +4346,7 @@ async function ppPush(){
     await ppEnsureToken();
     await ppUploadDeep(state.settings,'site');
     for(const p of state.products)if(Array.isArray(p.images)&&p.images.some(ppIsDataImg))await ppUploadDeep(p.images,'products/'+String(p.id).replace(/[^\w-]/g,''));
+    for(const p of state.products)if(Array.isArray(p.blocks)&&JSON.stringify(p.blocks).includes('data:image'))await ppUploadDeep(p.blocks,'products/'+String(p.id).replace(/[^\w-]/g,''));
     const json={'Content-Type':'application/json',Prefer:'return=minimal'};
     // settings
     const sdata=ppSettingsForDb(),sh=JSON.stringify(sdata);
@@ -6020,6 +6021,95 @@ window.addEventListener('click',e=>{
   e.preventDefault();e.stopImmediatePropagation();
   const ed=t.closest('.pp44-editor');if(!ed)return;
   const on=ed.classList.toggle('pp95-adv');t.textContent=on?'⚙ إخفاء الخيارات المتقدمة':'⚙ إظهار الخيارات المتقدمة';
+},true);
+
+/* ===== V96 (phase 2): product detail blocks — note / extra description / spec table / bullets / extra images / code / link ===== */
+const PP96_TYPES={note:['📝','ملاحظة'],text:['📄','وصف إضافي'],specs:['📋','جدول مواصفات'],bullets:['•','قائمة نقاط'],images:['🖼','صور إضافية'],code:['🔢','كود / رقم'],link:['📎','رابط أو ملف']};
+const PP96_MAXIMG=8;
+let pp96Draft=null;
+function pp96Id(){return 'b'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+function pp96Clean(list){return (Array.isArray(list)?list:[]).filter(b=>b&&PP96_TYPES[b.type]).map(b=>({id:b.id||pp96Id(),type:b.type,title:String(b.title||'').slice(0,120),text:String(b.text||'').slice(0,4000),images:Array.isArray(b.images)?b.images.filter(x=>typeof x==='string'&&x).slice(0,PP96_MAXIMG):[],url:String(b.url||'').slice(0,500),...(b.titleEn?{titleEn:String(b.titleEn).slice(0,120)}:{}),...(b.textEn?{textEn:String(b.textEn).slice(0,4000)}:{})}));}
+function pp96Take(old){
+  if(pp96Draft===null)return pp96Clean(old&&old.blocks);
+  const r=pp96Clean(pp96Draft).filter(b=>b.type==='images'?b.images.length:(b.text||b.title||b.url));
+  pp96Draft=null;return r;
+}
+(function(){const st=document.createElement('style');st.textContent=`
+.pp96{margin:14px 0}.pp96 .bk{border:2px solid #c9a24a;border-radius:12px;background:#fffdf7;padding:8px 10px;margin:8px 0}
+.pp96 .bh{display:flex;justify-content:space-between;align-items:center;font-weight:800;margin-bottom:6px;gap:6px}
+.pp96 .bh .ic{display:flex;gap:4px}.pp96 .bh button{border:1.5px solid #c9a24a;background:#fff;border-radius:8px;min-width:32px;height:32px;font-weight:800;font-family:inherit}
+.pp96 input[type=text],.pp96 textarea,.pp96 input:not([type]){width:100%;box-sizing:border-box;border:1.5px solid #e5d6b3;border-radius:9px;padding:8px;margin:3px 0;background:#fff;color:#222;font:inherit}
+.pp96 textarea{min-height:70px}.pp96 .gr{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.pp96 .th{position:relative;height:70px;border-radius:8px;overflow:hidden;background:#eee}.pp96 .th img{width:100%;height:100%;object-fit:cover}
+.pp96 .th button{position:absolute;top:2px;inset-inline-start:2px;border:0;border-radius:50%;width:22px;height:22px;background:#c00;color:#fff;font-weight:800}
+.pp96 .addimg{height:70px;border:2px dashed #c9a24a;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff8e6;color:#9a7010;font-weight:800;cursor:pointer}
+.pp96 .addbar{border:2.5px dashed #c9a24a;border-radius:12px;padding:11px;text-align:center;font-weight:800;background:#fff8e6;width:100%;font-family:inherit}
+.pp96 .menu{border:2px solid #c9a24a;border-radius:12px;background:#fff;margin-top:6px}.pp96 .menu button{display:block;width:100%;text-align:start;border:0;border-bottom:1px solid #eee;background:none;padding:10px;font-weight:700;font-family:inherit}
+.pp96 .del.arm{background:#c00;color:#fff}
+.pp96v{margin:14px 0;display:grid;gap:12px}.pp96v h4{margin:0 0 5px;color:#6b5320}.pp96v .nt{background:#fff3cf;border-radius:10px;padding:9px;border-inline-start:4px solid #c9a24a;white-space:pre-line}
+.pp96v table{width:100%;border-collapse:collapse}.pp96v td{border:1px solid #e5d6b3;padding:6px 8px}.pp96v td:first-child{font-weight:800;background:#faf6ea}
+.pp96v ul{margin:0;padding-inline-start:20px}.pp96v .gal{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.pp96v .gal img{width:100%;border-radius:10px;cursor:zoom-in;display:block}
+.pp96v .cd{direction:ltr;text-align:start;font-weight:800}.pp96v a{color:#8a5d00;font-weight:800}
+#pp96-lb{position:fixed;inset:0;z-index:100000;background:#000d;display:flex;align-items:center;justify-content:center}#pp96-lb img{max-width:96%;max-height:92%}`;document.head.appendChild(st);})();
+function pp96Fld(b,k){return (lang==='en'&&b[k+'En'])?b[k+'En']:b[k];}
+function pp96View(p){
+  const L=pp96Clean(p&&p.blocks);if(!L.length)return'';
+  const h=L.map(b=>{
+    const t=esc(pp96Fld(b,'title')||''),x=pp96Fld(b,'text')||'';
+    if(b.type==='note')return x?`<div class="nt">${esc(x)}</div>`:'';
+    if(b.type==='text')return (t||x)?`<div>${t?`<h4>${t}</h4>`:''}<div style="white-space:pre-line">${esc(x)}</div></div>`:'';
+    if(b.type==='specs'){const rows=String(x).split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const i=l.search(/[|:：]/);return i<0?[l,'']:[l.slice(0,i).trim(),l.slice(i+1).trim()];});return rows.length?`<div>${t?`<h4>${t}</h4>`:''}<table>${rows.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('')}</table></div>`:'';}
+    if(b.type==='bullets'){const ls=String(x).split('\n').map(l=>l.trim().replace(/^[•\-*]\s*/,'')).filter(Boolean);return ls.length?`<div>${t?`<h4>${t}</h4>`:''}<ul>${ls.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></div>`:'';}
+    if(b.type==='images'){const im=b.images.map(safeImg).filter(Boolean);return im.length?`<div>${t?`<h4>${t}</h4>`:''}<div class="gal">${im.map(s=>`<img src="${s}" alt="" loading="lazy" data-pp96-zoom>`).join('')}</div></div>`:'';}
+    if(b.type==='code')return (t||x)?`<div>${t?`<h4>${t}</h4>`:''}<div class="cd">${esc(x)}</div></div>`:'';
+    if(b.type==='link'){const u=/^https?:\/\//i.test(b.url)?b.url:'';return u?`<div><a href="${esc(u)}" target="_blank" rel="noopener">📎 ${t||esc(u)}</a></div>`:'';}
+    return'';}).filter(Boolean).join('');
+  return h?`<div class="pp96v">${h}</div>`:'';
+}
+function pp96Render(){
+  const box=document.querySelector('#modal .pp96');if(!box||pp96Draft===null)return;
+  const one=(b,i)=>{
+    const meta=PP96_TYPES[b.type];let body='';
+    if(b.type==='images')body=`<input type="text" data-pp96="title" data-i="${i}" value="${esc(b.title||'')}" placeholder="عنوان (اختياري)"><div class="gr">${b.images.map((s,k)=>`<div class="th"><img src="${safeImg(s)}" alt=""><button type="button" data-pp96-act="rmimg" data-i="${i}" data-k="${k}">✕</button></div>`).join('')}${b.images.length<PP96_MAXIMG?`<label class="addimg">＋ صورة<input type="file" accept="image/*" multiple hidden data-pp96-file="${i}"></label>`:''}</div>`;
+    else if(b.type==='link')body=`<input type="text" data-pp96="title" data-i="${i}" value="${esc(b.title||'')}" placeholder="اسم الرابط"><input type="text" dir="ltr" data-pp96="url" data-i="${i}" value="${esc(b.url||'')}" placeholder="https://...">`;
+    else if(b.type==='note')body=`<textarea data-pp96="text" data-i="${i}">${esc(b.text||'')}</textarea>`;
+    else if(b.type==='code')body=`<input type="text" data-pp96="title" data-i="${i}" value="${esc(b.title||'')}" placeholder="اسم الحقل (اختياري)"><input type="text" dir="ltr" data-pp96="text" data-i="${i}" value="${esc(b.text||'')}">`;
+    else body=`<input type="text" data-pp96="title" data-i="${i}" value="${esc(b.title||'')}" placeholder="عنوان (اختياري)"><textarea data-pp96="text" data-i="${i}">${esc(b.text||'')}</textarea>`;
+    return `<div class="bk"><div class="bh"><span>${meta[0]} ${meta[1]}</span><span class="ic"><button type="button" data-pp96-act="up" data-i="${i}">↑</button><button type="button" data-pp96-act="down" data-i="${i}">↓</button><button type="button" class="del" data-pp96-act="del" data-i="${i}">🗑</button></span></div>${body}</div>`;
+  };
+  box.innerHTML=pp96Draft.map(one).join('')+`<button type="button" class="addbar" data-pp96-act="menu">＋ إضافة قسم</button><div class="menu" hidden>${Object.entries(PP96_TYPES).map(([k,m])=>`<button type="button" data-pp96-act="add" data-t="${k}">${m[0]} ${m[1]}</button>`).join('')}</div>`;
+}
+function pp96Fix(){
+  const ed=document.querySelector('#modal .pp44-editor');
+  if(!ed){pp96Draft=null;return;}
+  if(ed.querySelector('.pp96'))return;
+  const anchor=ed.querySelector('[name="descriptionAr"]')?.closest('label');if(!anchor)return;
+  if(pp96Draft===null){const old=state.products.find(p=>p.id===editId);pp96Draft=JSON.parse(JSON.stringify(pp96Clean(old&&old.blocks)));}
+  const box=document.createElement('div');box.className='pp96';anchor.after(box);pp96Render();
+}
+new MutationObserver(()=>{try{pp96Fix()}catch(_){}}).observe(document.body,{childList:true,subtree:true});
+window.addEventListener('input',e=>{
+  const el=e.target&&e.target.closest?e.target.closest('.pp96 [data-pp96]'):null;if(!el||pp96Draft===null)return;
+  const b=pp96Draft[+el.dataset.i];if(b)b[el.dataset.pp96]=el.value;
+},true);
+window.addEventListener('change',async e=>{
+  const el=e.target&&e.target.closest?e.target.closest('.pp96 [data-pp96-file]'):null;if(!el||pp96Draft===null)return;
+  const b=pp96Draft[+el.dataset.pp96File];if(!b)return;
+  for(const f of [...el.files]){if(b.images.length>=PP96_MAXIMG)break;try{b.images.push(await compressImage(f,900));}catch(err){note(String(err&&err.message||'تعذّر قراءة الصورة'));}}
+  pp96Render();
+},true);
+window.addEventListener('click',e=>{
+  const z=e.target&&e.target.closest?e.target.closest('[data-pp96-zoom]'):null;
+  if(z){e.preventDefault();e.stopPropagation();const o=document.createElement('div');o.id='pp96-lb';o.innerHTML=`<img src="${z.src}" alt="">`;o.addEventListener('click',()=>o.remove());document.body.appendChild(o);return;}
+  const t=e.target&&e.target.closest?e.target.closest('.pp96 [data-pp96-act]'):null;if(!t||pp96Draft===null)return;
+  e.preventDefault();e.stopPropagation();
+  const a=t.dataset.pp96Act,i=+t.dataset.i;
+  if(a==='menu'){const m=t.parentNode.querySelector('.menu');if(m)m.hidden=!m.hidden;return;}
+  if(a==='add'){pp96Draft.push({id:pp96Id(),type:t.dataset.t,title:'',text:'',images:[],url:''});pp96Render();return;}
+  if(a==='up'&&i>0){[pp96Draft[i-1],pp96Draft[i]]=[pp96Draft[i],pp96Draft[i-1]];pp96Render();return;}
+  if(a==='down'&&i<pp96Draft.length-1){[pp96Draft[i+1],pp96Draft[i]]=[pp96Draft[i],pp96Draft[i+1]];pp96Render();return;}
+  if(a==='rmimg'){const b=pp96Draft[i];if(b){b.images.splice(+t.dataset.k,1);pp96Render();}return;}
+  if(a==='del'){if(!t.classList.contains('arm')){t.classList.add('arm');t.textContent='تأكيد؟';setTimeout(()=>{try{t.classList.remove('arm');t.textContent='🗑'}catch(_){}},3000);return;}pp96Draft.splice(i,1);pp96Render();}
 },true);
 
 ppBoot();
