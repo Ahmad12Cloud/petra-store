@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V92';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V93';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1812,7 +1812,7 @@ if(typ==='showcase'){
  }
  if(typ==='slider')return `<section class="pp24-unit pp24-slider-unit" style="${sty}"><div class="hero-carousel" id="hero-carousel" aria-label="صور السلايدر"></div></section>`;
  if(typ==='products'||typ==='new'){
-  const prods=pp24Products(s),heading=esc(s.pp49Manual&&s.title===''?'':s.title|| (typ==='new'?T('وصل حديثاً','New arrivals'):T('منتجات مميزة','Featured products')));
+  const prods=pp24Products(s),heading=esc(s.pp49Manual&&s.title===''?'':pp93T(s,'title',s.title)|| (typ==='new'?T('وصل حديثاً','New arrivals'):T('منتجات مميزة','Featured products')));
   return `<section class="pp24-unit pp24-products-unit" style="${sty}">${heading?`<div class="pp24-block-heading"><h2>${heading}</h2><button class="pp24-see-all" data-action="pp24-all">${T('عرض جميع المنتجات','View all products')} ‹</button></div>`:''}${prods.length?`<div class="grid-products pp24-product-grid pp35-grid ${pp45Mixed(prods,s)?'pp45-mixed':''} ${Number(s.scrollGridHeight)>0?'pp43-scroll-grid':''}" data-pp35-cols="${pp35GridCols(s)}" style="--pp43-list-height:${pp24Bound(s.scrollGridHeight,0,1500,0)}px;${pp35GridInline(s)}">${pp45GridMarkup(prods,s)}</div>`:`<div class="empty">${T('لا توجد منتجات في هذا القسم بعد','No products in this section yet')}</div>`}</section>`;
  }
  if(typ==='text')return `<section class="pp24-unit pp24-copy-unit" style="${sty}"><h2 style="font-size:${pp24Bound(s.fontSize,8,88,22)}px;font-weight:${esc(s.fontWeight||'700')}">${esc(s.title||'')}</h2><p style="font-size:${pp24Bound(s.pp49BodySize,8,64,16)}px;font-weight:${s.pp49BodyBold?'750':'400'};white-space:pre-wrap">${esc(s.subtitle||'')}</p></section>`;
@@ -4878,7 +4878,7 @@ const p66_C=(v,d)=>safeColor(v,d);
 
 const ppDefaultsFor=(type)=>({
   hero:{kicker:'PETRA POWER ENERGY',title:'حلول الطاقة والتحكم الكهربائي',subtitle:'قواطع، كابلات، ألواح شمسية ومعدات صناعية بجودة مضمونة.',btnText:'تصفّح المنتجات',btnCat:'',image:'',layout:'side',accent:'#c8962e',btnFg:'#ffffff',panel:'#ffffff',background:'#101010',foreground:'#ffffff',fontSize:26,radius:18,padding:16,pp66ImgH:220},
-  trust:{showBrands:true,brandsTitle:'العلامات التجارية',brands:'GEYA\nSchneider\nABB\nChint',showCerts:true,certsTitle:'الشهادات والمعايير',certs:'ISO 9001\nCE\nIEC 60898',showWhy:true,whyTitle:'لماذا بتروا باور؟',why:'🚚|توصيل سريع|لجميع المحافظات\n✅|جودة مضمونة|منتجات أصلية\n💬|دعم فني|عبر واتساب مباشرة',whyCols:3,accent:'#c8962e',chip:'#fff8eb',chipFg:'#332515',background:'#ffffff',foreground:'#332515',radius:16,padding:14},
+  trust:{showBrands:true,brandsTitle:'العلامات التجارية',brands:'GEYA\nSchneider\nABB\nChint',showCerts:true,certsTitle:'الشهادات والمعايير',certs:'ISO 9001\nCE\nIEC 60898',showWhy:true,whyTitle:'لماذا بترا باور؟',why:'🚚|توصيل سريع|لجميع المحافظات\n✅|جودة مضمونة|منتجات أصلية\n💬|دعم فني|عبر واتساب مباشرة',whyCols:3,accent:'#c8962e',chip:'#fff8eb',chipFg:'#332515',background:'#ffffff',foreground:'#332515',radius:16,padding:14},
   works:{title:'من أعمالنا',items:[],cols:2,aspect:'1/1',showCaps:true,background:'#ffffff',foreground:'#332515',radius:16,padding:12,fontSize:20},
   categories:{title:'الأقسام',cols:4,showIcons:true,iconsMap:{},tileBg:'#ffffff',tileFg:'#6f4b1e',rowStyle:false,background:'#ffffff',foreground:'#332515',padding:10,radius:12,fontSize:18}
 }[type]);
@@ -4896,9 +4896,9 @@ function pp24SecHtml(s,forPreview){
   }
   if(s.type==='trust'){
     const acc=p66_C(g('accent'),'#c8962e');let out='';
-    if(g('showBrands')!==false&&p66_Lines(g('brands')).length)out+=`<div><h3>${esc(g('brandsTitle'))}</h3><div class="pp66-chips">${p66_Lines(g('brands')).map(x=>`<span>${esc(x)}</span>`).join('')}</div></div>`;
-    if(g('showCerts')!==false&&p66_Lines(g('certs')).length)out+=`<div><h3>${esc(g('certsTitle'))}</h3><div class="pp66-chips pp66-certs">${p66_Lines(g('certs')).map(x=>`<span>${esc(x)}</span>`).join('')}</div></div>`;
-    if(g('showWhy')!==false&&p66_Lines(g('why')).length)out+=`<div><h3>${esc(g('whyTitle'))}</h3><div class="pp66-why" style="grid-template-columns:repeat(${p66_N(g('whyCols'),1,4,3)},minmax(0,1fr))">${p66_Lines(g('why')).map(l=>{const [i,t,dd]=l.split('|');return t===undefined?`<div><b>${esc(l)}</b></div>`:`<div><i>${esc(i)}</i><b>${esc(t)}</b><small>${esc(dd||'')}</small></div>`;}).join('')}</div></div>`;
+    if(g('showBrands')!==false&&p66_Lines(g('brands')).length)out+=`<div><h3>${esc(pp93T(s,'brandsTitle',g('brandsTitle')))}</h3><div class="pp66-chips">${p66_Lines(g('brands')).map(x=>`<span>${esc(x)}</span>`).join('')}</div></div>`;
+    if(g('showCerts')!==false&&p66_Lines(g('certs')).length)out+=`<div><h3>${esc(pp93T(s,'certsTitle',g('certsTitle')))}</h3><div class="pp66-chips pp66-certs">${p66_Lines(g('certs')).map(x=>`<span>${esc(x)}</span>`).join('')}</div></div>`;
+    if(g('showWhy')!==false&&p66_Lines(g('why')).length)out+=`<div><h3>${esc(pp93T(s,'whyTitle',g('whyTitle')))}</h3><div class="pp66-why" style="grid-template-columns:repeat(${p66_N(g('whyCols'),1,4,3)},minmax(0,1fr))">${p66_Lines(pp93T(s,'why',g('why'))).map(l=>{const [i,t,dd]=l.split('|');return t===undefined?`<div><b>${esc(l)}</b></div>`:`<div><i>${esc(i)}</i><b>${esc(t)}</b><small>${esc(dd||'')}</small></div>`;}).join('')}</div></div>`;
     return `<section class="pp24-unit pp66-trust" style="${sty}padding:${pad}px;--acc:${acc};--chip:${p66_C(g('chip'),'#fff8eb')};--chipfg:${p66_C(g('chipFg'),'#332515')}">${out||'<div class="empty">'+T('أضف علامات أو شهادات','Add brands or certificates')+'</div>'}</section>`;
   }
   if(s.type==='works'){
@@ -5896,6 +5896,52 @@ function pp92Finish(userText,results,exact){
   return {matches:list.slice(0,12).map(x=>x.p),exact,missing:missing.map(pp92Hum)};
 }
 function pp92Note(found){if(found&&found.missing&&found.missing.length)note(T('لا يوجد '+found.missing.join(' / ')+'، هذه أقرب النتائج','No '+found.missing.join(' / ')+' available — closest results shown'));}
+
+
+/* ===== V93: English for home-section texts (owner approves, customers see English only after approval) ===== */
+const PP93_KEYS={trust:['brandsTitle','certsTitle','whyTitle','why'],products:['title'],new:['title']};
+const PP93_LABELS={brandsTitle:'عنوان «العلامات التجارية»',certsTitle:'عنوان «الشهادات والمعايير»',whyTitle:'عنوان «لماذا بترا باور؟»',why:'الأسطر: أيقونة|عنوان|وصف',title:'اسم القسم'};
+const PP93_PROP={'العلامات التجارية':'Trusted Brands','الشهادات والمعايير':'Certifications & Standards','لماذا بترا باور؟':'Why Petra Power?','لماذا بتروا باور؟':'Why Petra Power?','منتجات مميزة':'Featured Products','🚚|توصيل سريع|لجميع المحافظات':'🚚|Fast Delivery|To all governorates','✅|جودة مضمونة|منتجات أصلية':'✅|Guaranteed Quality|Genuine products','💬|دعم فني|عبر واتساب مباشرة':'💬|Technical Support|Directly via WhatsApp'};
+function pp93Ar(s,k){return k==='why'&&s.why===undefined?ppDefaultsFor('trust').why:(s[k]===undefined&&s.type==='trust'?ppDefaultsFor('trust')[k]:s[k])||'';}
+function pp93Hash(s){const ks=PP93_KEYS[s.type]||[];return ppEnHash(ks.map(k=>pp93Ar(s,k)).join('¦'),'');}
+function pp93Prop(s,k){return String(pp93Ar(s,k)).split('\n').map(l=>PP93_PROP[l.trim()]||'').join('\n').replace(/^\n+|\n+$/g,'');}
+function pp93T(s,k,ar){
+  if(lang!=='en'||!s||!s.enOk||s.enHash!==pp93Hash(s))return ar;
+  const v=s[k+'En'];return v&&String(v).trim()?v:ar;
+}
+function pp93Block(s){
+  const ks=PP93_KEYS[s.type];if(!ks)return'';
+  const ok=s.enOk&&s.enHash===pp93Hash(s),stale=s.enOk&&!ok;
+  const tag=ok?['✓ موافق عليها','ok','الزبون الإنجليزي يرى هذه النصوص.']:stale?['⚠ غيّرت العربي بعد الموافقة','wait','الزبون يرى العربي حتى تضغط «موافق» من جديد.']:['⏳ بانتظار موافقتك','wait','الزبون الإنجليزي يرى العربي حتى تضغط «موافق».'];
+  const rows=ks.map(k=>{const cur=s[k+'En'],val=cur!==undefined&&cur!==''?cur:pp93Prop(s,k),ml=k==='why';
+    return `<div class="pp91-l">${PP93_LABELS[k]} — بالعربي</div><div class="pp91-v" style="white-space:pre-line">${esc(pp93Ar(s,k)||'—')}</div>
+    <label class="pp91-l">English</label>${ml?`<textarea rows="4" dir="ltr" data-pp93="${k}" style="width:100%;text-align:left">${esc(val)}</textarea>`:`<input dir="ltr" data-pp93="${k}" value="${esc(val)}" style="width:100%;text-align:left">`}`;}).join('');
+  return `<div class="pp91-box" id="pp93-box" data-pp93-sec="${esc(s.id)}"><div class="pp91-h"><b>🌐 النص الإنجليزي</b><span class="pp91-st ${tag[1]}">${tag[0]}</span></div><div class="pp91-n">${tag[2]}</div>${rows}
+  <div class="pp91-row"><button type="button" class="btn gold" data-pp93-ok>✔ موافق</button></div></div>`;
+}
+function pp49ShowSheet(content,title){
+  document.getElementById('pp49-sheet')?.remove();
+  const sec=pp49SheetSection?(state.settings.homeSections||[]).find(x=>x.id===pp49SheetSection):null;
+  const extra=sec?pp93Block(sec):'';
+  const outer=document.createElement('div');outer.id='pp49-sheet';outer.setAttribute('role','dialog');outer.setAttribute('aria-modal','true');
+  outer.innerHTML=`<div class="pp49-sheet-body"><header class="pp49-head"><strong>${title||'تعديل واجهة الكتالوج'}</strong><button type="button" data-pp49-close aria-label="إغلاق">✕</button></header><div class="pp49-sheet-scroll">${content}${extra}</div><footer class="pp49-foot"><button type="button" data-pp49-save-close>💾 حفظ وإغلاق</button><button type="button" data-pp49-close>رجوع</button><button type="button" data-pp49-export>📥 حفظ نسخة كاملة</button></footer></div>`;
+  document.body.appendChild(outer);
+}
+window.addEventListener('input',e=>{
+  const el=e.target.closest&&e.target.closest('#pp93-box [data-pp93]');if(!el)return;
+  const s=(state.settings.homeSections||[]).find(x=>x.id===pp49SheetSection);if(!s)return;
+  s[el.dataset.pp93+'En']=el.value;s.enOk=false;pp49Persist();
+},true);
+window.addEventListener('click',async e=>{
+  const b=e.target.closest&&e.target.closest('[data-pp93-ok]');if(!b)return;
+  e.preventDefault();e.stopPropagation();
+  const s=(state.settings.homeSections||[]).find(x=>x.id===pp49SheetSection);if(!s)return;
+  document.querySelectorAll('#pp93-box [data-pp93]').forEach(el=>{s[el.dataset.pp93+'En']=el.value.trim();});
+  s.enOk=true;s.enHash=pp93Hash(s);pp49Persist();
+  try{await pp38SaveLocalSettings();}catch(_){}
+  const box=document.getElementById('pp93-box');if(box){const n=document.createElement('div');box.replaceWith(Object.assign(document.createElement('div'),{innerHTML:pp93Block(s)}).firstElementChild);}
+  render();note('✓ تمت الموافقة على الإنجليزي');
+},true);
 
 ppBoot();
 })();
