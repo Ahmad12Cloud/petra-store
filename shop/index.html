@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V96';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V97';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -4370,8 +4370,8 @@ async function ppPush(){
     ppSynced=now;
     ppLS.del(PP_DIRTY_KEY);ppCacheSave();ppSetSync('saved');
   }catch(e){
-    if(e.guard){ppLS.del(PP_DIRTY_KEY);ppSetSync('error',e.message);}
-    else{ppSetSync(navigator.onLine===false?'offline':'error',e.message);clearTimeout(ppPushTimer);ppPushTimer=setTimeout(ppPush,20000);}
+    if(e.guard){ppLS.del(PP_DIRTY_KEY);ppSetSync('error',e.message);try{pp97Err('الحفظ على السيرفر',e.message)}catch(_){}}
+    else{ppSetSync(navigator.onLine===false?'offline':'error',e.message);try{pp97Err('الحفظ على السيرفر',navigator.onLine===false?'لا يوجد اتصال بالإنترنت. سيُعاد الحفظ تلقائيًا عند عودة الاتصال.':e.message+' (سيُعاد الحفظ تلقائيًا بعد 20 ثانية)')}catch(_){}clearTimeout(ppPushTimer);ppPushTimer=setTimeout(ppPush,20000);}
   }finally{
     ppPushing=false;if(ppPushAgain){ppPushAgain=false;ppSchedulePush(500);}
   }
@@ -6070,7 +6070,7 @@ function pp96Render(){
   const box=document.querySelector('#modal .pp96');if(!box||pp96Draft===null)return;
   const one=(b,i)=>{
     const meta=PP96_TYPES[b.type];let body='';
-    if(b.type==='images')body=`<input type="text" data-pp96="title" data-i="${i}" value="${esc(b.title||'')}" placeholder="عنوان (اختياري)"><div class="gr">${b.images.map((s,k)=>`<div class="th"><img src="${safeImg(s)}" alt=""><button type="button" data-pp96-act="rmimg" data-i="${i}" data-k="${k}">✕</button></div>`).join('')}${b.images.length<PP96_MAXIMG?`<label class="addimg">＋ صورة<input type="file" accept="image/*" multiple hidden data-pp96-file="${i}"></label>`:''}</div>`;
+    if(b.type==='images')body=`<input type="text" data-pp96="title" data-i="${i}" value="${esc(b.title||'')}" placeholder="عنوان (اختياري)"><div class="gr">${b.images.map((s,k)=>`<div class="th"><img src="${safeImg(s)}" alt=""><button type="button" data-pp96-act="rmimg" data-i="${i}" data-k="${k}">✕</button></div>`).join('')}${b.images.length<PP96_MAXIMG?`<button type="button" class="addimg" data-pp96-act="pick" data-i="${i}">＋ صورة</button>`:''}</div>${pp96StHtml(b.id)}`;
     else if(b.type==='link')body=`<input type="text" data-pp96="title" data-i="${i}" value="${esc(b.title||'')}" placeholder="اسم الرابط"><input type="text" dir="ltr" data-pp96="url" data-i="${i}" value="${esc(b.url||'')}" placeholder="https://...">`;
     else if(b.type==='note')body=`<textarea data-pp96="text" data-i="${i}">${esc(b.text||'')}</textarea>`;
     else if(b.type==='code')body=`<input type="text" data-pp96="title" data-i="${i}" value="${esc(b.title||'')}" placeholder="اسم الحقل (اختياري)"><input type="text" dir="ltr" data-pp96="text" data-i="${i}" value="${esc(b.text||'')}">`;
@@ -6092,12 +6092,7 @@ window.addEventListener('input',e=>{
   const el=e.target&&e.target.closest?e.target.closest('.pp96 [data-pp96]'):null;if(!el||pp96Draft===null)return;
   const b=pp96Draft[+el.dataset.i];if(b)b[el.dataset.pp96]=el.value;
 },true);
-window.addEventListener('change',async e=>{
-  const el=e.target&&e.target.closest?e.target.closest('.pp96 [data-pp96-file]'):null;if(!el||pp96Draft===null)return;
-  const b=pp96Draft[+el.dataset.pp96File];if(!b)return;
-  for(const f of [...el.files]){if(b.images.length>=PP96_MAXIMG)break;try{b.images.push(await compressImage(f,900));}catch(err){note(String(err&&err.message||'تعذّر قراءة الصورة'));}}
-  pp96Render();
-},true);
+
 window.addEventListener('click',e=>{
   const z=e.target&&e.target.closest?e.target.closest('[data-pp96-zoom]'):null;
   if(z){e.preventDefault();e.stopPropagation();const o=document.createElement('div');o.id='pp96-lb';o.innerHTML=`<img src="${z.src}" alt="">`;o.addEventListener('click',()=>o.remove());document.body.appendChild(o);return;}
@@ -6108,8 +6103,58 @@ window.addEventListener('click',e=>{
   if(a==='add'){pp96Draft.push({id:pp96Id(),type:t.dataset.t,title:'',text:'',images:[],url:''});pp96Render();return;}
   if(a==='up'&&i>0){[pp96Draft[i-1],pp96Draft[i]]=[pp96Draft[i],pp96Draft[i-1]];pp96Render();return;}
   if(a==='down'&&i<pp96Draft.length-1){[pp96Draft[i+1],pp96Draft[i]]=[pp96Draft[i],pp96Draft[i+1]];pp96Render();return;}
+  if(a==='pick'){pp96Pick(i);return;}
   if(a==='rmimg'){const b=pp96Draft[i];if(b){b.images.splice(+t.dataset.k,1);pp96Render();}return;}
   if(a==='del'){if(!t.classList.contains('arm')){t.classList.add('arm');t.textContent='تأكيد؟';setTimeout(()=>{try{t.classList.remove('arm');t.textContent='🗑'}catch(_){}},3000);return;}pp96Draft.splice(i,1);pp96Render();}
+},true);
+
+const pp96St={};
+function pp96StHtml(id){const x=pp96St[id];if(!x)return'';return x.busy?`<div style="margin-top:6px;color:#6b5320;font-weight:800">⏳ ${esc(x.busy)}</div>`:(x.err&&x.err.length?`<div style="margin-top:6px;background:#fde0e0;color:#a11;border-radius:8px;padding:7px;font-weight:700">${x.err.map(esc).join('<br>')}</div>`:'');}
+function pp96Pick(i){
+  const b=pp96Draft&&pp96Draft[i];if(!b)return;
+  document.getElementById('pp96-picker')?.remove();
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.multiple=true;inp.id='pp96-picker';inp.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';
+  document.body.appendChild(inp);
+  inp.addEventListener('change',async()=>{
+    const files=[...inp.files];inp.remove();if(!files.length)return;
+    const id=b.id,errs=[];
+    for(let k=0;k<files.length;k++){
+      const f=files[k],nm=(f.name||('صورة '+(k+1)));
+      if(b.images.length>=PP96_MAXIMG){errs.push(nm+': وصلت للحد الأقصى ('+PP96_MAXIMG+' صور)، لم تُضف.');continue;}
+      pp96St[id]={busy:'جارٍ إضافة الصورة '+(k+1)+' من '+files.length+'…'};pp96Render();
+      try{b.images.push(await compressImage(f,900));}
+      catch(err){errs.push(nm+': '+String((err&&err.message)||err||'سبب غير معروف'));}
+    }
+    pp96St[id]=errs.length?{err:errs}:null;if(!errs.length)delete pp96St[id];
+    pp96Render();
+    if(errs.length)try{pp97Err('إضافة الصور',errs.join(' | '))}catch(_){}
+  });
+  inp.click();
+}
+/* ===== V97: visible failure reports (owner only): any error is shown with its reason until dismissed ===== */
+const pp97Log=[];
+(function(){const st=document.createElement('style');st.textContent=`#pp97{position:fixed;left:8px;right:8px;bottom:78px;z-index:100002;background:#fff3f3;border:2px solid #c00;border-radius:14px;padding:10px 12px;box-shadow:0 4px 16px #0005;direction:rtl;font-family:Tahoma,Arial;font-size:13px;color:#700;max-height:45vh;overflow:auto}
+#pp97 b{display:block;margin-bottom:4px}#pp97 .ln{border-top:1px dashed #e0a0a0;padding:5px 0;word-break:break-word}#pp97 .row{display:flex;gap:8px;margin-top:8px}#pp97 button{flex:1;border:2px solid #c00;background:#fff;border-radius:10px;padding:8px;font-weight:800;color:#a00;font-family:inherit}`;document.head.appendChild(st);})();
+function pp97Draw(){
+  let el=document.getElementById('pp97');
+  if(!pp97Log.length){el&&el.remove();return;}
+  if(!el){el=document.createElement('div');el.id='pp97';document.body.appendChild(el);}
+  el.innerHTML=`<b>⚠ حصل خطأ — هذا السبب:</b>${pp97Log.slice(0,5).map(x=>`<div class="ln"><b style="display:inline">${esc(x.where)}:</b> ${esc(x.msg)}</div>`).join('')}<div class="row"><button type="button" data-pp97="copy">📋 نسخ التفاصيل</button><button type="button" data-pp97="close">إغلاق</button></div>`;
+}
+function pp97Err(where,err){
+  try{if(typeof visibleAdmin==='function'&&!visibleAdmin())return;}catch(_){return;}
+  const msg=String((err&&err.message)||err||'سبب غير معروف').slice(0,400);
+  if(pp97Log[0]&&pp97Log[0].where===where&&pp97Log[0].msg===msg)return;
+  pp97Log.unshift({where,msg,t:Date.now()});if(pp97Log.length>20)pp97Log.length=20;pp97Draw();
+}
+window.addEventListener('error',e=>{if(!e||!e.message||e.message==='Script error.')return;pp97Err('خطأ في الصفحة',e.message+(e.lineno?' (سطر '+e.lineno+')':''));});
+window.addEventListener('unhandledrejection',e=>{const r=e&&e.reason;pp97Err('عملية لم تكتمل',(r&&r.message)||r||'سبب غير معروف');});
+window.addEventListener('click',e=>{
+  const t=e.target&&e.target.closest?e.target.closest('[data-pp97]'):null;if(!t)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  if(t.dataset.pp97==='close'){pp97Log.length=0;pp97Draw();return;}
+  const txt=pp97Log.map(x=>'['+new Date(x.t).toLocaleTimeString()+'] '+x.where+': '+x.msg).join('\n')+'\nالإصدار: '+(typeof PETRA_APP_VERSION!=='undefined'?PETRA_APP_VERSION:'');
+  try{navigator.clipboard.writeText(txt);note('✓ تم النسخ');}catch(_){note('تعذّر النسخ');}
 },true);
 
 ppBoot();
