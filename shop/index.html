@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V94';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V95';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2145,7 +2145,7 @@ function productCardBase(p){
  const price=!pp44Flag(p,'showPrice')?'':p.price==null?`<span class="muted">${T('السعر عند الطلب','Ask for price')}</span>`:`<strong class="product-price">${money(p.price,p.currency)}</strong>`;
  const w=st.cardW?`${st.cardW}px`:'100%',h=st.cardH?`${st.cardH}px`:'auto';
  const css=`--pp-card-bg:${safeColor(p.cardBg,safeColor(state.settings.productCardBg,'#ffffff'))};--pp-photo-bg:${safeColor(p.photoBg,safeColor(state.settings.productPhotoBg,'#ffffff'))};--pp-card-text:${cardFg(safeColor(p.cardBg,safeColor(state.settings.productCardBg,'#ffffff')))};--pp35-card-w:${w};--pp35-card-h:${h};--pp35-card-ratio:${st.ratioW}/${st.ratioH};--pp35-photo-h:${st.imageH?st.imageH+'px':'auto'};--pp35-photo-w:${st.imageW}%;--pp35-photo-ratio:${st.ratioW}/${st.ratioH};--pp35-photo-fit:${st.fit};--pp35-title-size:${st.titleSize}px;--pp35-title-weight:${st.titleWeight};--pp35-title-color:${st.titleColor};--pp35-desc-size:${st.descSize}px;--pp35-desc-weight:${st.descWeight};--pp35-desc-color:${st.descColor};--pp35-desc-stretch:${st.descStretch}%;--pp35-desc-spacing:${st.descSpacing}px;--pp35-desc-width:${st.descWidth}%;--pp35-desc-bg:${st.customDescBg?st.descBg:'transparent'};--pp35-align:${st.align};--pp35-radius:${st.radius}px;--pp35-price-color:${st.priceColor}`;
- return `<article class="product pp26-card pp35-card ${side?'pp35-layout-side':'pp35-layout-stack'}" role="button" tabindex="0" data-action="details" data-id="${esc(p.id)}" style="${css}"><div class="photo">${photo(p)}<button type="button" class="pp26-fav" data-action="pp26-fav" data-id="${esc(p.id)}" aria-pressed="${pp26Favs.has(p.id)}" aria-label="${T('المفضلة','Favorites')}">${pp26Favs.has(p.id)?'♥':'♡'}</button>${p.demoOnly?`<span class="pp26-demo-tag">تجريبي</span>`:''}${visibleAdmin()?`<button class="pp35-owner-edit" data-action="edit" data-id="${esc(p.id)}" type="button" title="تصميم البطاقة">✎</button>${pp94Btn(p)}`:''}</div><div class="product-body"><div class="muted">${esc(p.category||'')}</div><h3 class="product-title">${esc(S(p.nameAr,p.nameEn))}</h3>${st.position!=='hidden'&&short?`<p class="pp35-description">${esc(short)}</p>`:''}<div class="product-meta" dir="ltr">${esc([p.brand,p.model].filter(Boolean).join(' • '))}</div><div>${price}</div>${p.stock===0?`<div class="product-meta lowstock">${T('غير متوفر حالياً','Currently unavailable')}</div>`:''}</div><div class="product-bottom"><button class="btn" data-action="details" data-id="${esc(p.id)}">${T('التفاصيل','Details')}</button><button class="btn dark" data-action="add-cart" data-id="${esc(p.id)}">🛒 <span class="pp35-cart-label">${T('أضف إلى السلة','Add to cart')}</span></button></div>${visibleAdmin()?`<div class="owner-card-tools"><button type="button" class="btn gold" data-action="edit" data-id="${esc(p.id)}">✏️ ${T('تعديل المنتج','Edit product')}</button><button type="button" class="btn" data-action="edit-images" data-id="${esc(p.id)}">📷 ${T('إضافة / تعديل الصور','Edit photos')}</button></div>`:''}</article>`;
+ return `<article class="product pp26-card pp35-card ${side?'pp35-layout-side':'pp35-layout-stack'}" role="button" tabindex="0" data-action="details" data-id="${esc(p.id)}" style="${css}"><div class="photo">${photo(p)}<button type="button" class="pp26-fav" data-action="pp26-fav" data-id="${esc(p.id)}" aria-pressed="${pp26Favs.has(p.id)}" aria-label="${T('المفضلة','Favorites')}">${pp26Favs.has(p.id)?'♥':'♡'}</button>${p.demoOnly?`<span class="pp26-demo-tag">تجريبي</span>`:''}${visibleAdmin()?`<button class="pp35-owner-edit" data-action="edit" data-id="${esc(p.id)}" type="button" title="تصميم البطاقة">✎</button>${pp94Btn(p)}`:''}</div><div class="product-body"><div class="muted">${esc(p.category||'')}</div><h3 class="product-title">${esc(S(p.nameAr,p.nameEn))}</h3>${false&&short?`<p class="pp35-description">${esc(short)}</p>`:''}<div class="product-meta" dir="ltr">${esc([p.brand,p.model].filter(Boolean).join(' • '))}</div><div>${price}</div>${p.stock===0?`<div class="product-meta lowstock">${T('غير متوفر حالياً','Currently unavailable')}</div>`:''}</div><div class="product-bottom"><button class="btn" data-action="details" data-id="${esc(p.id)}">${T('التفاصيل','Details')}</button><button class="btn dark" data-action="add-cart" data-id="${esc(p.id)}">🛒 <span class="pp35-cart-label">${T('أضف إلى السلة','Add to cart')}</span></button></div>${visibleAdmin()?`<div class="owner-card-tools"><button type="button" class="btn gold" data-action="edit" data-id="${esc(p.id)}">✏️ ${T('تعديل المنتج','Edit product')}</button><button type="button" class="btn" data-action="edit-images" data-id="${esc(p.id)}">📷 ${T('إضافة / تعديل الصور','Edit photos')}</button></div>`:''}</article>`;
 }
 
 const isNewProduct=p=>ppIsNew(p);
@@ -5997,6 +5997,29 @@ window.addEventListener('click',async e=>{
     const n=pp94Next(p.id);note('✓ تمت الموافقة');
     if(n)pp94Show(n);else{document.getElementById('pp94')?.remove();render();note('✓ كل الترجمات الجاهزة تمت مراجعتها');}
   }
+},true);
+
+/* ===== V95 (phase 1): simplified product edit form (hide-only; every field stays in the DOM so saving is unchanged) ===== */
+(function(){const st=document.createElement('style');st.textContent=`
+#modal .pp44-editor:not(.pp95-adv) .pp45-layout-select,#modal .pp44-editor:not(.pp95-adv) details.pp44-fold:not(.pp44-advanced),#modal .pp44-editor:not(.pp95-adv) details.pp44-advanced,#modal .pp44-editor:not(.pp95-adv) .pp50-size-card,#modal .pp44-editor:not(.pp95-adv) .pp49-code-panel .pp49-grid,#modal .pp44-editor:not(.pp95-adv) .pp49-code-hint{display:none!important}
+#modal .pp44-editor.pp95-adv .pp95-moved{order:0}
+#modal .pp95-advbtn{width:100%;margin:12px 0 4px;border:1.5px dashed #c9a24a;background:#fffaf0;border-radius:12px;padding:10px;font-weight:800;color:#6b5320;font-family:inherit}`;document.head.appendChild(st);})();
+function pp95Fix(){
+  const ed=document.querySelector('#modal .pp44-editor');if(!ed||ed.dataset.pp95)return;
+  ed.dataset.pp95='1';
+  const price=ed.querySelector('.pp44-essential label[name],.pp44-essential [name="price"]');
+  const pl=ed.querySelector('[name="price"]')?.closest('label');
+  const cur=ed.querySelector('[name="currency"]')?.closest('label'),cat=ed.querySelector('[name="category"]')?.closest('label');
+  if(pl){let a=pl;[cur,cat].forEach(l=>{if(l&&l.parentNode){a.after(l);l.classList.add('pp95-moved');a=l;}});}
+  const b=document.createElement('button');b.type='button';b.className='pp95-advbtn';b.textContent='⚙ إظهار الخيارات المتقدمة';b.dataset.pp95='adv';
+  ed.appendChild(b);
+}
+new MutationObserver(()=>{try{pp95Fix()}catch(_){}}).observe(document.body,{childList:true,subtree:true});
+window.addEventListener('click',e=>{
+  const t=e.target&&e.target.closest?e.target.closest('[data-pp95="adv"]'):null;if(!t)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const ed=t.closest('.pp44-editor');if(!ed)return;
+  const on=ed.classList.toggle('pp95-adv');t.textContent=on?'⚙ إخفاء الخيارات المتقدمة':'⚙ إظهار الخيارات المتقدمة';
 },true);
 
 ppBoot();
