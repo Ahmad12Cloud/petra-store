@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V91';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V92';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1932,9 +1932,9 @@ function searchProductsSmart(userText){
  const required=concepts.length+words.length;
  results.sort((a,b)=>b.score-a.score||Number(b.p.stock!==0)-Number(a.p.stock!==0));
  const exact=required>0&&results.some(r=>r.hits>=required);
- return {matches:results.slice(0,12).map(x=>x.p),exact};
+ return pp92Finish(userText,results,exact);
 }
-function doSmartSearch(text){const val=clean(text);if(!val){note(T('اكتب اسم المنتج للبحث','Type a product to search'));return}assistantQuery=val;const found=searchProductsSmart(val);assistantMatches=found.matches;assistantExact=found.exact;assistantSearched=true;goto('assistant');}
+function doSmartSearch(text){const val=clean(text);if(!val){note(T('اكتب اسم المنتج للبحث','Type a product to search'));return}assistantQuery=val;const found=searchProductsSmart(val);assistantMatches=found.matches;assistantExact=found.exact;try{pp92Note(found)}catch(_){}assistantSearched=true;goto('assistant');}
 function assistantProduct(p){return `<div class="assistant-card"><div class="visual">${photo(p)}</div><div style="flex:1;min-width:0"><strong>${esc(S(p.nameAr,p.nameEn))}</strong><small>${esc([p.brand,p.model,p.sku].filter(Boolean).join(' • '))}</small><span class="assistant-price">${money(p.price,p.currency)}</span><div class="actions"><button class="btn small" data-action="details" data-id="${esc(p.id)}">${T('التفاصيل','Details')}</button><button class="btn small dark" data-action="add-cart" data-id="${esc(p.id)}">＋ ${T('أضف','Add')}</button>${visibleAdmin()?`<button class="btn small gold" data-action="edit" data-id="${esc(p.id)}">✏️ ${T('تعديل','Edit')}</button>`:''}</div></div></div>`}
 function drawAssistant(){const el=$('view');el.innerHTML=`<div class="assistant-page"><div class="assistant-head"><span class="assistant-glyph">✦</span><span><strong>${T('بحث المنتجات','Product search')}</strong><p>${T('أقرب المنتجات الموجودة في كتالوجنا فقط','Closest matches from products in this catalog')}</p></span></div>${assistantSearched?`<div class="assistant-bubble assistant-query-bubble"><strong>${T('طلبك','Your request')}:</strong> ${esc(assistantQuery)}</div><div class="assistant-bubble">${assistantMatches.length?(assistantExact?T('وجدت لك المنتجات الأقرب لطلبك:','Here are products matching your request:'):T('ما لقيت تطابق كامل، بس هيدي أقرب نتائج موجودة:','No exact match, but these are the closest available results:')):T('ما لقيت منتج مطابق بالكتالوج حالياً. جرّب اسم مختلف أو تواصل معنا عبر واتساب.','No matching product in the catalog yet. Try a different term or contact us on WhatsApp.')}</div>${assistantMatches.length?`<div class="assistant-match-info">${assistantMatches.length} ${T('نتائج من الكتالوج','catalog matches')}</div>${assistantMatches.map(assistantProduct).join('')}`:''}`:`<div class="assistant-bubble">${T('اكتب اسم المنتج أو الموديل في البحث لتظهر أقرب النتائج من البضاعة الموجودة.','Type a product or model to find the closest existing matches.')}</div><div class="quick-queries"><button data-action="quick-search" data-query="${T('قاطع','breaker')}">${T('قاطع','Breaker')}</button><button data-action="quick-search" data-query="WiFi">WiFi</button><button data-action="quick-search" data-query="${T('بطارية','battery')}">${T('بطارية','Battery')}</button></div>`}<div class="assistant-compose"><input id="assistant-input" type="search" inputmode="search" enterkeyhint="search" value="${esc(assistantQuery)}" placeholder="${T('اكتب اسم المنتج…','Type a product name…')}" autocomplete="off"><button class="ai-submit" data-action="assistant-submit" aria-label="Search">➤</button></div><div class="assistant-small">${T('البحث يعرض المنتجات الموجودة فقط. في النسخة المحفوظة على الهاتف، استخدم البحث الكتابي للبحث بالصوت.','Searches the catalog only. On a locally saved file, use your keyboard microphone for voice search.')}</div></div>`;const input=$('assistant-input');if(input)input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();doSmartSearch(input.value)}})}
 
@@ -5741,6 +5741,14 @@ function pp87Pre(str){
     }
     s=out.join('');
   }
+  {const L=s.toLowerCase().replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[ً-ٰٟ]/g,'');let add='';
+   if(/(^|\s)(وان|ون|ان)\s*(بول|پول)|مفرد|احادي|single[\s-]*pole|1\s*pole/.test(L))add+=' 1p';
+   if(/(^|\s)(تو|توو)\s*(بول|پول)|ثنائي|زوجي|double[\s-]*pole|2\s*poles?/.test(L))add+=' 2p';
+   if(/(^|\s)(ثري|تري)\s*(بول|پول)|ثلاثي|triple[\s-]*pole|3\s*poles?/.test(L))add+=' 3p';
+   if(/(^|\s)(فور)\s*(بول|پول)|رباعي|4\s*poles?/.test(L))add+=' 4p';
+   if(/دي\s*سي|دي\s*سيه|تيار\s*مستمر|مستمر|direct\s*current/.test(L))add+=' dc';
+   if(/(^|\s)(اي|ايه|ايي)\s*سي(\s|$)|تيار\s*متناوب|متناوب|alternating/.test(L))add+=' ac';
+   s+=add;}
   s=s.replace(/(\d+)\s*(?:a|amp|amps|ampere|amperes|[أا]مب[يى]ر(?:ات)?|[أا]مب)(?![A-Za-z؀-ۿ])/gi,'$1a');
   return s;
 }
@@ -5751,8 +5759,8 @@ function pp87Row(p){return `<button type="button" class="v12-result" data-action
 function updateSearchHints(val){
   const box=$('v12-search-hints');if(!box)return;const q=clean(val);
   if(q.length<2){box.innerHTML=`<div class="v12-try">${T('جرّب: قاطع، واي فاي، بطارية، إنفرتر…','Try: breaker, Wi-Fi, battery, inverter…')}</div>`;return}
-  let matches=searchProductsSmart(q).matches.slice(0,6);
-  if(matches.length){box.innerHTML=matches.map(pp87Row).join('')+`<button class="v12-see-all" data-action="search-go">${T('عرض كل النتائج','Show all results')}</button>`;return;}
+  const sf=searchProductsSmart(q);let matches=sf.matches.slice(0,6);const missNote=sf.missing&&sf.missing.length?`<div class="v12-try" style="color:#a02a1c;font-weight:800">${T('لا يوجد '+sf.missing.join(' / ')+'، هذه أقرب النتائج:','No '+sf.missing.join(' / ')+' — closest results:')}</div>`:'';
+  if(matches.length){box.innerHTML=missNote+matches.map(pp87Row).join('')+`<button class="v12-see-all" data-action="search-go">${T('عرض كل النتائج','Show all results')}</button>`;return;}
   const fx=pp87Fix(q);let m2=fx?searchProductsSmart(fx).matches.slice(0,6):[];
   if(m2.length){box.innerHTML=`<div class="v12-try">${T('نتائج لـ «'+esc(fx)+'»','Results for “'+esc(fx)+'”')}</div>`+m2.map(pp87Row).join('');return;}
   const cats=[...new Set((state.products||[]).filter(p=>p.active).map(p=>p.category).filter(Boolean))].slice(0,5);
@@ -5871,6 +5879,23 @@ window.addEventListener('click',e=>{
   f.querySelector('[name="enApprove"]').value='1';
   const sv=f.querySelector('[data-action="save-product"]')||document.querySelector('[data-action="save-product"]');if(sv)sv.click();
 },true);
+
+/* ===== V92: strict amps / poles / AC-DC filtering in search, with "not available" note ===== */
+function pp92Hum(t){return /^\d+a$/.test(t)?t.toUpperCase():/^\dp$/.test(t)?t.toUpperCase():t.toUpperCase();}
+function pp92Finish(userText,results,exact){
+  const q=normalizeSearch(userText),toks=q.split(' ').filter(Boolean);
+  const cons=[];
+  toks.forEach(w=>{if(/^\d{1,4}a$/.test(w)||/^[1-4]p$/.test(w)||w==='ac'||w==='dc')if(!cons.includes(w))cons.push(w);});
+  let list=results.slice(),missing=[];
+  const has=(r,w)=>(' '+searchable(r.p)+' ').includes(' '+w+' ');
+  for(const w of cons){
+    const ok=w==='ac'?(r=>has(r,'ac')||!has(r,'dc')):(r=>has(r,w));
+    const keep=list.filter(ok);
+    if(keep.length)list=keep;else if(list.length)missing.push(w);
+  }
+  return {matches:list.slice(0,12).map(x=>x.p),exact,missing:missing.map(pp92Hum)};
+}
+function pp92Note(found){if(found&&found.missing&&found.missing.length)note(T('لا يوجد '+found.missing.join(' / ')+'، هذه أقرب النتائج','No '+found.missing.join(' / ')+' available — closest results shown'));}
 
 ppBoot();
 })();
