@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V93';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V94';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2145,7 +2145,7 @@ function productCardBase(p){
  const price=!pp44Flag(p,'showPrice')?'':p.price==null?`<span class="muted">${T('السعر عند الطلب','Ask for price')}</span>`:`<strong class="product-price">${money(p.price,p.currency)}</strong>`;
  const w=st.cardW?`${st.cardW}px`:'100%',h=st.cardH?`${st.cardH}px`:'auto';
  const css=`--pp-card-bg:${safeColor(p.cardBg,safeColor(state.settings.productCardBg,'#ffffff'))};--pp-photo-bg:${safeColor(p.photoBg,safeColor(state.settings.productPhotoBg,'#ffffff'))};--pp-card-text:${cardFg(safeColor(p.cardBg,safeColor(state.settings.productCardBg,'#ffffff')))};--pp35-card-w:${w};--pp35-card-h:${h};--pp35-card-ratio:${st.ratioW}/${st.ratioH};--pp35-photo-h:${st.imageH?st.imageH+'px':'auto'};--pp35-photo-w:${st.imageW}%;--pp35-photo-ratio:${st.ratioW}/${st.ratioH};--pp35-photo-fit:${st.fit};--pp35-title-size:${st.titleSize}px;--pp35-title-weight:${st.titleWeight};--pp35-title-color:${st.titleColor};--pp35-desc-size:${st.descSize}px;--pp35-desc-weight:${st.descWeight};--pp35-desc-color:${st.descColor};--pp35-desc-stretch:${st.descStretch}%;--pp35-desc-spacing:${st.descSpacing}px;--pp35-desc-width:${st.descWidth}%;--pp35-desc-bg:${st.customDescBg?st.descBg:'transparent'};--pp35-align:${st.align};--pp35-radius:${st.radius}px;--pp35-price-color:${st.priceColor}`;
- return `<article class="product pp26-card pp35-card ${side?'pp35-layout-side':'pp35-layout-stack'}" role="button" tabindex="0" data-action="details" data-id="${esc(p.id)}" style="${css}"><div class="photo">${photo(p)}<button type="button" class="pp26-fav" data-action="pp26-fav" data-id="${esc(p.id)}" aria-pressed="${pp26Favs.has(p.id)}" aria-label="${T('المفضلة','Favorites')}">${pp26Favs.has(p.id)?'♥':'♡'}</button>${p.demoOnly?`<span class="pp26-demo-tag">تجريبي</span>`:''}${visibleAdmin()?`<button class="pp35-owner-edit" data-action="edit" data-id="${esc(p.id)}" type="button" title="تصميم البطاقة">✎</button>`:''}</div><div class="product-body"><div class="muted">${esc(p.category||'')}</div><h3 class="product-title">${esc(S(p.nameAr,p.nameEn))}</h3>${st.position!=='hidden'&&short?`<p class="pp35-description">${esc(short)}</p>`:''}<div class="product-meta" dir="ltr">${esc([p.brand,p.model].filter(Boolean).join(' • '))}</div><div>${price}</div>${p.stock===0?`<div class="product-meta lowstock">${T('غير متوفر حالياً','Currently unavailable')}</div>`:''}</div><div class="product-bottom"><button class="btn" data-action="details" data-id="${esc(p.id)}">${T('التفاصيل','Details')}</button><button class="btn dark" data-action="add-cart" data-id="${esc(p.id)}">🛒 <span class="pp35-cart-label">${T('أضف إلى السلة','Add to cart')}</span></button></div>${visibleAdmin()?`<div class="owner-card-tools"><button type="button" class="btn gold" data-action="edit" data-id="${esc(p.id)}">✏️ ${T('تعديل المنتج','Edit product')}</button><button type="button" class="btn" data-action="edit-images" data-id="${esc(p.id)}">📷 ${T('إضافة / تعديل الصور','Edit photos')}</button></div>`:''}</article>`;
+ return `<article class="product pp26-card pp35-card ${side?'pp35-layout-side':'pp35-layout-stack'}" role="button" tabindex="0" data-action="details" data-id="${esc(p.id)}" style="${css}"><div class="photo">${photo(p)}<button type="button" class="pp26-fav" data-action="pp26-fav" data-id="${esc(p.id)}" aria-pressed="${pp26Favs.has(p.id)}" aria-label="${T('المفضلة','Favorites')}">${pp26Favs.has(p.id)?'♥':'♡'}</button>${p.demoOnly?`<span class="pp26-demo-tag">تجريبي</span>`:''}${visibleAdmin()?`<button class="pp35-owner-edit" data-action="edit" data-id="${esc(p.id)}" type="button" title="تصميم البطاقة">✎</button>${pp94Btn(p)}`:''}</div><div class="product-body"><div class="muted">${esc(p.category||'')}</div><h3 class="product-title">${esc(S(p.nameAr,p.nameEn))}</h3>${st.position!=='hidden'&&short?`<p class="pp35-description">${esc(short)}</p>`:''}<div class="product-meta" dir="ltr">${esc([p.brand,p.model].filter(Boolean).join(' • '))}</div><div>${price}</div>${p.stock===0?`<div class="product-meta lowstock">${T('غير متوفر حالياً','Currently unavailable')}</div>`:''}</div><div class="product-bottom"><button class="btn" data-action="details" data-id="${esc(p.id)}">${T('التفاصيل','Details')}</button><button class="btn dark" data-action="add-cart" data-id="${esc(p.id)}">🛒 <span class="pp35-cart-label">${T('أضف إلى السلة','Add to cart')}</span></button></div>${visibleAdmin()?`<div class="owner-card-tools"><button type="button" class="btn gold" data-action="edit" data-id="${esc(p.id)}">✏️ ${T('تعديل المنتج','Edit product')}</button><button type="button" class="btn" data-action="edit-images" data-id="${esc(p.id)}">📷 ${T('إضافة / تعديل الصور','Edit photos')}</button></div>`:''}</article>`;
 }
 
 const isNewProduct=p=>ppIsNew(p);
@@ -5941,6 +5941,62 @@ window.addEventListener('click',async e=>{
   try{await pp38SaveLocalSettings();}catch(_){}
   const box=document.getElementById('pp93-box');if(box){const n=document.createElement('div');box.replaceWith(Object.assign(document.createElement('div'),{innerHTML:pp93Block(s)}).firstElementChild);}
   render();note('✓ تمت الموافقة على الإنجليزي');
+},true);
+
+/* ===== V94: quick translation sheet from the product card (owner only) ===== */
+function pp94State(p){
+  if(!p||!(p.nameEn||p.descriptionEn))return 'none';
+  return (p.enStatus==='ok'&&p.enHash===ppEnHash(p.nameAr,p.descriptionAr))?'ok':'wait';
+}
+function pp94Btn(p){const s=pp94State(p),c={none:'#d93030',wait:'#f0a000',ok:'#25b45a'}[s];
+  return `<button type="button" class="pp35-owner-edit pp94-tr" data-action="pp94-open" data-id="${esc(p.id)}" title="ترجمة">🌐<i style="background:${c}"></i></button>`;}
+(function(){const st=document.createElement('style');st.textContent=`.pp94-tr{inset-inline-end:38px!important;font-size:15px!important}.pp94-tr i{position:absolute;top:-5px;inset-inline-start:-5px;width:12px;height:12px;border-radius:50%;border:2px solid #fff}
+#pp94{position:fixed;inset:0;z-index:99999;background:#0008;display:flex;align-items:flex-end;justify-content:center}
+#pp94 .b{background:#fffdf7;border-top:3px solid #c9a24a;border-radius:18px 18px 0 0;width:100%;max-width:560px;max-height:92vh;overflow:auto;padding:12px 14px 16px;direction:rtl;font-family:Tahoma,Arial}
+#pp94 .h{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:4px}#pp94 .x{border:0;background:#eee;border-radius:10px;width:34px;height:34px;font-size:16px}
+#pp94 .l{color:#6b5320;font-size:11px;font-weight:800;margin:8px 0 2px}#pp94 .v{border:1.5px solid #e5d6b3;border-radius:10px;padding:8px;background:#fff;white-space:pre-line;max-height:110px;overflow:auto}
+#pp94 .en{width:100%;box-sizing:border-box;direction:ltr;text-align:left;background:#e9f9ff;border:1.5px solid #29d3ff;border-radius:10px;padding:8px;font:inherit}
+#pp94 .back{background:#f1ecff;border:1.5px solid #b9a6ff}#pp94 .row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+#pp94 .row button{flex:1;border:2px solid #c9a24a;border-radius:12px;padding:10px;font-weight:800;background:#fff;font-family:inherit}#pp94 .row .gold{background:#f7ca65}
+#pp94 .n{font-size:12px;color:#6b5320}`;document.head.appendChild(st);})();
+let pp94Cur=null,pp94Skip=new Set();
+function pp94Show(id){
+  const p=state.products.find(x=>x.id===id);if(!p)return;pp94Cur=id;
+  document.getElementById('pp94')?.remove();
+  const s=pp94State(p),tag={none:['🔴 لا توجد ترجمة','#fde0e0','#a11'],wait:['⏳ بانتظار موافقتك','#fff0d6','#9a5b00'],ok:['✓ موافق عليها','#e3f6e6','#1d6b2b']}[s];
+  const o=document.createElement('div');o.id='pp94';
+  o.innerHTML=`<div class="b"><div class="h"><b>🌐 ترجمة المنتج</b><span style="background:${tag[1]};color:${tag[2]};border-radius:9px;padding:3px 9px;font-size:11px;font-weight:800">${tag[0]}</span><button class="x" data-pp94="close">✕</button></div>
+  ${s==='none'?'<div class="n">لا توجد ترجمة بعد. اكتب بنفسك، أو قل لي «ترجم الجديد» وأكتبها لك.</div>':''}
+  <div class="l">الاسم بالعربي</div><div class="v">${esc(p.nameAr||'—')}</div>
+  <div class="l">Name</div><input class="en" id="pp94-n" value="${esc(p.nameEn||'')}">
+  <div class="l">الوصف بالعربي</div><div class="v">${esc(p.descriptionAr||'—')}</div>
+  <div class="l">Description</div><textarea class="en" id="pp94-d" rows="4">${esc(p.descriptionEn||'')}</textarea>
+  ${p.enBack?`<div class="l">📖 معناها بالعربي (للتأكد)</div><div class="v back">${esc(p.enBack)}</div>`:''}
+  <div class="row"><button data-pp94="edit">✏️ عدّل</button><button class="gold" data-pp94="ok">✔ موافق وتالي ▶</button><button data-pp94="skip">⏭ تخطّي</button></div></div>`;
+  document.body.appendChild(o);
+}
+function pp94Next(fromId){
+  const L=state.products,i=L.findIndex(x=>x.id===fromId);
+  for(let k=1;k<=L.length;k++){const q=L[(i+k)%L.length];if(q.id!==fromId&&!pp94Skip.has(q.id)&&pp94State(q)==='wait')return q.id;}
+  return null;
+}
+window.addEventListener('click',async e=>{
+  const t=e.target&&e.target.closest?e.target.closest('[data-action="pp94-open"],[data-pp94]'):null;if(!t)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  if(t.dataset.action==='pp94-open'){if(!visibleAdmin())return;pp94Skip=new Set();return pp94Show(t.dataset.id);}
+  const a=t.dataset.pp94,p=state.products.find(x=>x.id===pp94Cur);
+  if(a==='close'){document.getElementById('pp94')?.remove();render();return;}
+  if(a==='edit'){const i=document.getElementById('pp94-n');if(i)i.focus();return;}
+  if(!p)return;
+  if(a==='skip'){pp94Skip.add(p.id);const n=pp94Next(p.id);if(n)pp94Show(n);else{document.getElementById('pp94')?.remove();render();note('لا يوجد منتج آخر بانتظار الموافقة');}return;}
+  if(a==='ok'){
+    const nm=document.getElementById('pp94-n').value.trim(),ds=document.getElementById('pp94-d').value.trim();
+    if(!nm){note('اكتب الاسم الإنجليزي أولًا');return;}
+    p.nameEn=nm;p.descriptionEn=ds;p.enStatus='ok';p.enHash=ppEnHash(p.nameAr,p.descriptionAr);
+    try{await changed();}catch(_){}
+    const n=pp94Next(p.id);note('✓ تمت الموافقة');
+    if(n)pp94Show(n);else{document.getElementById('pp94')?.remove();render();note('✓ كل الترجمات الجاهزة تمت مراجعتها');}
+  }
 },true);
 
 ppBoot();
