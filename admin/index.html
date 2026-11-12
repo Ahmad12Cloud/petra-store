@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V90';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V91';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2250,7 +2250,7 @@ function edit(p){
       <label class="stack">العملة<select class="field" name="currency">${['USD','LBP','SYP','EUR'].map(c=>`<option value="${c}" ${c===(p?.currency||'USD')?'selected':''}>${c}</option>`).join('')}</select></label>
       ${input('stock','الكمية المتوفرة','Stock quantity',p?.stock,'type="number" min="0" step="1" inputmode="numeric"')}
       <label class="stack full">المواصفات الفنية<textarea class="field" name="specs" rows="2">${esc(p?.specs||'')}</textarea></label>
-      <label class="stack full">الوصف بالإنجليزي<textarea class="field" name="descriptionEn" rows="2">${esc(p?.descriptionEn||'')}</textarea></label>
+      <label class="stack full">الوصف بالإنجليزي<textarea class="field" name="descriptionEn" rows="2">${esc(p?.descriptionEn||'')}</textarea></label>${ppTrBlock(p)}
      </div>
      <details class="pp44-fold"><summary>🎨 لون وتصميم بطاقة هذا المنتج</summary><div class="pp44-fold-body">
       <div class="pp-product-color"><div class="formgrid">
@@ -2289,7 +2289,7 @@ async function saveProduct(){
  if((price!==''&&(!Number.isFinite(+price)||+price<0))||(stock!==''&&!/^\d+$/.test(stock))){note('راجع السعر والكمية');return;}
  const visibility={showName:fd.has('showName'),showPrice:fd.has('showPrice'),showDesc:fd.has('showDesc'),showCode:fd.has('showCode'),showCategory:fd.has('showCategory'),showBrandModel:fd.has('showBrandModel'),showSpecs:fd.has('showSpecs')};
  const p={id:old?.id||id(),demoOnly:old?.demoOnly===true,createdAt:old?.createdAt||Date.now(),
- nameAr:v('nameAr'),nameEn:v('nameEn'),sku,productCode,pp49CodeMode:mode,pp49CodePrefix:prefix,barcode:v('barcode'),category:v('category'),sizes:ppParseSizes(v('sizes')),sizePrices:ppCleanSP(v('sizePrices'),ppParseSizes(v('sizes'))),sizeLabel:v('sizeLabel'),specLine:v('specLine'),specTable:v('specTable'),datasheet:v('datasheet'),brand:v('brand'),model:v('model'),
+ nameAr:v('nameAr'),nameEn:v('nameEn'),sku,productCode,pp49CodeMode:mode,pp49CodePrefix:prefix,barcode:v('barcode'),category:v('category'),sizes:ppParseSizes(v('sizes')),sizePrices:ppCleanSP(v('sizePrices'),ppParseSizes(v('sizes'))),sizeLabel:v('sizeLabel'),...ppEnSave(old,v),specLine:v('specLine'),specTable:v('specTable'),datasheet:v('datasheet'),brand:v('brand'),model:v('model'),
  currency:v('currency')||'USD',price:price===''?null:Number(price),stock:stock===''?null:Number(stock),specs:v('specs'),
  descriptionAr:v('descriptionAr'),descriptionEn:v('descriptionEn'),images:[...formImages],
  photoBg:fd.has('customPhotoBg')?safeColor(fd.get('photoBg'),safeColor(state.settings.productPhotoBg,'#ffffff')):'',
@@ -4325,7 +4325,7 @@ async function ppLoadRemote(opts={}){
   for(const r of raw.products)ppSynced.set(String(r.id),JSON.stringify(ppProductToRow(r)));
   ppRemoteLoaded=true;
   state=normalize(raw);
-  try{pp89Restore()}catch(_){}
+  try{pp89Restore()}catch(_){}try{pp91Gate()}catch(_){}
   ppSettingsHash=JSON.stringify(ppSettingsForDb());
   ppCatsHash=ppCatsSig();
   ppCacheSave();
@@ -4517,7 +4517,7 @@ async function ppRefreshCustomer(){
 /* ---- boot ---- */
 async function ppBoot(){
   let cached=null;try{cached=JSON.parse(ppLS.get(PP_CACHE_KEY)||'null')}catch(e){}
-  if(cached&&Array.isArray(cached.products)){state=normalize(cached);try{pp89Restore()}catch(_){}}
+  if(cached&&Array.isArray(cached.products)){state=normalize(cached);try{pp89Restore()}catch(_){}try{pp91Gate()}catch(_){}}
   if(MANAGER){
     try{const s=JSON.parse(ppLS.get(PP_SESSION_KEY)||'null');
       if(s&&s.refresh_token){ppSession=s;await ppEnsureToken();if(await ppIsAdmin())ownerUnlocked=true;else ppSaveSession(null);}
@@ -5838,6 +5838,39 @@ function pp89Restore(){
   }
   if(added){try{ppCartBadge()}catch(_){}}
 }
+
+/* ===== V91: English translation review (pending -> owner approves; customers see English only after approval) ===== */
+function ppEnHash(a,d){const t=String(a||'')+'|'+String(d||'');let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return String(h);}
+function ppEnSave(old,v){
+  const h=ppEnHash(v('nameAr'),v('descriptionAr'));let st=v('enStatus')||old?.enStatus||'',hash=old?.enHash||'';
+  if(v('enApprove')==='1'){st='ok';hash=h;}else if(st==='ok'&&hash&&hash!==h)st='stale';
+  return {enStatus:st,enHash:hash,enBack:v('enBack')||old?.enBack||''};
+}
+function pp91Gate(){if(MANAGER)return;(state.products||[]).forEach(p=>{if(p&&p.enStatus==='pending'){p.nameEn='';p.descriptionEn='';}});}
+function ppTrBlock(p){
+  if(!p)return'';
+  const st=p.enStatus||'',has=!!(p.nameEn||p.descriptionEn);
+  const map={pending:['⏳ بانتظار موافقتك','wait','الزبون الإنجليزي يرى الاسم العربي حتى تضغط «موافق».'],ok:['✓ موافق عليها','ok','الزبون الإنجليزي يرى هذه الترجمة.'],stale:['⚠ الترجمة قديمة — غيّرت العربي بعدها','wait','قل لـ Claude «حدّث الترجمة» ثم وافق من جديد.'],'':has?['لم تُراجَع بعد','wait','تظهر للزبون الإنجليزي حاليًا. اضغط «موافق» بعد التأكد منها.']:['لا توجد ترجمة','wait','اكتب الإنجليزي بنفسك، أو قل لـ Claude «ترجم المنتجات».']};
+  const m=map[st]||map[''];
+  return `<div class="pp91-box full" style="grid-column:1/-1">
+   <input type="hidden" name="enStatus" value="${esc(st)}"><input type="hidden" name="enBack" value="${esc(p.enBack||'')}"><input type="hidden" name="enApprove" value="">
+   <div class="pp91-h"><b>🌐 مراجعة الترجمة الإنجليزية</b><span class="pp91-st ${m[1]}">${m[0]}</span></div>
+   <div class="pp91-n">${m[2]}</div>
+   <div class="pp91-l">الاسم بالعربي</div><div class="pp91-v">${esc(p.nameAr||'')}</div>
+   <div class="pp91-l">الاسم بالإنجليزي (حقل «الاسم بالإنجليزي» أعلاه)</div><div class="pp91-v" dir="ltr" style="text-align:left;font-weight:800">${esc(p.nameEn||'—')}</div>
+   ${p.enBack?`<div class="pp91-l">📖 معناها بالعربي (للتأكد)</div><div class="pp91-back">${esc(p.enBack)}</div>`:''}
+   <div class="pp91-row"><button type="button" class="btn" data-action="pp91-edit">✏️ عدّل الإنجليزي</button><button type="button" class="btn gold" data-action="pp91-ok">✔ موافق</button></div>
+  </div>`;
+}
+(function(){const st=document.createElement('style');st.textContent=`.pp91-box{border:2px solid #c9a24a;border-radius:14px;padding:11px;margin:8px 0;background:#fffdf7}.pp91-h{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:4px}.pp91-st{border-radius:10px;padding:3px 9px;font-size:11px;font-weight:800}.pp91-st.wait{background:#fff0d6;color:#9a5b00}.pp91-st.ok{background:#e3f6e6;color:#1d6b2b}.pp91-n{font-size:12px;color:#6b5320;margin-bottom:6px}.pp91-l{color:#6b5320;font-size:11px;margin:8px 0 2px;font-weight:800}.pp91-v{border:1.5px solid #e5d6b3;border-radius:10px;padding:8px;background:#fff}.pp91-back{background:#e9f9ff;border:1.5px solid #29d3ff;border-radius:10px;padding:8px;color:#0a4c63}.pp91-row{display:flex;gap:8px;margin-top:10px}.pp91-row .btn{flex:1}`;document.head.appendChild(st);})();
+window.addEventListener('click',e=>{
+  const b=e.target&&e.target.closest?e.target.closest('[data-action="pp91-ok"],[data-action="pp91-edit"]'):null;if(!b)return;
+  e.preventDefault();e.stopImmediatePropagation();const f=b.closest('form');if(!f)return;
+  if(b.dataset.action==='pp91-edit'){const i=f.querySelector('[name="nameEn"]');if(i){i.scrollIntoView({block:'center'});i.focus();}return;}
+  const en=f.querySelector('[name="nameEn"]');if(!en||!en.value.trim()){note('اكتب الاسم الإنجليزي أولًا');return;}
+  f.querySelector('[name="enApprove"]').value='1';
+  const sv=f.querySelector('[data-action="save-product"]')||document.querySelector('[data-action="save-product"]');if(sv)sv.click();
+},true);
 
 ppBoot();
 })();
