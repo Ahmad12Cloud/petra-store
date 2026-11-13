@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V101';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V102';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -6158,16 +6158,43 @@ window.addEventListener('click',e=>{
 },true);
 
 /* ===== V99: price range (from – to) + tall description box ===== */
+const PP102_W={1:300,2:500,3:700,4:900};
+function pp102Level(){const l=Number(state.settings&&state.settings.priceWeight);return PP102_W[l]?l:3;}
 function pp99Price(p){
   const a=Number(p&&p.price),b=Number(p&&p.priceMax);
-  if(p&&p.price!=null&&p.priceMax!=null&&p.priceMax!==''&&Number.isFinite(a)&&Number.isFinite(b)&&a!==b){
+  if(!(p&&p.price!=null&&Number.isFinite(a)))return money(p&&p.price,p&&p.currency);
+  const w=PP102_W[pp102Level()];
+  const N=x=>'<span class="pp102n" dir="ltr" style="font-size:1.08em;font-weight:'+w+'!important">'+x+'</span>';
+  const W=x=>'<span class="pp102w" dir="ltr" style="font-weight:400!important;font-size:.8em;opacity:.88">'+x+'</span>';
+  const f=n=>n.toLocaleString('en-US',{maximumFractionDigits:2}),c=esc((p.currency)||'USD');
+  if(p.priceMax!=null&&p.priceMax!==''&&Number.isFinite(b)&&a!==b){
     const lo=Math.min(a,b),hi=Math.max(a,b);
-    const f=n=>n.toLocaleString('en-US',{maximumFractionDigits:2}),c=esc((p.currency)||'USD');
-    const L=x=>'<span dir="ltr">'+x+'</span>';
-    return T('<bdi dir="rtl">من '+L(f(lo))+' إلى '+L(f(hi))+' '+L(c)+'</bdi>','<bdi dir="ltr">From '+f(lo)+' to '+f(hi)+' '+c+'</bdi>');
+    return T('<bdi dir="rtl">'+W('من')+' '+N(f(lo))+' '+W('إلى')+' '+N(f(hi))+' '+W(c)+'</bdi>','<bdi dir="ltr">'+W('From')+' '+N(f(lo))+' '+W('to')+' '+N(f(hi))+' '+W(c)+'</bdi>');
   }
-  return money(p&&p.price,p&&p.currency);
+  return N(f(a))+' '+W(c);
 }
+/* V102: owner menu button for price weight */
+const PP102_NAMES=['','رفيع','عادي','عريض','عريض جداً'];
+new MutationObserver(()=>{try{
+  const menu=document.querySelector('.v12-menu');
+  if(!(MANAGER&&ownerUnlocked&&menu))return;
+  const ref=menu.querySelector('[data-action="pp59-imgside"]')||menu.querySelector('[data-action="pp56-days"]')||menu.querySelector('[data-action="edit-new"]');
+  const ex=menu.querySelector('[data-action="pp102-weight"]');
+  const label='🔠 سماكة خط السعر ('+PP102_NAMES[pp102Level()]+')';
+  if(ex){if(ex.textContent!==label)ex.textContent=label;return;}
+  if(ref){const b=document.createElement('button');b.type='button';b.className=ref.className;b.setAttribute('data-action','pp102-weight');b.textContent=label;ref.insertAdjacentElement('afterend',b);}
+}catch(_){}}).observe(document.body,{childList:true,subtree:true});
+window.addEventListener('click',async e=>{
+  const el=e.target&&e.target.closest?e.target.closest('[data-action="pp102-weight"]'):null;if(!el)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const v=window.prompt('سماكة خط السعر للزبائن:\n1 = رفيع\n2 = عادي\n3 = عريض (الافتراضي)\n4 = عريض جداً\n\nاكتب رقم من 1 إلى 4',String(pp102Level()));
+  if(v===null)return;
+  const d=Math.round(Number(String(v).replace(/[٠-٩]/g,c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c))));
+  if(!PP102_W[d]){note('اكتب رقماً بين 1 و4');return;}
+  state.settings.priceWeight=d;
+  try{await changed();}catch(err){try{pp97Err('حفظ سماكة السعر',err)}catch(_){}}
+  render();note('✅ سماكة السعر: '+PP102_NAMES[d]);
+},true);
 (function(){const st=document.createElement('style');st.textContent=`#modal textarea[name="descriptionAr"]{min-height:240px;line-height:1.8;resize:vertical}`;document.head.appendChild(st);})();
 function pp99Grow(t){if(!t)return;t.style.height='auto';t.style.height=Math.max(240,t.scrollHeight+4)+'px';}
 window.addEventListener('input',e=>{const t=e.target;if(t&&t.matches&&t.matches('#modal textarea[name="descriptionAr"]'))pp99Grow(t);},true);
