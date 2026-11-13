@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V102';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V103';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -6195,6 +6195,7 @@ window.addEventListener('click',async e=>{
   try{await changed();}catch(err){try{pp97Err('حفظ سماكة السعر',err)}catch(_){}}
   render();note('✅ سماكة السعر: '+PP102_NAMES[d]);
 },true);
+(function(){const st=document.createElement('style');st.textContent=`article.product .pp102n{font-size:1.22em!important}`;document.head.appendChild(st);})();
 (function(){const st=document.createElement('style');st.textContent=`#modal textarea[name="descriptionAr"]{min-height:240px;line-height:1.8;resize:vertical}`;document.head.appendChild(st);})();
 function pp99Grow(t){if(!t)return;t.style.height='auto';t.style.height=Math.max(240,t.scrollHeight+4)+'px';}
 window.addEventListener('input',e=>{const t=e.target;if(t&&t.matches&&t.matches('#modal textarea[name="descriptionAr"]'))pp99Grow(t);},true);
