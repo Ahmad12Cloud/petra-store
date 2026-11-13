@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V98';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V99';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2142,7 +2142,7 @@ function pp35SaveGrid(){if(!visibleAdmin())return;const f=$('pp35-grid-form');if
 function productCard(p){return ppNewBadge(p,productCardBase(p));}
 function productCardBase(p){
  const st=pp35Get(p),g=pp35GridConfig(),side=st.position==='beside'||(st.position==='auto'&&g.mode==='list'),desc=(S(p.descriptionAr,p.descriptionEn)||''),short=st.descMaxChars&&desc.length>st.descMaxChars?desc.slice(0,st.descMaxChars)+'…':desc;
- const price=!pp44Flag(p,'showPrice')?'':p.price==null?`<span class="muted">${T('السعر عند الطلب','Ask for price')}</span>`:`<strong class="product-price">${money(p.price,p.currency)}</strong>`;
+ const price=!pp44Flag(p,'showPrice')?'':p.price==null?`<span class="muted">${T('السعر عند الطلب','Ask for price')}</span>`:`<strong class="product-price">${pp99Price(p)}</strong>`;
  const w=st.cardW?`${st.cardW}px`:'100%',h=st.cardH?`${st.cardH}px`:'auto';
  const css=`--pp-card-bg:${safeColor(p.cardBg,safeColor(state.settings.productCardBg,'#ffffff'))};--pp-photo-bg:${safeColor(p.photoBg,safeColor(state.settings.productPhotoBg,'#ffffff'))};--pp-card-text:${cardFg(safeColor(p.cardBg,safeColor(state.settings.productCardBg,'#ffffff')))};--pp35-card-w:${w};--pp35-card-h:${h};--pp35-card-ratio:${st.ratioW}/${st.ratioH};--pp35-photo-h:${st.imageH?st.imageH+'px':'auto'};--pp35-photo-w:${st.imageW}%;--pp35-photo-ratio:${st.ratioW}/${st.ratioH};--pp35-photo-fit:${st.fit};--pp35-title-size:${st.titleSize}px;--pp35-title-weight:${st.titleWeight};--pp35-title-color:${st.titleColor};--pp35-desc-size:${st.descSize}px;--pp35-desc-weight:${st.descWeight};--pp35-desc-color:${st.descColor};--pp35-desc-stretch:${st.descStretch}%;--pp35-desc-spacing:${st.descSpacing}px;--pp35-desc-width:${st.descWidth}%;--pp35-desc-bg:${st.customDescBg?st.descBg:'transparent'};--pp35-align:${st.align};--pp35-radius:${st.radius}px;--pp35-price-color:${st.priceColor}`;
  return `<article class="product pp26-card pp35-card ${side?'pp35-layout-side':'pp35-layout-stack'}" role="button" tabindex="0" data-action="details" data-id="${esc(p.id)}" style="${css}"><div class="photo">${photo(p)}<button type="button" class="pp26-fav" data-action="pp26-fav" data-id="${esc(p.id)}" aria-pressed="${pp26Favs.has(p.id)}" aria-label="${T('المفضلة','Favorites')}">${pp26Favs.has(p.id)?'♥':'♡'}</button>${p.demoOnly?`<span class="pp26-demo-tag">تجريبي</span>`:''}${visibleAdmin()?`<button class="pp35-owner-edit" data-action="edit" data-id="${esc(p.id)}" type="button" title="تصميم البطاقة">✎</button>${pp94Btn(p)}`:''}</div><div class="product-body"><div class="muted">${esc(p.category||'')}</div><h3 class="product-title">${esc(S(p.nameAr,p.nameEn))}</h3>${false&&short?`<p class="pp35-description">${esc(short)}</p>`:''}<div class="product-meta" dir="ltr">${esc([p.brand,p.model].filter(Boolean).join(' • '))}</div><div>${price}</div>${p.stock===0?`<div class="product-meta lowstock">${T('غير متوفر حالياً','Currently unavailable')}</div>`:''}</div><div class="product-bottom"><button class="btn" data-action="details" data-id="${esc(p.id)}">${T('التفاصيل','Details')}</button><button class="btn dark" data-action="add-cart" data-id="${esc(p.id)}">🛒 <span class="pp35-cart-label">${T('أضف إلى السلة','Add to cart')}</span></button></div>${visibleAdmin()?`<div class="owner-card-tools"><button type="button" class="btn gold" data-action="edit" data-id="${esc(p.id)}">✏️ ${T('تعديل المنتج','Edit product')}</button><button type="button" class="btn" data-action="edit-images" data-id="${esc(p.id)}">📷 ${T('إضافة / تعديل الصور','Edit photos')}</button></div>`:''}</article>`;
@@ -2163,7 +2163,7 @@ function closeModal(){if($('modal'))$('modal').classList.add('hide');}
 function detailBase(p){
  const images=(p.images||[]).filter(safeImg);
  const extras=[p.brand,p.model].filter(Boolean).join(' • ');
- modal(S(p.nameAr,p.nameEn),`<div class="detail-layout"><div><div class="photo big" id="detail-photo">${photo(p)}</div>${images.length>1?`<div class="thumbs">${images.map((im,i)=>`<button class="thumb" data-action="detail-photo" data-id="${esc(p.id)}" data-index="${i}"><img src="${safeImg(im)}" alt="${i+1}"></button>`).join('')}</div>`:''}</div><div>${pp44Flag(p,'showCategory')?`<div class="pill">${esc(p.category||'PETRA POWER')}</div>`:''}${pp44Flag(p,'showName')?`<h2>${esc(S(p.nameAr,p.nameEn))}</h2>`:''}${pp44Flag(p,'showCode')?`<p class="subtitle">كود: ${esc(p.productCode||p.sku||'')}</p>`:''}${pp44Flag(p,'showBrandModel')&&extras?`<p class="subtitle" dir="ltr">${esc(extras)}</p>`:''}${pp44Flag(p,'showPrice')?`<h2>${money(p.price,p.currency)}</h2>`:''}${true?`<p style="white-space:pre-line">${esc(S(p.descriptionAr,p.descriptionEn)||T('للاستفسار عن المواصفات الفنية، تواصل معنا.','Contact us for technical details.'))}</p>`:''}${pp44Flag(p,'showSpecs')&&p.specs?`<div class="notice" style="white-space:pre-line">${esc(p.specs)}</div>`:''}${pp96View(p)}${recommendationsHtml(p)}${p.stock===0?`<p class="lowstock">${T('غير متوفر حالياً','Currently unavailable')}</p>`:''}</div></div>`,`<button class="btn" data-action="close-modal">${T('إغلاق','Close')}</button>${visibleAdmin()?`<button class="btn gold" data-action="edit" data-id="${esc(p.id)}">✏️ ${T('تعديل المنتج','Edit product')}</button>`:''}<button class="btn dark" data-action="add-cart" data-id="${esc(p.id)}">＋ ${T('إضافة إلى الطلب','Add to order')}</button>`);
+ modal(S(p.nameAr,p.nameEn),`<div class="detail-layout"><div><div class="photo big" id="detail-photo">${photo(p)}</div>${images.length>1?`<div class="thumbs">${images.map((im,i)=>`<button class="thumb" data-action="detail-photo" data-id="${esc(p.id)}" data-index="${i}"><img src="${safeImg(im)}" alt="${i+1}"></button>`).join('')}</div>`:''}</div><div>${pp44Flag(p,'showCategory')?`<div class="pill">${esc(p.category||'PETRA POWER')}</div>`:''}${pp44Flag(p,'showName')?`<h2>${esc(S(p.nameAr,p.nameEn))}</h2>`:''}${pp44Flag(p,'showCode')?`<p class="subtitle">كود: ${esc(p.productCode||p.sku||'')}</p>`:''}${pp44Flag(p,'showBrandModel')&&extras?`<p class="subtitle" dir="ltr">${esc(extras)}</p>`:''}${pp44Flag(p,'showPrice')?`<h2>${pp99Price(p)}</h2>`:''}${true?`<p style="white-space:pre-line">${esc(S(p.descriptionAr,p.descriptionEn)||T('للاستفسار عن المواصفات الفنية، تواصل معنا.','Contact us for technical details.'))}</p>`:''}${pp44Flag(p,'showSpecs')&&p.specs?`<div class="notice" style="white-space:pre-line">${esc(p.specs)}</div>`:''}${pp96View(p)}${recommendationsHtml(p)}${p.stock===0?`<p class="lowstock">${T('غير متوفر حالياً','Currently unavailable')}</p>`:''}</div></div>`,`<button class="btn" data-action="close-modal">${T('إغلاق','Close')}</button>${visibleAdmin()?`<button class="btn gold" data-action="edit" data-id="${esc(p.id)}">✏️ ${T('تعديل المنتج','Edit product')}</button>`:''}<button class="btn dark" data-action="add-cart" data-id="${esc(p.id)}">＋ ${T('إضافة إلى الطلب','Add to order')}</button>`);
 }
 
 function input(name,ar,en,v,extra=''){return `<label class="stack">${T(ar,en)}<input class="field" name="${name}" value="${esc(v??'')}" ${extra}></label>`}
@@ -2210,7 +2210,7 @@ function edit(p){
    </div>
   <div class="pp44-essential">
    ${input('nameAr','اسم المنتج *','Product name *',p?.nameAr,'required maxlength="180" placeholder="مثلاً: قاطع كهربائي 32A"')}
-   ${input('price','السعر — اختياري','Price — optional',p?.price,'type="number" min="0" step="any" inputmode="decimal" placeholder="مثلاً 12.50"')}
+   ${input('price','السعر — من (اختياري)','Price — from (optional)',p?.price,'type="number" min="0" step="any" inputmode="decimal" placeholder="مثلاً 10.5"')}${input('priceMax','السعر — إلى (اختياري)','Price — to (optional)',p?.priceMax,'type="number" min="0" step="any" inputmode="decimal" placeholder="مثلاً 15"')}
    <label class="stack full" style="flex-direction:row;align-items:center;gap:10px;background:#fff1ef;border:1.5px solid #e4a59c;border-radius:12px;padding:12px;font-weight:800"><input type="checkbox" name="pp72out" ${p&&p.stock===0?'checked':''} style="width:22px;height:22px"> ⛔ نفد المخزون — المنتج غير متوفر حالياً<small style="font-weight:500;color:#777;display:block">لما تفعّلها بيظهر للزبون «غير متوفر حالياً» وبيتعطّل زر السلة. لا تنسى تلغيها لما يتوفر.</small></label>
    <div class="pp44-image-field" id="editor-photo-section"><b>📷 صورة المنتج — اختيارية</b><input type="file" id="image-upload" accept="image/png,image/jpeg,image/webp,image/gif" multiple class="field"><div class="pp44-note">فيك ترفع لغاية 6 صور، وتختار الصورة الأساسية.</div><div class="pp50-size-card pp50-product-size" id="pp50-product-size-card" aria-live="polite"></div><div id="form-images"></div></div>
    <label class="stack">وصف المنتج — اختياري<textarea name="descriptionAr" class="field" rows="2" placeholder="إذا حابب تضيف وصف مختصر">${esc(p?.descriptionAr||'')}</textarea></label>
@@ -2290,7 +2290,7 @@ async function saveProduct(){
  const visibility={showName:fd.has('showName'),showPrice:fd.has('showPrice'),showDesc:fd.has('showDesc'),showCode:fd.has('showCode'),showCategory:fd.has('showCategory'),showBrandModel:fd.has('showBrandModel'),showSpecs:fd.has('showSpecs')};
  const p={id:old?.id||id(),demoOnly:old?.demoOnly===true,createdAt:old?.createdAt||Date.now(),
  nameAr:v('nameAr'),nameEn:v('nameEn'),sku,productCode,pp49CodeMode:mode,pp49CodePrefix:prefix,barcode:v('barcode'),category:v('category'),sizes:ppParseSizes(v('sizes')),sizePrices:ppCleanSP(v('sizePrices'),ppParseSizes(v('sizes'))),sizeLabel:v('sizeLabel'),...ppEnSave(old,v),blocks:pp96Take(old),specLine:v('specLine'),specTable:v('specTable'),datasheet:v('datasheet'),brand:v('brand'),model:v('model'),
- currency:v('currency')||'USD',price:price===''?null:Number(price),stock:stock===''?null:Number(stock),specs:v('specs'),
+ currency:v('currency')||'USD',price:price===''?null:Number(price),priceMax:(v('priceMax')===''||price===''||!(Number(v('priceMax'))>Number(price)))?null:Number(v('priceMax')),stock:stock===''?null:Number(stock),specs:v('specs'),
  descriptionAr:v('descriptionAr'),descriptionEn:v('descriptionEn'),images:[...formImages],
  photoBg:fd.has('customPhotoBg')?safeColor(fd.get('photoBg'),safeColor(state.settings.productPhotoBg,'#ffffff')):'',
  cardBg:fd.has('customCardBg')?safeColor(fd.get('cardBg'),safeColor(state.settings.productCardBg,'#ffffff')):'',
@@ -6156,6 +6156,20 @@ window.addEventListener('click',e=>{
   const txt=pp97Log.map(x=>'['+new Date(x.t).toLocaleTimeString()+'] '+x.where+': '+x.msg).join('\n')+'\nالإصدار: '+(typeof PETRA_APP_VERSION!=='undefined'?PETRA_APP_VERSION:'');
   try{navigator.clipboard.writeText(txt);note('✓ تم النسخ');}catch(_){note('تعذّر النسخ');}
 },true);
+
+/* ===== V99: price range (from – to) + tall description box ===== */
+function pp99Price(p){
+  const a=Number(p&&p.price),b=Number(p&&p.priceMax);
+  if(p&&p.price!=null&&p.priceMax!=null&&p.priceMax!==''&&Number.isFinite(a)&&Number.isFinite(b)&&b>a){
+    const f=n=>n.toLocaleString('en-US',{maximumFractionDigits:2}),c=esc((p.currency)||'USD');
+    return T('من '+f(a)+' إلى '+f(b)+' '+c,'From '+f(a)+' to '+f(b)+' '+c);
+  }
+  return money(p&&p.price,p&&p.currency);
+}
+(function(){const st=document.createElement('style');st.textContent=`#modal textarea[name="descriptionAr"]{min-height:240px;line-height:1.8;resize:vertical}`;document.head.appendChild(st);})();
+function pp99Grow(t){if(!t)return;t.style.height='auto';t.style.height=Math.max(240,t.scrollHeight+4)+'px';}
+window.addEventListener('input',e=>{const t=e.target;if(t&&t.matches&&t.matches('#modal textarea[name="descriptionAr"]'))pp99Grow(t);},true);
+new MutationObserver(()=>{const t=document.querySelector('#modal textarea[name="descriptionAr"]');if(t&&!t.dataset.pp99){t.dataset.pp99='1';t.rows=10;pp99Grow(t);}}).observe(document.body,{childList:true,subtree:true});
 
 ppBoot();
 })();
