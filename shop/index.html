@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V99';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V100';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -6011,7 +6011,7 @@ function pp95Fix(){
   const price=ed.querySelector('.pp44-essential label[name],.pp44-essential [name="price"]');
   const pl=ed.querySelector('[name="price"]')?.closest('label');
   const cur=ed.querySelector('[name="currency"]')?.closest('label'),cat=ed.querySelector('[name="category"]')?.closest('label');
-  if(pl){let a=pl;[cur,cat].forEach(l=>{if(l&&l.parentNode){a.after(l);l.classList.add('pp95-moved');a=l;}});}
+  if(pl){let a=pl;const pm=ed.querySelector('[name="priceMax"]')?.closest('label');if(pm){a.after(pm);a=pm;}[cur,cat].forEach(l=>{if(l&&l.parentNode){a.after(l);l.classList.add('pp95-moved');a=l;}});}
   const b=document.createElement('button');b.type='button';b.className='pp95-advbtn';b.textContent='⚙ إظهار الخيارات المتقدمة';b.dataset.pp95='adv';
   ed.appendChild(b);
 }
