@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V100';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V101';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2290,7 +2290,7 @@ async function saveProduct(){
  const visibility={showName:fd.has('showName'),showPrice:fd.has('showPrice'),showDesc:fd.has('showDesc'),showCode:fd.has('showCode'),showCategory:fd.has('showCategory'),showBrandModel:fd.has('showBrandModel'),showSpecs:fd.has('showSpecs')};
  const p={id:old?.id||id(),demoOnly:old?.demoOnly===true,createdAt:old?.createdAt||Date.now(),
  nameAr:v('nameAr'),nameEn:v('nameEn'),sku,productCode,pp49CodeMode:mode,pp49CodePrefix:prefix,barcode:v('barcode'),category:v('category'),sizes:ppParseSizes(v('sizes')),sizePrices:ppCleanSP(v('sizePrices'),ppParseSizes(v('sizes'))),sizeLabel:v('sizeLabel'),...ppEnSave(old,v),blocks:pp96Take(old),specLine:v('specLine'),specTable:v('specTable'),datasheet:v('datasheet'),brand:v('brand'),model:v('model'),
- currency:v('currency')||'USD',price:price===''?null:Number(price),priceMax:(v('priceMax')===''||price===''||!(Number(v('priceMax'))>Number(price)))?null:Number(v('priceMax')),stock:stock===''?null:Number(stock),specs:v('specs'),
+ currency:v('currency')||'USD',price:price===''?null:((v('priceMax')!==''&&Number(v('priceMax'))>=0&&Number(v('priceMax'))<Number(price))?Number(v('priceMax')):Number(price)),priceMax:(v('priceMax')===''||price===''||Number(v('priceMax'))===Number(price))?null:Math.max(Number(v('priceMax')),Number(price)),stock:stock===''?null:Number(stock),specs:v('specs'),
  descriptionAr:v('descriptionAr'),descriptionEn:v('descriptionEn'),images:[...formImages],
  photoBg:fd.has('customPhotoBg')?safeColor(fd.get('photoBg'),safeColor(state.settings.productPhotoBg,'#ffffff')):'',
  cardBg:fd.has('customCardBg')?safeColor(fd.get('cardBg'),safeColor(state.settings.productCardBg,'#ffffff')):'',
@@ -6160,9 +6160,11 @@ window.addEventListener('click',e=>{
 /* ===== V99: price range (from – to) + tall description box ===== */
 function pp99Price(p){
   const a=Number(p&&p.price),b=Number(p&&p.priceMax);
-  if(p&&p.price!=null&&p.priceMax!=null&&p.priceMax!==''&&Number.isFinite(a)&&Number.isFinite(b)&&b>a){
+  if(p&&p.price!=null&&p.priceMax!=null&&p.priceMax!==''&&Number.isFinite(a)&&Number.isFinite(b)&&a!==b){
+    const lo=Math.min(a,b),hi=Math.max(a,b);
     const f=n=>n.toLocaleString('en-US',{maximumFractionDigits:2}),c=esc((p.currency)||'USD');
-    return T('من '+f(a)+' إلى '+f(b)+' '+c,'From '+f(a)+' to '+f(b)+' '+c);
+    const L=x=>'<span dir="ltr">'+x+'</span>';
+    return T('<bdi dir="rtl">من '+L(f(lo))+' إلى '+L(f(hi))+' '+L(c)+'</bdi>','<bdi dir="ltr">From '+f(lo)+' to '+f(hi)+' '+c+'</bdi>');
   }
   return money(p&&p.price,p&&p.currency);
 }
