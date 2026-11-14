@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V106';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V107';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -4338,6 +4338,25 @@ function ppSchedulePush(delay=1200){
   ppLS.set(PP_DIRTY_KEY,'1');
   clearTimeout(ppPushTimer);ppPushTimer=setTimeout(ppPush,delay);
 }
+/* V107: never overwrite fields changed on the server by someone else (e.g. Claude) when this app only edited other fields */
+async function pp107Merge(rows){
+  try{
+    const cand=rows.filter(r=>ppSynced.has(r.id));if(!cand.length)return rows;
+    const ids=cand.map(r=>'"'+r.id+'"').join(',');
+    const res=await ppFetch('/rest/v1/products?id=in.('+ids+')&select=*');const srv=await res.json();
+    if(!Array.isArray(srv))return rows;
+    const map=new Map(srv.map(x=>[String(x.id),x]));
+    const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+    return rows.map(r=>{
+      const s=map.get(r.id),b=ppSynced.has(r.id)?JSON.parse(ppSynced.get(r.id)):null;if(!s||!b)return r;
+      const o={...r};
+      for(const k of Object.keys(r)){if(k==='id'||k==='extra'||k==='created_at_ms')continue;if(k in s&&eq(r[k],b[k])&&!eq(s[k],b[k]))o[k]=s[k];}
+      const ex={...(r.extra||{})},se=s.extra||{},be=b.extra||{};
+      new Set([...Object.keys(ex),...Object.keys(be),...Object.keys(se)]).forEach(k=>{if(eq(ex[k],be[k])&&!eq(se[k],be[k])){if(k in se)ex[k]=se[k];else delete ex[k];}});
+      o.extra=ex;return o;
+    });
+  }catch(e){return rows;}
+}
 async function ppPush(){
   if(!MANAGER||!ownerUnlocked||!ppSession||!ppRemoteLoaded)return;
   if(ppPushing){ppPushAgain=true;return;}
@@ -4361,7 +4380,9 @@ async function ppPush(){
     }
     // products: upsert changed, delete removed (with a safety guard against mass deletion)
     const rows=state.products.map(ppProductToRow),now=new Map(rows.map(r=>[r.id,JSON.stringify(r)]));
-    const changedRows=rows.filter(r=>ppSynced.get(r.id)!==now.get(r.id));
+    const pp107Sig=x=>{try{const o=JSON.parse(x);o.created_at_ms=0;if(o.extra)for(const k of Object.keys(o.extra))if(o.extra[k]===''||o.extra[k]==null)delete o.extra[k];return JSON.stringify(o)}catch(e){return String(x)}};
+    let changedRows=rows.filter(r=>pp107Sig(ppSynced.get(r.id)||'')!==pp107Sig(now.get(r.id)));
+    changedRows=await pp107Merge(changedRows);
     const removed=[...ppSynced.keys()].filter(id=>!now.has(id));
     if(removed.length>Math.max(5,Math.ceil(ppSynced.size*0.5))){const g=Error('تم إيقاف الحذف الجماعي ('+removed.length+' منتج) حمايةً لبياناتك. أعد تحميل الصفحة لاسترجاع نسخة السيرفر.');g.guard=true;throw g;}
     for(let i=0;i<changedRows.length;i+=40)await ppFetch('/rest/v1/products?on_conflict=id',{method:'POST',headers:{...json,Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(changedRows.slice(i,i+40))});
