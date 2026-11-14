@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V117';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V118';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -6812,6 +6812,12 @@ try{(function(){
   const st=document.createElement('style');st.textContent=`.pp117-bg{position:absolute;inset:0;z-index:-1;pointer-events:none;background-size:cover;background-position:center;border-radius:inherit}
 .pp117-bg .pp117-dim{position:absolute!important;inset:0!important;background:#000!important;display:block!important;border-radius:inherit}
 .v12-header.pp117-on{background:transparent!important;isolation:isolate}
+/* V118: with a custom background, the brand and the header buttons show letters/icons only — no fill */
+.v12-header.pp117-on .v12-brand,.v12-header.pp117-on .v12-brand *,.v12-header.pp117-on .v12-top-actions>button{background:transparent!important;background-color:transparent!important;background-image:none!important;box-shadow:none!important}
+.v12-header.pp117-on .v12-brand .pp30-brand-line{text-shadow:0 1px 6px #000c}
+html:root body #app .v12-header.pp117-on .v12-top-actions [data-pp29-item],html:root body #app .v12-header.pp117-on .v12-top-actions>button,html:root body #app .v12-header.pp117-on .v12-brand,html:root body #app .v12-header.pp117-on [data-pp29-item="brand"],html[data-store-theme] body .v12-header.pp117-on .v12-top-actions .v12-icon{background:transparent!important;background-color:transparent!important;background-image:none!important;box-shadow:none!important}
+.v12-header.pp117-on{--pp82-menu-bg:transparent!important;--pp82-search-bg:transparent!important;--pp82-cart-bg:transparent!important;--pp82-new-bg:transparent!important;--pp29-menu-bg:transparent!important;--pp29-search-bg:transparent!important;--pp29-cart-bg:transparent!important;--pp29-new-bg:transparent!important;--pp29-brand-bg:transparent!important;--pp28-iconbg:transparent!important}
+.v12-header.pp117-on .v12-top-actions>button>svg,.v12-header.pp117-on .v12-top-actions>button>i,.v12-header.pp117-on .v12-brand img{filter:drop-shadow(0 1px 3px #000b)}
 .pp117-lines{position:relative;display:flex;flex-direction:column;gap:2px;padding:0 12px 8px}
 .pp117-line{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;line-height:1.35;text-shadow:0 1px 6px #000a}
 .pp117-line>span{min-width:0;overflow-wrap:anywhere}.pp117-line .r{text-align:right}.pp117-line .c{text-align:center}.pp117-line .l{text-align:left}
