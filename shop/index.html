@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V107';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V108';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -6277,6 +6277,36 @@ window.addEventListener('click',async e=>{
 /* V105: fixed-height description box (scrolls inside), caret kept in view above the keyboard */
 window.addEventListener('focusin',e=>{const t=e.target;if(t&&t.matches&&t.matches('#modal textarea[name="descriptionAr"]')){setTimeout(()=>{try{t.scrollIntoView({block:'center',behavior:'smooth'})}catch(_){}},350);}},true);
 window.addEventListener('input',e=>{const t=e.target;if(t&&t.matches&&t.matches('#modal textarea[name="descriptionAr"]')){const vv=window.visualViewport;try{const r=t.getBoundingClientRect(),vh=vv?vv.height:innerHeight;if(r.bottom>vh-20||r.top<60)t.scrollIntoView({block:'center'});}catch(_){}}},true);
+
+/* V108: 📋 copy button for every text field / read-only text box in the owner interface */
+(function(){
+  const st=document.createElement('style');st.textContent=`.pp108cp{display:block;width:fit-content;margin:4px 0 3px auto;background:#f3ecd9;border:1px solid #d9c692;color:#5a4a1a;border-radius:10px;padding:3px 10px;font-size:12px!important;font-weight:800!important;line-height:1.5;font-family:inherit;cursor:pointer}.pp108cp.ok{background:#e8f6ec;border-color:#a9dbb8;color:#17683a}`;document.head.appendChild(st);
+  const SEL='input:not([type]),input[type="text"],input[type="tel"],input[type="email"],input[type="url"],textarea,#pp94 .v';
+  const val=f=>('value' in f&&f.tagName!=='DIV')?f.value:(f.innerText||f.textContent||'').trim();
+  function scan(){
+    let adm=false;try{adm=visibleAdmin();}catch(e){}
+    if(!adm){document.querySelectorAll('.pp108cp').forEach(b=>b.remove());return;}
+    document.querySelectorAll(SEL).forEach(f=>{
+      if(f.closest('.pp108-skip')||f.type==='password'||f.type==='search'||f.type==='hidden')return;
+      if(f.id==='pp-dev-email'||f.id==='pp-dev-pass')return;
+      const p=f.previousElementSibling;if(p&&p.classList&&p.classList.contains('pp108cp'))return;
+      const b=document.createElement('button');b.type='button';b.className='pp108cp';b.textContent=(f.classList.contains('en')||f.dir==='ltr')?'📋 Copy':'📋 نسخ';
+      f.parentNode.insertBefore(b,f);
+    });
+  }
+  let raf=0;const q=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;try{scan()}catch(e){}})};
+  new MutationObserver(q).observe(document.body,{childList:true,subtree:true});q();
+  async function copy(t){try{await navigator.clipboard.writeText(t);return true}catch(e){try{const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0;top:0';document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();return ok}catch(_){return false}}}
+  window.addEventListener('click',async e=>{
+    const b=e.target&&e.target.closest?e.target.closest('.pp108cp'):null;if(!b)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    const f=b.nextElementSibling;if(!f)return;const t=val(f);
+    const was=b.dataset.t||b.textContent;b.dataset.t=was;
+    if(!t){b.textContent='— فارغ';setTimeout(()=>{b.textContent=was},1500);return;}
+    const ok=await copy(t);b.textContent=ok?'✔ تم النسخ':'تعذّر النسخ';b.classList.toggle('ok',ok);
+    setTimeout(()=>{b.textContent=was;b.classList.remove('ok')},1800);
+  },true);
+})();
 
 ppBoot();
 })();
