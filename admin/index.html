@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V112';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V113';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -6503,6 +6503,189 @@ new MutationObserver(()=>{try{
   },true);
   window.addEventListener('input',e=>{const t=e.target;if(t&&t.matches&&t.matches('#pp112 input.q')){term=t.value;draw();}},true);
 })();
+
+/* V113: finger drag-and-drop — ⠿ handles to reorder home rows, products (within / between rows) and categories; auto-saved */
+try{(function(){
+  const st=document.createElement('style');st.textContent=`.pp113-rgrip{position:absolute;top:-14px;left:50%;transform:translateX(-50%);z-index:19;background:linear-gradient(#fbe08d,#e2ad3e);color:#2a1d0a;border:2px solid #fff;border-radius:999px;padding:6px 16px;font:800 13px/1.2 inherit;font-family:inherit;box-shadow:0 2px 8px #0005;touch-action:none;user-select:none;-webkit-user-select:none;white-space:nowrap;cursor:grab}
+.pp113-pgrip{position:absolute;bottom:4px;inset-inline-start:5px;z-index:15;width:34px;height:34px;border-radius:10px;background:#f7cf6f;border:2px solid #fff;color:#2a1d0a;font-size:20px;font-weight:900;line-height:1;display:grid;place-items:center;box-shadow:0 1px 5px #0005;touch-action:none;user-select:none;-webkit-user-select:none;padding:0;cursor:grab}
+.pp113-cgrip{touch-action:none;user-select:none;-webkit-user-select:none;font-size:20px!important;font-weight:900;background:#f7cf6f!important;border-color:#c9a24a!important;cursor:grab}
+.pp113-lift{opacity:.5;outline:3px solid #d59b2b!important;outline-offset:2px;box-shadow:0 10px 28px #b8873466!important}
+.pp113-src{opacity:.3!important;filter:grayscale(.6)}
+.pp113-ph{border:3px dashed #d59b2b;background:#fff4d6;border-radius:12px;color:#8a5a00;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;text-align:center;min-height:54px;margin:6px 0;box-sizing:border-box;animation:pp113p 1s ease-in-out infinite alternate;font-family:inherit}
+.pp113-ph.pp113-php{margin:0;min-height:120px}
+@keyframes pp113p{from{background:#fff4d6}to{background:#ffe6a6}}
+.pp113-ghost{position:fixed;z-index:2147483600;pointer-events:none;transform:rotate(-3deg);box-shadow:0 14px 34px #0006;border:3px solid #e2ad3e;border-radius:14px;background:#fff;padding:6px;box-sizing:border-box;direction:rtl;text-align:center;font-family:inherit}
+.pp113-ghost img{display:block;width:100%;aspect-ratio:1;object-fit:contain;border-radius:9px;background:#fff}
+.pp113-ghost .pp113-gi{font-size:40px;padding:14px 0}
+.pp113-ghost b{display:block;font-size:11px;line-height:1.35;color:#2a1d0a;margin-top:4px;max-height:2.8em;overflow:hidden}
+.pp113-pill{position:fixed;left:50%;transform:translateX(-50%);z-index:2147483601;pointer-events:none;padding:10px 16px;border-radius:14px;background:#20190ff2;color:#ffd879;border:2px solid #ffd163;font-size:13px;font-weight:800;max-width:90vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 8px 24px #0006;font-family:inherit}
+body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:none!important}`;document.head.appendChild(st);
+
+  let drag=null,blockClickUntil=0;
+  const secOf=id=>(state.settings.homeSections||[]).find(x=>x&&x.id===id);
+  const editOn=()=>{try{return pp49EditMode&&visibleAdmin()}catch(e){return false}};
+  const catsOn=()=>!!document.getElementById('pp62-cats')&&MANAGER&&ownerUnlocked;
+
+  /* ---- add the handles (re-added automatically after every render) ---- */
+  function decorate(){
+    if(editOn()){
+      document.querySelectorAll('.pp49-block').forEach(bl=>{
+        if(!bl.querySelector(':scope > .pp113-rgrip')){const b=document.createElement('button');b.type='button';b.className='pp113-rgrip';b.textContent='⠿ اسحب السطر';b.setAttribute('aria-label','اسحب السطر لمكان جديد');bl.appendChild(b);}
+        const s=secOf(bl.dataset.pp49Block);if(!s||s.type!=='products')return;
+        bl.querySelectorAll('article.product').forEach(card=>{const ph=card.querySelector('.photo');if(ph&&!ph.querySelector('.pp113-pgrip')){const b=document.createElement('button');b.type='button';b.className='pp113-pgrip';b.textContent='⠿';b.setAttribute('aria-label','اسحب المنتج لمكان جديد');ph.appendChild(b);}});
+      });
+    }else document.querySelectorAll('.pp113-rgrip,.pp113-pgrip').forEach(x=>x.remove());
+    if(catsOn())document.querySelectorAll('#pp62-cats .pp62-row').forEach(r=>{const c=r.querySelector('.pp62-ctl');if(c&&!c.querySelector('.pp113-cgrip')){const b=document.createElement('button');b.type='button';b.className='pp113-cgrip';b.textContent='⠿';b.setAttribute('aria-label','اسحب القسم لفوق أو لتحت');c.prepend(b);}});
+  }
+  let raf=0;const q=()=>{if(raf||drag)return;raf=requestAnimationFrame(()=>{raf=0;try{decorate()}catch(e){}})};
+  new MutationObserver(q).observe(document.body,{childList:true,subtree:true});q();
+
+  /* ---- shared drag state ---- */
+  const mkPh=(txt,cls)=>{const d=document.createElement('div');d.className='pp113-ph'+(cls?' '+cls:'');d.textContent=txt;return d;};
+  function pill(text,y){const p=document.createElement('div');p.className='pp113-pill';p.textContent=text;p.style.top=Math.max(10,y-70)+'px';document.body.appendChild(p);return p;}
+  function scrollBy(dy){if(drag.scroller===window)window.scrollBy(0,dy);else drag.scroller.scrollTop+=dy;}
+  function loop(){
+    if(!drag)return;
+    const y=drag.y,h=window.innerHeight;let v=0;
+    if(y<110)v=-Math.min(18,(110-y)/5+3);else if(y>h-130)v=Math.min(18,(y-(h-130))/5+3);
+    if(v){scrollBy(v);place();}
+    drag.raf=requestAnimationFrame(loop);
+  }
+  function begin(e,o){
+    e.preventDefault();e.stopImmediatePropagation();
+    drag={pointerId:e.pointerId,x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,moved:false,...o};
+    try{e.target.setPointerCapture(e.pointerId)}catch(_){}
+    document.body.classList.add('pp113-on');
+    try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}
+    drag.raf=requestAnimationFrame(loop);
+  }
+  function cleanup(){
+    if(!drag)return;cancelAnimationFrame(drag.raf);
+    drag.ph?.remove();drag.ghost?.remove();drag.pill?.remove();
+    drag.src?.classList.remove('pp113-lift','pp113-src');
+    document.body.classList.remove('pp113-on');
+  }
+
+  /* vertical list (home rows / categories): placeholder goes before the item under the finger */
+  function placeList(){
+    const d=drag,items=d.items().filter(x=>x!==d.src);if(!items.length)return;
+    let target=null;for(const el of items){const r=el.getBoundingClientRect();if(d.y<r.top+r.height/2){target=el;break;}}
+    if(target){if(d.ph.nextElementSibling!==target||!d.ph.isConnected)target.before(d.ph);}
+    else{const anchor=d.endAnchor(items[items.length-1]);if(anchor.nextElementSibling!==d.ph)anchor.after(d.ph);}
+  }
+  /* products: drop next to the card under the finger, or at the end of a product row */
+  function placeProduct(){
+    const d=drag,hit=document.elementFromPoint(d.x,d.y);if(!hit||hit.closest('.pp113-ph'))return;
+    const bl=hit.closest('.pp49-block');if(!bl)return;const s=secOf(bl.dataset.pp49Block);if(!s||s.type!=='products')return;
+    const card=hit.closest('article.product');
+    if(card&&card!==d.src&&bl.contains(card)){
+      const r=card.getBoundingClientRect(),grid=card.parentElement.getBoundingClientRect();
+      const before=r.width>grid.width*.7?d.y<r.top+r.height/2:(document.dir==='rtl'||getComputedStyle(card.parentElement).direction==='rtl')?d.x>r.left+r.width/2:d.x<r.left+r.width/2;
+      if(before){if(card.previousElementSibling!==d.ph)card.before(d.ph);}else if(card.nextElementSibling!==d.ph)card.after(d.ph);
+      return;
+    }
+    if(card===d.src)return;
+    const rows=bl.querySelectorAll('.pp45-product-row');const g=rows.length?rows[rows.length-1]:bl.querySelector('.pp24-product-grid');
+    if(g){const slot=g.querySelector(':scope > .pp112-slot');if(slot){if(slot.previousElementSibling!==d.ph)slot.before(d.ph);}else if(g.lastElementChild!==d.ph)g.appendChild(d.ph);}
+    else{const pen=bl.querySelector(':scope > .pp49-pencil');if(d.ph.parentElement!==bl)(pen?pen.before(d.ph):bl.appendChild(d.ph));}
+  }
+  function place(){if(!drag||!drag.moved)return;if(drag.kind==='product')placeProduct();else placeList();}
+
+  /* ---- start ---- */
+  window.addEventListener('pointerdown',e=>{
+    if(drag||(e.pointerType==='mouse'&&e.button!==0))return;
+    const t=e.target;if(!t||!t.closest)return;
+    let g=t.closest('.pp113-rgrip');
+    if(g&&editOn()){
+      const bl=g.closest('.pp49-block'),s=secOf(bl?.dataset.pp49Block);if(!s)return;
+      const name=s.title||(pp24Types()[s.type]?.name)||'السطر';
+      begin(e,{kind:'row',src:bl,id:s.id,scroller:window,label:'⠿ '+name+' — حرّكه لفوق أو لتحت',
+        items:()=>[...document.querySelectorAll('.pp24-home .pp49-block')],
+        endAnchor:last=>last.nextElementSibling&&last.nextElementSibling.classList.contains('pp49-between')?last.nextElementSibling:last,
+        ph:mkPh('⬇ فلّته هون')});
+      return;
+    }
+    g=t.closest('.pp113-pgrip');
+    if(g&&editOn()){
+      const card=g.closest('article.product'),bl=card?.closest('.pp49-block'),s=secOf(bl?.dataset.pp49Block);if(!card||!s)return;
+      const r=card.getBoundingClientRect();
+      begin(e,{kind:'product',src:card,pid:card.dataset.id,fromSec:s.id,scroller:window,rect:r,dx:e.clientX-r.left,dy:e.clientY-r.top});
+      const ph=mkPh('فلّته هون','pp113-php');ph.style.minHeight=Math.round(r.height)+'px';drag.ph=ph;
+      return;
+    }
+    g=t.closest('.pp113-cgrip');
+    if(g&&catsOn()){
+      const row=g.closest('.pp62-row');if(!row)return;
+      begin(e,{kind:'cat',src:row,from:Number(row.dataset.i),scroller:document.getElementById('pp62-cats'),label:'⠿ '+((state.settings.categories||[])[Number(row.dataset.i)]||'القسم'),
+        items:()=>[...document.querySelectorAll('#pp62-cats .pp62-row')],endAnchor:last=>last,ph:mkPh('⬇ فلّته هون')});
+    }
+  },{capture:true,passive:false});
+
+  window.addEventListener('pointermove',e=>{
+    const d=drag;if(!d||e.pointerId!==d.pointerId)return;
+    e.preventDefault();e.stopImmediatePropagation();d.x=e.clientX;d.y=e.clientY;
+    if(!d.moved){
+      if(Math.hypot(d.x-d.x0,d.y-d.y0)<6)return;
+      d.moved=true;
+      if(d.kind==='product'){
+        const gh=document.createElement('div');gh.className='pp113-ghost';const im=d.src.querySelector('.photo img'),nm=d.src.querySelector('.product-title');
+        gh.innerHTML=(im&&im.src?'<img alt="" src="'+esc(im.src)+'">':'<div class="pp113-gi">📦</div>')+'<b>'+esc(nm?nm.textContent:'')+'</b>';
+        const w=Math.min(d.rect.width,170);gh.style.width=w+'px';d.dx=w/2;d.dy=40;document.body.appendChild(gh);d.ghost=gh;
+        d.src.classList.add('pp113-src');d.src.after(d.ph);
+      }else{d.src.classList.add('pp113-lift');d.pill=pill(d.label,d.y);d.src.after(d.ph);}
+    }
+    if(d.ghost){d.ghost.style.left=(d.x-d.dx)+'px';d.ghost.style.top=(d.y-d.dy)+'px';}
+    if(d.pill)d.pill.style.top=Math.max(10,Math.min(window.innerHeight-60,d.y-70))+'px';
+    place();
+  },{capture:true,passive:false});
+
+  async function finish(e,ok){
+    const d=drag;if(!d||e.pointerId!==d.pointerId)return;
+    e.preventDefault();e.stopImmediatePropagation();blockClickUntil=Date.now()+450;
+    if(!d.moved){cleanup();drag=null;note(d.kind==='product'?'⠿ امسك المقبض وحرّك المنتج بإصبعك لمكانه الجديد':'⠿ امسك المقبض وحرّك بإصبعك لفوق أو لتحت');return;}
+    const ph=d.ph,y=window.scrollY;let msg='',dirty=false;
+    try{
+      if(ok&&ph.isConnected&&d.src.isConnected){
+        if(d.kind==='row'){
+          const ids=[];for(const el of document.querySelectorAll('.pp24-home .pp49-block, .pp24-home .pp113-ph')){if(el===ph)ids.push(d.id);else if(el!==d.src)ids.push(el.dataset.pp49Block);}
+          const old=state.settings.homeSections,vis=old.filter(x=>x.visible!==false).map(x=>x.id);
+          if(ids.join()!==vis.join()&&ids.length===vis.length){
+            const look=new Map(old.map(x=>[x.id,x]));let c=0;
+            state.settings.homeSections=old.map(x=>x.visible===false?x:look.get(ids[c++])).filter(Boolean);
+            dirty=true;msg='✅ تغيّر ترتيب الأسطر — محفوظ تلقائياً';
+          }
+        }else if(d.kind==='cat'){
+          const rows=[...document.querySelectorAll('#pp62-cats .pp62-row, #pp62-cats .pp113-ph')];
+          let to=0;for(const el of rows){if(el===ph)break;if(el!==d.src)to++;}
+          const cats=state.settings.categories;
+          if(to!==d.from&&cats[d.from]!=null){const [c]=cats.splice(d.from,1);cats.splice(to,0,c);cleanup();drag=null;await ppCatsCommit('✅ تغيّر ترتيب الأقسام — محفوظ تلقائياً');return;}
+        }else if(d.kind==='product'){
+          const bl=ph.closest('.pp49-block'),to=secOf(bl?.dataset.pp49Block),from=secOf(d.fromSec);
+          if(to&&from&&to.type==='products'){
+            const seq=[...bl.querySelectorAll('article.product, .pp113-ph')].filter(x=>x!==d.src);
+            const k=seq.indexOf(ph),beforeId=seq.slice(k+1).find(x=>x.matches('article.product'))?.dataset.id||null;
+            const ensure=s=>{if(!s.pp49Manual){const cols=pp35GridCols(s);s.productIds=pp24Products(s).map(x=>x.id);s.pp49Manual=true;s.pp49Cols=cols;}if(!Array.isArray(s.productIds))s.productIds=[];return s.productIds;};
+            const snap=JSON.stringify([from.productIds,to.productIds,from.pp49Manual,to.pp49Manual]);
+            const fa=ensure(from),ta=ensure(to);
+            const i=fa.indexOf(d.pid);if(i>=0)fa.splice(i,1);
+            let j=beforeId?ta.indexOf(beforeId):-1;
+            if(j<0){j=ta.length;while(j>0&&!state.products.some(p=>p.id===ta[j-1]&&p.active!==false))j--;/* after the last shown product */}
+            ta.splice(j,0,d.pid);
+            if(to!==from)to.count=Math.max(Number(to.count)||0,ta.filter(Boolean).length);
+            if(JSON.stringify([from.productIds,to.productIds,from.pp49Manual,to.pp49Manual])!==snap){dirty=true;msg=to===from?'✅ تغيّر مكان المنتج — محفوظ تلقائياً':'✅ انتقل المنتج للسطر الجديد — محفوظ تلقائياً';}
+          }
+        }
+      }
+    }catch(err){try{pp97Err('ترتيب بالسحب',err)}catch(_){note('تعذّر الترتيب: '+(err&&err.message||err))}}
+    cleanup();drag=null;
+    if(dirty){try{await changed();}catch(err){try{pp97Err('حفظ الترتيب',err)}catch(_){}}}
+    render();window.scrollTo(0,y);if(msg)note(msg);
+  }
+  window.addEventListener('pointerup',e=>finish(e,true),{capture:true,passive:false});
+  window.addEventListener('pointercancel',e=>finish(e,false),{capture:true,passive:false});
+  window.addEventListener('click',e=>{const t=e.target;if(Date.now()<blockClickUntil||(t&&t.closest&&t.closest('.pp113-rgrip,.pp113-pgrip,.pp113-cgrip'))){e.preventDefault();e.stopImmediatePropagation();}},true);
+  window.addEventListener('contextmenu',e=>{if(drag||(e.target&&e.target.closest&&e.target.closest('.pp113-rgrip,.pp113-pgrip,.pp113-cgrip')))e.preventDefault();},true);
+})();}catch(e){try{console.error('V113',e)}catch(_){}}
 
 ppBoot();
 })();
