@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V113';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V114';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -6504,6 +6504,7 @@ new MutationObserver(()=>{try{
   window.addEventListener('input',e=>{const t=e.target;if(t&&t.matches&&t.matches('#pp112 input.q')){term=t.value;draw();}},true);
 })();
 
+/* V114: product ✥ handle always visible (owner, home page) beside ✎ and 🌐; works outside edit mode too */
 /* V113: finger drag-and-drop — ⠿ handles to reorder home rows, products (within / between rows) and categories; auto-saved */
 try{(function(){
   const st=document.createElement('style');st.textContent=`.pp113-rgrip{position:absolute;top:-14px;left:50%;transform:translateX(-50%);z-index:19;background:linear-gradient(#fbe08d,#e2ad3e);color:#2a1d0a;border:2px solid #fff;border-radius:999px;padding:6px 16px;font:800 13px/1.2 inherit;font-family:inherit;box-shadow:0 2px 8px #0005;touch-action:none;user-select:none;-webkit-user-select:none;white-space:nowrap;cursor:grab}
@@ -6519,11 +6520,19 @@ try{(function(){
 .pp113-ghost .pp113-gi{font-size:40px;padding:14px 0}
 .pp113-ghost b{display:block;font-size:11px;line-height:1.35;color:#2a1d0a;margin-top:4px;max-height:2.8em;overflow:hidden}
 .pp113-pill{position:fixed;left:50%;transform:translateX(-50%);z-index:2147483601;pointer-events:none;padding:10px 16px;border-radius:14px;background:#20190ff2;color:#ffd879;border:2px solid #ffd163;font-size:13px;font-weight:800;max-width:90vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 8px 24px #0006;font-family:inherit}
-body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:none!important}`;document.head.appendChild(st);
+body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:none!important}
+/* V114: ✎ 🌐 ✥ same size, same line (home page, owner only) */
+.pp24-home article.product .pp35-owner-edit{width:32px!important;height:32px!important;min-width:0!important;min-height:0!important;padding:0!important;bottom:5px!important;display:grid!important;place-items:center!important;font-size:17px!important;line-height:1!important;box-sizing:border-box!important}
+.pp24-home article.product .pp94-tr{inset-inline-end:44px!important}
+.pp24-home article.product .pp114-move{inset-inline-end:83px!important;font-size:19px!important;font-weight:900;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.pp24-home article.product.pp114-sm .pp35-owner-edit{width:26px!important;height:26px!important;font-size:14px!important}
+.pp24-home article.product.pp114-sm .pp94-tr{inset-inline-end:35px!important}
+.pp24-home article.product.pp114-sm .pp114-move{inset-inline-end:66px!important;font-size:16px!important}`;document.head.appendChild(st);
 
   let drag=null,blockClickUntil=0;
   const secOf=id=>(state.settings.homeSections||[]).find(x=>x&&x.id===id);
   const editOn=()=>{try{return pp49EditMode&&visibleAdmin()}catch(e){return false}};
+  const visAdm=()=>{try{return visibleAdmin()}catch(e){return false}};
   const catsOn=()=>!!document.getElementById('pp62-cats')&&MANAGER&&ownerUnlocked;
 
   /* ---- add the handles (re-added automatically after every render) ---- */
@@ -6531,10 +6540,12 @@ body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:non
     if(editOn()){
       document.querySelectorAll('.pp49-block').forEach(bl=>{
         if(!bl.querySelector(':scope > .pp113-rgrip')){const b=document.createElement('button');b.type='button';b.className='pp113-rgrip';b.textContent='⠿ اسحب السطر';b.setAttribute('aria-label','اسحب السطر لمكان جديد');bl.appendChild(b);}
-        const s=secOf(bl.dataset.pp49Block);if(!s||s.type!=='products')return;
-        bl.querySelectorAll('article.product').forEach(card=>{const ph=card.querySelector('.photo');if(ph&&!ph.querySelector('.pp113-pgrip')){const b=document.createElement('button');b.type='button';b.className='pp113-pgrip';b.textContent='⠿';b.setAttribute('aria-label','اسحب المنتج لمكان جديد');ph.appendChild(b);}});
       });
-    }else document.querySelectorAll('.pp113-rgrip,.pp113-pgrip').forEach(x=>x.remove());
+    }else document.querySelectorAll('.pp113-rgrip').forEach(x=>x.remove());
+    if(visAdm())document.querySelectorAll('.pp24-home article.product').forEach(card=>{const ph=card.querySelector('.photo');if(!ph||!ph.querySelector('.pp35-owner-edit'))return;
+      card.classList.toggle('pp114-sm',card.getBoundingClientRect().width>0&&card.getBoundingClientRect().width<150);
+      if(!ph.querySelector('.pp114-move')){const b=document.createElement('button');b.type='button';b.className='pp35-owner-edit pp114-move';b.textContent='✥';b.title='تحريك المنتج';b.setAttribute('aria-label','امسك وحرّك المنتج لمكان جديد');ph.appendChild(b);}});
+    else document.querySelectorAll('.pp114-move').forEach(x=>x.remove());
     if(catsOn())document.querySelectorAll('#pp62-cats .pp62-row').forEach(r=>{const c=r.querySelector('.pp62-ctl');if(c&&!c.querySelector('.pp113-cgrip')){const b=document.createElement('button');b.type='button';b.className='pp113-cgrip';b.textContent='⠿';b.setAttribute('aria-label','اسحب القسم لفوق أو لتحت');c.prepend(b);}});
   }
   let raf=0;const q=()=>{if(raf||drag)return;raf=requestAnimationFrame(()=>{raf=0;try{decorate()}catch(e){}})};
@@ -6574,20 +6585,28 @@ body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:non
     else{const anchor=d.endAnchor(items[items.length-1]);if(anchor.nextElementSibling!==d.ph)anchor.after(d.ph);}
   }
   /* products: drop next to the card under the finger, or at the end of a product row */
+  const unitOf=el=>el&&(el.closest('.pp24-home .pp24-products-unit')||el.closest('.pp24-home .pp49-block')?.querySelector('.pp24-products-unit')||null);
+  function homeMap(){
+    const cards=[...document.querySelectorAll('.pp24-home article.product')],exp=[];
+    for(const s of state.settings.homeSections||[]){if(!s||s.visible===false||!['products','new'].includes(s.type))continue;for(const p of pp24Products(s))exp.push([s.id,p.id]);}
+    if(cards.length!==exp.length||cards.some((c,i)=>c.dataset.id!==exp[i][1]))return null;
+    return new Map(cards.map((c,i)=>[c,exp[i][0]]));
+  }
+  /* products: drop next to the card under the finger, or at the end of a product row */
   function placeProduct(){
     const d=drag,hit=document.elementFromPoint(d.x,d.y);if(!hit||hit.closest('.pp113-ph'))return;
-    const bl=hit.closest('.pp49-block');if(!bl)return;const s=secOf(bl.dataset.pp49Block);if(!s||s.type!=='products')return;
+    const unit=unitOf(hit);if(!unit)return;
     const card=hit.closest('article.product');
-    if(card&&card!==d.src&&bl.contains(card)){
+    if(card&&card!==d.src&&unit.contains(card)){
       const r=card.getBoundingClientRect(),grid=card.parentElement.getBoundingClientRect();
-      const before=r.width>grid.width*.7?d.y<r.top+r.height/2:(document.dir==='rtl'||getComputedStyle(card.parentElement).direction==='rtl')?d.x>r.left+r.width/2:d.x<r.left+r.width/2;
+      const before=r.width>grid.width*.7?d.y<r.top+r.height/2:getComputedStyle(card.parentElement).direction==='rtl'?d.x>r.left+r.width/2:d.x<r.left+r.width/2;
       if(before){if(card.previousElementSibling!==d.ph)card.before(d.ph);}else if(card.nextElementSibling!==d.ph)card.after(d.ph);
       return;
     }
     if(card===d.src)return;
-    const rows=bl.querySelectorAll('.pp45-product-row');const g=rows.length?rows[rows.length-1]:bl.querySelector('.pp24-product-grid');
+    const rows=unit.querySelectorAll('.pp45-product-row');const g=rows.length?rows[rows.length-1]:unit.querySelector('.pp24-product-grid');
     if(g){const slot=g.querySelector(':scope > .pp112-slot');if(slot){if(slot.previousElementSibling!==d.ph)slot.before(d.ph);}else if(g.lastElementChild!==d.ph)g.appendChild(d.ph);}
-    else{const pen=bl.querySelector(':scope > .pp49-pencil');if(d.ph.parentElement!==bl)(pen?pen.before(d.ph):bl.appendChild(d.ph));}
+    else if(unit.closest('.pp49-block')&&d.ph.parentElement!==unit)unit.appendChild(d.ph);
   }
   function place(){if(!drag||!drag.moved)return;if(drag.kind==='product')placeProduct();else placeList();}
 
@@ -6605,11 +6624,15 @@ body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:non
         ph:mkPh('⬇ فلّته هون')});
       return;
     }
-    g=t.closest('.pp113-pgrip');
-    if(g&&editOn()){
-      const card=g.closest('article.product'),bl=card?.closest('.pp49-block'),s=secOf(bl?.dataset.pp49Block);if(!card||!s)return;
+    g=t.closest('.pp114-move');
+    if(g&&visAdm()){
+      const card=g.closest('article.product');if(!card||!card.closest('.pp24-home'))return;
+      const map=homeMap(),sid=map&&map.get(card),s=secOf(sid);
+      if(!s||s.type!=='products'){e.preventDefault();e.stopImmediatePropagation();blockClickUntil=Date.now()+450;
+        if(!map){try{pp97Err('تحريك المنتج','ترتيب الصفحة على الشاشة مختلف عن المحفوظ. سكّر التطبيق وافتحه من جديد ثم جرّب مرة تانية.')}catch(_){note('تعذّر التحريك: أعد فتح التطبيق وجرّب')}}
+        else note('منتجات «وصل حديثاً» بتترتب لحالها حسب الأحدث، ما بتنحرك باليد');return;}
       const r=card.getBoundingClientRect();
-      begin(e,{kind:'product',src:card,pid:card.dataset.id,fromSec:s.id,scroller:window,rect:r,dx:e.clientX-r.left,dy:e.clientY-r.top});
+      begin(e,{kind:'product',src:card,pid:card.dataset.id,fromSec:sid,map,scroller:window,rect:r,dx:e.clientX-r.left,dy:e.clientY-r.top});
       const ph=mkPh('فلّته هون','pp113-php');ph.style.minHeight=Math.round(r.height)+'px';drag.ph=ph;
       return;
     }
@@ -6660,15 +6683,18 @@ body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:non
           const cats=state.settings.categories;
           if(to!==d.from&&cats[d.from]!=null){const [c]=cats.splice(d.from,1);cats.splice(to,0,c);cleanup();drag=null;await ppCatsCommit('✅ تغيّر ترتيب الأقسام — محفوظ تلقائياً');return;}
         }else if(d.kind==='product'){
-          const bl=ph.closest('.pp49-block'),to=secOf(bl?.dataset.pp49Block),from=secOf(d.fromSec);
+          const seq=[...document.querySelectorAll('.pp24-home article.product, .pp24-home .pp113-ph')].filter(x=>x!==d.src),k=seq.indexOf(ph),unit=unitOf(ph);
+          const same=el=>el&&el.matches('article.product')&&unitOf(el)===unit,next=seq[k+1],prev=seq[k-1];
+          let toId=null,beforeId=null,afterId=null;
+          if(same(next)){toId=d.map.get(next);beforeId=next.dataset.id;}else if(same(prev)){toId=d.map.get(prev);afterId=prev.dataset.id;}else toId=ph.closest('.pp49-block')?.dataset.pp49Block||null;
+          const to=secOf(toId),from=secOf(d.fromSec);
+          if(to&&to.type!=='products')note('ما فيك تحط منتج بسطر «وصل حديثاً» — هيدا بيتعبّى لحاله');
           if(to&&from&&to.type==='products'){
-            const seq=[...bl.querySelectorAll('article.product, .pp113-ph')].filter(x=>x!==d.src);
-            const k=seq.indexOf(ph),beforeId=seq.slice(k+1).find(x=>x.matches('article.product'))?.dataset.id||null;
             const ensure=s=>{if(!s.pp49Manual){const cols=pp35GridCols(s);s.productIds=pp24Products(s).map(x=>x.id);s.pp49Manual=true;s.pp49Cols=cols;}if(!Array.isArray(s.productIds))s.productIds=[];return s.productIds;};
             const snap=JSON.stringify([from.productIds,to.productIds,from.pp49Manual,to.pp49Manual]);
             const fa=ensure(from),ta=ensure(to);
             const i=fa.indexOf(d.pid);if(i>=0)fa.splice(i,1);
-            let j=beforeId?ta.indexOf(beforeId):-1;
+            let j=beforeId?ta.indexOf(beforeId):afterId?(ta.indexOf(afterId)<0?-1:ta.indexOf(afterId)+1):-1;
             if(j<0){j=ta.length;while(j>0&&!state.products.some(p=>p.id===ta[j-1]&&p.active!==false))j--;/* after the last shown product */}
             ta.splice(j,0,d.pid);
             if(to!==from)to.count=Math.max(Number(to.count)||0,ta.filter(Boolean).length);
@@ -6683,8 +6709,8 @@ body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:non
   }
   window.addEventListener('pointerup',e=>finish(e,true),{capture:true,passive:false});
   window.addEventListener('pointercancel',e=>finish(e,false),{capture:true,passive:false});
-  window.addEventListener('click',e=>{const t=e.target;if(Date.now()<blockClickUntil||(t&&t.closest&&t.closest('.pp113-rgrip,.pp113-pgrip,.pp113-cgrip'))){e.preventDefault();e.stopImmediatePropagation();}},true);
-  window.addEventListener('contextmenu',e=>{if(drag||(e.target&&e.target.closest&&e.target.closest('.pp113-rgrip,.pp113-pgrip,.pp113-cgrip')))e.preventDefault();},true);
+  window.addEventListener('click',e=>{const t=e.target;if(Date.now()<blockClickUntil||(t&&t.closest&&t.closest('.pp113-rgrip,.pp114-move,.pp113-cgrip'))){e.preventDefault();e.stopImmediatePropagation();}},true);
+  window.addEventListener('contextmenu',e=>{if(drag||(e.target&&e.target.closest&&e.target.closest('.pp113-rgrip,.pp114-move,.pp113-cgrip')))e.preventDefault();},true);
 })();}catch(e){try{console.error('V113',e)}catch(_){}}
 
 ppBoot();
