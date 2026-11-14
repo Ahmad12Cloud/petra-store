@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V104';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V105';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -6252,10 +6252,10 @@ window.addEventListener('click',async e=>{
     document.getElementById('pp104')?.remove();pp104Apply();render();note('✅ تم حفظ تنسيق السعر');
   }
 },true);
-(function(){const st=document.createElement('style');st.textContent=`#modal textarea[name="descriptionAr"]{min-height:240px;line-height:1.8;resize:vertical}`;document.head.appendChild(st);})();
-function pp99Grow(t){if(!t)return;t.style.height='auto';t.style.height=Math.max(240,t.scrollHeight+4)+'px';}
-window.addEventListener('input',e=>{const t=e.target;if(t&&t.matches&&t.matches('#modal textarea[name="descriptionAr"]'))pp99Grow(t);},true);
-new MutationObserver(()=>{const t=document.querySelector('#modal textarea[name="descriptionAr"]');if(t&&!t.dataset.pp99){t.dataset.pp99='1';t.rows=10;pp99Grow(t);}}).observe(document.body,{childList:true,subtree:true});
+(function(){const st=document.createElement('style');st.textContent=`#modal textarea[name="descriptionAr"]{height:min(32vh,280px)!important;min-height:140px;line-height:1.8;resize:vertical;overflow-y:auto}`;document.head.appendChild(st);})();
+/* V105: fixed-height description box (scrolls inside), caret kept in view above the keyboard */
+window.addEventListener('focusin',e=>{const t=e.target;if(t&&t.matches&&t.matches('#modal textarea[name="descriptionAr"]')){setTimeout(()=>{try{t.scrollIntoView({block:'center',behavior:'smooth'})}catch(_){}},350);}},true);
+window.addEventListener('input',e=>{const t=e.target;if(t&&t.matches&&t.matches('#modal textarea[name="descriptionAr"]')){const vv=window.visualViewport;try{const r=t.getBoundingClientRect(),vh=vv?vv.height:innerHeight;if(r.bottom>vh-20||r.top<60)t.scrollIntoView({block:'center'});}catch(_){}}},true);
 
 ppBoot();
 })();
