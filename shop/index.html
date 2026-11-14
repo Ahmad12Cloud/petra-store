@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V111';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V112';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -6425,6 +6425,84 @@ new MutationObserver(()=>{try{
   if(ex){if(ex.textContent!==label)ex.textContent=label;return;}
   if(ref){const b=document.createElement('button');b.type='button';b.className=ref.className;b.setAttribute('data-action','pp111-open');b.textContent=label;ref.insertAdjacentElement('afterend',b);}
 }catch(_){}}).observe(document.body,{childList:true,subtree:true});
+
+/* V112: permanent "＋ أضف منتجاً هنا" slot in the empty cell of a manual product row (owner edit mode only) */
+(function(){
+  const st=document.createElement('style');st.textContent=`.pp112-slot{border:2.5px dashed #c9a24a;border-radius:16px;background:#fffaf0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:230px;color:#8a5a00;text-align:center;cursor:pointer;padding:14px;box-sizing:border-box;font-family:inherit}
+.pp112-slot .pl{width:62px;height:62px;border-radius:50%;background:#f7cf6f;border:2px solid #c9a24a;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;color:#2a1d0a;box-shadow:0 2px 8px rgba(120,80,0,.3)}
+.pp112-slot b{font-size:15px}.pp112-slot small{font-size:12px;color:#7a6330}
+#pp112{position:fixed;inset:0;z-index:2147483000;background:#000b;display:flex;align-items:flex-end;justify-content:center;font-family:inherit}
+#pp112 .sh{background:#fffdf7;color:#2a1d0a;width:min(560px,100%);max-height:92vh;display:flex;flex-direction:column;border-radius:22px 22px 0 0;padding:14px 16px 16px;direction:rtl;border-top:3px solid #c9a24a}
+#pp112 .hd{display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:17px}
+#pp112 .x{border:1.5px solid #e3d6b8;border-radius:12px;width:38px;height:38px;background:#fff;font-size:18px}
+#pp112 input.q{width:100%;box-sizing:border-box;margin:10px 0 4px;border:1.5px solid #e3d6b8;border-radius:12px;padding:10px;font:inherit;font-size:14px;background:#fff}
+#pp112 .ls{overflow:auto;flex:1;min-height:120px}
+#pp112 .rw{display:flex;align-items:center;gap:10px;border-bottom:1px solid #f0e6c8;padding:9px 2px;font-size:13px;font-weight:700;width:100%;background:none;border-left:0;border-right:0;border-top:0;font-family:inherit;color:inherit;text-align:start;cursor:pointer}
+#pp112 .th{width:54px;height:44px;border-radius:8px;background:#e8eefc center/contain no-repeat;flex:none;border:1px solid #e3d6b8}
+#pp112 .nw{background:#e8f6ec;color:#17683a;border-radius:8px;padding:0 6px;font-size:10px;margin-inline-start:6px}
+#pp112 .pr{font-size:11px;color:#8a5a00;font-weight:600;display:block}
+#pp112 .ck{margin-inline-start:auto;font-size:20px;flex:none}
+#pp112 .b{margin-top:10px;background:#f7cf6f;border:2px solid #c9a24a;border-radius:12px;text-align:center;padding:12px;font-weight:800;font-size:15px;width:100%;font-family:inherit;color:#2a1d0a}
+#pp112 .b:disabled{opacity:.5}
+#pp112 .em{padding:24px 8px;text-align:center;color:#7a6330;font-size:13px}`;document.head.appendChild(st);
+  function secOf(id){return (state.settings.homeSections||[]).find(x=>x&&x.id===id)}
+  function scan(){
+    let on=false;try{on=pp49EditMode&&visibleAdmin();}catch(e){}
+    if(!on){document.querySelectorAll('.pp112-slot').forEach(x=>x.remove());return;}
+    document.querySelectorAll('.pp49-block').forEach(bl=>{
+      const s=secOf(bl.dataset.pp49Block);if(!s||s.type!=='products'||!s.pp49Manual)return;
+      const g0=bl.querySelector('.pp24-product-grid');if(!g0)return;
+      const rows=g0.querySelectorAll(':scope > .pp45-product-row');
+      const grid=rows.length?rows[rows.length-1]:g0;
+      const items=[...grid.children].filter(c=>c.matches&&c.matches('article.product')).length;if(!items)return;
+      let cols=1;try{cols=getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length}catch(e){}
+      const ex=g0.querySelector('.pp112-slot');
+      const need=cols>1&&items%cols!==0;
+      if(need&&!ex){const d=document.createElement('div');d.className='pp112-slot';d.setAttribute('data-pp112-add',s.id);d.setAttribute('role','button');d.innerHTML='<div class="pl">＋</div><b>أضف منتجاً هنا</b><small>اضغط لاختيار منتج</small>';grid.appendChild(d);}
+      else if(!need&&ex)ex.remove();
+    });
+  }
+  let raf=0;const q=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;try{scan()}catch(e){}})};
+  new MutationObserver(q).observe(document.body,{childList:true,subtree:true});window.addEventListener('resize',q);q();
+  let sec=null,sel=new Set(),term='';
+  function pic(p){const im=Array.isArray(p.images)?p.images[0]:'';return typeof im==='string'&&/^(https:|data:image)/.test(im)?im:''}
+  function draw(){
+    let o=document.getElementById('pp112');if(!o){o=document.createElement('div');o.id='pp112';document.body.appendChild(o);}
+    const s=secOf(sec);if(!s){o.remove();return;}
+    const inSec=new Set((s.productIds||[]).filter(Boolean));
+    const t=term.trim().toLowerCase();
+    const list=state.products.filter(p=>p.active!==false&&!inSec.has(p.id)&&(!t||[p.nameAr,p.nameEn,p.productCode,p.sku,p.category].join(' ').toLowerCase().includes(t)))
+      .sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0)).slice(0,60);
+    const rows=list.map(p=>{const im=pic(p),isNew=(()=>{try{return ppIsNew(p)}catch(_){return false}})();
+      return '<button type="button" class="rw" data-p112="pick" data-id="'+esc(p.id)+'"><span class="th" '+(im?'style="background-image:url(\''+esc(im)+'\')"':'')+'></span><span>'+esc(p.nameAr||p.nameEn||'—')+(isNew?'<span class="nw">جديد</span>':'')+'<span class="pr">'+esc(money(p.price,p.currency))+'</span></span><span class="ck">'+(sel.has(p.id)?'●':'○')+'</span></button>';}).join('');
+    o.innerHTML='<div class="sh"><div class="hd"><span>＋ اختر منتجاً لهذه الخانة</span><button type="button" class="x" data-p112="close">✕</button></div>'+
+      '<input class="q" data-p112="q" placeholder="ابحث بالاسم أو الكود…" value="'+esc(term)+'">'+
+      '<div class="ls">'+(rows||'<div class="em">لا توجد منتجات أخرى لإضافتها لهذا القسم.</div>')+'</div>'+
+      '<button type="button" class="b" data-p112="add"'+(sel.size?'':' disabled')+'>✔ إضافة للقسم'+(sel.size>1?' ('+sel.size+')':'')+'</button></div>';
+    const qi=o.querySelector('input.q');if(qi&&term){qi.focus();try{qi.setSelectionRange(term.length,term.length)}catch(_){}}
+  }
+  window.addEventListener('click',async e=>{
+    const slot=e.target&&e.target.closest?e.target.closest('.pp112-slot'):null;
+    if(slot){e.preventDefault();e.stopImmediatePropagation();if(!visibleAdmin())return;sec=slot.dataset.pp112Add;sel=new Set();term='';draw();return;}
+    const el=e.target&&e.target.closest?e.target.closest('#pp112 [data-p112]'):null;
+    if(!el){if(e.target&&e.target.id==='pp112')e.target.remove();return;}
+    const a=el.dataset.p112;if(a==='q')return;
+    e.preventDefault();e.stopImmediatePropagation();
+    if(a==='close'){document.getElementById('pp112')?.remove();return;}
+    if(a==='pick'){const id=el.dataset.id;if(sel.has(id))sel.delete(id);else sel.add(id);draw();return;}
+    if(a==='add'){
+      const s=secOf(sec);if(!s||!sel.size)return;
+      const ids=(Array.isArray(s.productIds)?s.productIds:[]).filter(Boolean);
+      sel.forEach(id=>{if(!ids.includes(id))ids.push(id)});
+      s.pp49Manual=true;s.productIds=ids;s.count=Math.max(Number(s.count)||0,ids.length);
+      document.getElementById('pp112')?.remove();
+      const cur=window.scrollY;
+      try{await changed();}catch(err){try{pp97Err('إضافة منتج للقسم',err)}catch(_){}}
+      render();window.scrollTo(0,cur);note('✅ تمت إضافة المنتج إلى القسم');
+    }
+  },true);
+  window.addEventListener('input',e=>{const t=e.target;if(t&&t.matches&&t.matches('#pp112 input.q')){term=t.value;draw();}},true);
+})();
 
 ppBoot();
 })();
