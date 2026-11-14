@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V115';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V116';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -6713,6 +6713,7 @@ body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:non
   window.addEventListener('contextmenu',e=>{if(drag||(e.target&&e.target.closest&&e.target.closest('.pp113-rgrip,.pp114-move,.pp113-cgrip')))e.preventDefault();},true);
 })();}catch(e){try{console.error('V113',e)}catch(_){}}
 
+/* V116: each suggested size chip is a toggle (tap ✓ to remove, tap ＋ to add), saved immediately */
 /* V115: read the amp range from the product name (e.g. "من 6A إلى 125A") and fill the missing standard sizes with one tap */
 try{(function(){
   const SER=[1,2,3,4,5,6,10,16,20,25,32,40,50,63,80,100,125];
@@ -6720,8 +6721,10 @@ try{(function(){
 .pp115 .h{font-weight:800;font-size:14px;color:#5a3b00}.pp115 .h span{background:#f7cf6f;border-radius:8px;padding:1px 8px;direction:ltr;display:inline-block}
 .pp115 .s{font-size:12px;color:#7a6330;margin:4px 0 8px}
 .pp115 .c{display:flex;flex-wrap:wrap;gap:6px;direction:ltr;justify-content:flex-end}
-.pp115 .c i{font-style:normal;border-radius:999px;padding:5px 10px;font-weight:800;font-size:13px;border:1.5px dashed #c8962e;background:#fff;color:#5a3b00}
-.pp115 .c i.ok{border:1.5px solid #9bc59b;background:#eef8ee;color:#2f6b2f}
+.pp115 .c button{font:800 13px/1.2 inherit;font-family:inherit;border-radius:999px;padding:7px 11px;border:1.5px dashed #c8962e;background:#fff;color:#5a3b00;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pp115 .c button.ok{border:1.5px solid #9bc59b;background:#eef8ee;color:#2f6b2f}
+.pp115 .c button:active{transform:scale(.94)}
+.pp115 .c button:disabled{opacity:.5}
 .pp115 button.f{margin-top:10px;width:100%;padding:12px;border:0;border-radius:12px;background:linear-gradient(#f9d978,#e2ad3e);font:800 15px/1.3 inherit;font-family:inherit;color:#2a1d0a}
 .pp115 button.f:disabled{background:#e9efe9;color:#2f6b2f}
 .pp115 .n{font-size:11.5px;color:#7a6330;margin-top:6px;text-align:center}`;document.head.appendChild(st);
@@ -6745,8 +6748,8 @@ try{(function(){
   }
   function html(pl,attr){
     return '<div class="h">📐 قريت من اسم المنتج: <span>'+pl.r[0]+'A → '+pl.r[1]+'A</span></div>'+
-      '<div class="s">هدول القياسات القياسية بهالمدى — الموجود عندك عليه ✓ وما بيتكرر:</div>'+
-      '<div class="c">'+pl.sug.map(x=>pl.hk.has(key(x))?'<i class="ok">✓ '+esc(x)+'</i>':'<i>＋ '+esc(x)+'</i>').join('')+'</div>'+
+      '<div class="s">اضغط على أي قياس: ✓ = موجود (اضغط لتشيله) · ＋ = ناقص (اضغط لتضيفه)</div>'+
+      '<div class="c">'+pl.sug.map(x=>pl.hk.has(key(x))?'<button type="button" class="ok" data-pp116-tog="'+esc(x)+'">✓ '+esc(x)+'</button>':'<button type="button" data-pp116-tog="'+esc(x)+'">＋ '+esc(x)+'</button>').join('')+'</div>'+
       (pl.miss.length?'<button type="button" class="f" '+attr+'>⚡ عبّي القياسات الناقصة ('+pl.miss.length+') بكبسة</button>':'<button type="button" class="f" disabled>✓ كل القياسات موجودة</button>')+
       '<div class="n">ما بيمسح شي موجود، وما بيغيّر علامات «نفد» ولا الأسعار</div>';
   }
@@ -6754,7 +6757,7 @@ try{(function(){
   function sync(){
     const own=document.getElementById('pp69-own');
     if(own){const p=state.products.find(x=>x.id===own.dataset.id);
-      if(p){const pl=plan(p.nameAr,ppSizes(p))||plan(p.nameEn,ppSizes(p)),sig=pl?JSON.stringify([pl.r,pl.miss]):'';
+      if(p){const pl=plan(p.nameAr,ppSizes(p))||plan(p.nameEn,ppSizes(p)),sig=pl?JSON.stringify([pl.r,pl.miss,ppSizes(p)]):'';
         let b=own.querySelector(':scope > .pp115');const pre=own.querySelector('[data-pp69-preset]');
         if(pre)pre.style.display=pl?'none':'';
         if(!pl){b?.remove();}
@@ -6776,6 +6779,18 @@ try{(function(){
   document.addEventListener('input',e=>{const t=e.target;if(t&&t.matches&&t.matches('form [name="nameAr"],form [name="nameEn"],form textarea[name="sizes"]'))q();},true);
   q();
   document.addEventListener('click',async e=>{
+    const tg=e.target.closest&&e.target.closest('.pp115 [data-pp116-tog]');
+    if(tg){e.preventDefault();e.stopImmediatePropagation();if(!visibleAdmin()||tg.disabled)return;
+      const x=tg.dataset.pp116Tog,k=key(x),own=tg.closest('#pp69-own');
+      const flip=list=>{const has=list.some(v=>key(v)===k);return {has,next:has?list.filter(v=>key(v)!==k):merge(list,[x])};};
+      if(own){const p=state.products.find(y=>y.id===own.dataset.id);if(!p)return;
+        own.querySelectorAll('.pp115 [data-pp116-tog]').forEach(z=>z.disabled=true);
+        const r=flip(ppSizes(p));p.sizes=r.next;
+        try{await changed();}catch(err){try{pp97Err('تعديل القياسات',err)}catch(_){}}
+        detail(p);note(r.has?'✕ انشال '+x+' — محفوظ':'✅ انضاف '+x+' — محفوظ');return;}
+      const ta=tg.closest('form')?.querySelector('textarea[name="sizes"]');if(!ta)return;
+      const r=flip(ppParseSizes(ta.value));ta.value=r.next.join(', ');ta.dispatchEvent(new Event('input',{bubbles:true}));
+      note(r.has?'✕ انشال '+x:'✅ انضاف '+x);return;}
     const b=e.target.closest&&e.target.closest('[data-pp115-fill],[data-pp115-form]');if(!b)return;
     e.preventDefault();e.stopImmediatePropagation();if(!visibleAdmin())return;
     if(b.hasAttribute('data-pp115-fill')){
