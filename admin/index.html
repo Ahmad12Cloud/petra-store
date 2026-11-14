@@ -1421,7 +1421,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V105';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V106';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -4354,7 +4354,7 @@ async function ppPush(){
     // categories
     const cats=(state.settings.categories||[]).filter(x=>typeof x==='string'&&x.trim());const ch=ppCatsSig();
     if(ch!==ppCatsHash){
-      if(cats.length)await ppFetch('/rest/v1/categories?on_conflict=name_ar',{method:'POST',headers:{...json,Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(cats.map((n,i)=>({name_ar:n,name_en:(state.settings.catEn&&state.settings.catEn[n])||null,sort_order:i,active:true})))});
+      if(cats.length)await ppFetch('/rest/v1/categories?on_conflict=name_ar',{method:'POST',headers:{...json,Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(cats.map((n,i)=>({name_ar:n,name_en:(state.settings.catEn&&state.settings.catEn[n])||'',sort_order:i,active:true})))});
       const del=cats.length?'name_ar=not.in.('+cats.map(n=>'"'+n.replace(/"/g,'\\"')+'"').map(encodeURIComponent).join(',')+')':'id=not.is.null';
       await ppFetch('/rest/v1/categories?'+del,{method:'DELETE',headers:{Prefer:'return=minimal'}});
       ppCatsHash=ch;
