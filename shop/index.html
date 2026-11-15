@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V127';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V128';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -6516,6 +6516,8 @@ try{(function(){
 .pp113-cgrip{touch-action:none;user-select:none;-webkit-user-select:none;font-size:20px!important;font-weight:900;background:#f7cf6f!important;border-color:#c9a24a!important;cursor:grab}
 .pp113-lift{opacity:.5;outline:3px solid #d59b2b!important;outline-offset:2px;box-shadow:0 10px 28px #b8873466!important}
 .pp113-src{opacity:.3!important;filter:grayscale(.6)}
+.pp128-tgt{outline:4px solid #e2ad3e!important;outline-offset:3px;box-shadow:0 0 0 9px #f7cf6f66!important;transform:scale(.97);transition:transform .12s}
+.pp113-ghost[data-sw]::after{content:'⇄ تبديل';position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#20190f;color:#ffd879;border:2px solid #ffd163;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:800;white-space:nowrap}
 .pp113-ph{border:3px dashed #d59b2b;background:#fff4d6;border-radius:12px;color:#8a5a00;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;text-align:center;min-height:54px;margin:6px 0;box-sizing:border-box;animation:pp113p 1s ease-in-out infinite alternate;font-family:inherit}
 .pp113-ph.pp113-php{margin:0;min-height:120px}
 @keyframes pp113p{from{background:#fff4d6}to{background:#ffe6a6}}
@@ -6583,7 +6585,7 @@ body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:non
   function cleanup(){
     if(!drag)return;cancelAnimationFrame(drag.raf);
     drag.ph?.remove();drag.ghost?.remove();drag.pill?.remove();
-    drag.src?.classList.remove('pp113-lift','pp113-src');
+    drag.src?.classList.remove('pp113-lift','pp113-src');drag.swap?.classList.remove('pp128-tgt');
     document.body.classList.remove('pp113-on');
   }
 
@@ -6607,6 +6609,14 @@ body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:non
     const d=drag,hit=document.elementFromPoint(d.x,d.y);if(!hit||hit.closest('.pp113-ph'))return;
     const unit=unitOf(hit);if(!unit)return;
     const card=hit.closest('article.product');
+    /* V128: finger over another product = swap target (A↔B), nothing else moves */
+    if(card&&card!==d.src&&unit.contains(card)&&d.map&&secOf(d.map.get(card))?.type==='products'){
+      if(d.swap!==card){d.swap?.classList.remove('pp128-tgt');d.swap=card;card.classList.add('pp128-tgt');if(d.ghost)d.ghost.dataset.sw='1';}
+      if(d.src.nextElementSibling!==d.ph)d.src.after(d.ph);
+      return;
+    }
+    if(d.swap&&card===d.src){return;}
+    if(d.swap){d.swap.classList.remove('pp128-tgt');d.swap=null;if(d.ghost)delete d.ghost.dataset.sw;}
     if(card&&card!==d.src&&unit.contains(card)){
       const r=card.getBoundingClientRect(),grid=card.parentElement.getBoundingClientRect();
       const before=r.width>grid.width*.7?d.y<r.top+r.height/2:getComputedStyle(card.parentElement).direction==='rtl'?d.x>r.left+r.width/2:d.x<r.left+r.width/2;
@@ -6692,6 +6702,14 @@ body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:non
           let to=0;for(const el of rows){if(el===ph)break;if(el!==d.src)to++;}
           const cats=state.settings.categories;
           if(to!==d.from&&cats[d.from]!=null){const [c]=cats.splice(d.from,1);cats.splice(to,0,c);cleanup();drag=null;await ppCatsCommit('✅ تغيّر ترتيب الأقسام — محفوظ تلقائياً');return;}
+        }else if(d.kind==='product'&&d.swap&&d.swap.isConnected&&d.map){
+          /* V128: swap A↔B — each takes the other's exact place */
+          const bId=d.swap.dataset.id,from=secOf(d.fromSec),to=secOf(d.map.get(d.swap));
+          if(from&&to&&from.type==='products'&&to.type==='products'&&bId&&bId!==d.pid){
+            const ensure=s=>{if(!s.pp49Manual){const cols=pp35GridCols(s);s.productIds=pp24Products(s).map(x=>x.id);s.pp49Manual=true;s.pp49Cols=cols;}if(!Array.isArray(s.productIds))s.productIds=[];return s.productIds;};
+            const fa=ensure(from),ta=ensure(to),i=fa.indexOf(d.pid),j=ta.indexOf(bId);
+            if(i>=0&&j>=0){fa[i]=bId;ta[j]=d.pid;dirty=true;msg='✅ تبدّلوا المنتجين — محفوظ تلقائياً';}
+          }
         }else if(d.kind==='product'){
           const seq=[...document.querySelectorAll('.pp24-home article.product, .pp24-home .pp113-ph')].filter(x=>x!==d.src),k=seq.indexOf(ph),unit=unitOf(ph);
           const same=el=>el&&el.matches('article.product')&&unitOf(el)===unit,next=seq[k+1],prev=seq[k-1];
@@ -7417,7 +7435,7 @@ body.pp123-no-delete [data-action="pp85-delete"]{display:none!important}`;docume
 try{(function(){
   const KEY='pp126-back';
   const st=document.createElement('style');
-  st.textContent='#pp126{position:fixed;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:9000;display:flex;align-items:center;gap:7px;height:44px;padding:0 16px 0 12px;border-radius:999px;border:1.5px solid #d4a531;background:rgba(255,253,247,.96);color:#5a3f0b;font:800 14px/1 inherit;font-family:inherit;box-shadow:0 6px 18px rgba(60,40,0,.18);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);cursor:pointer}#pp126[hidden]{display:none!important}#pp126 b{font-size:19px;display:inline-block}#pp126.go b{animation:pp126sp .9s linear infinite}@keyframes pp126sp{to{transform:rotate(360deg)}}';
+  st.textContent='#pp126{position:fixed;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:9000;display:flex;align-items:center;gap:7px;height:44px;padding:0 16px 0 12px;border-radius:999px;border:1.5px solid #d4a531;background:rgba(255,253,247,.96);color:#5a3f0b;font:800 14px/1 inherit;font-family:inherit;box-shadow:0 6px 18px rgba(60,40,0,.18);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);cursor:pointer}#pp126[hidden]{display:none!important}body.pp113-on #pp126{display:none!important}#pp126 b{font-size:19px;display:inline-block}#pp126.go b{animation:pp126sp .9s linear infinite}@keyframes pp126sp{to{transform:rotate(360deg)}}';
   document.head.appendChild(st);
   const btn=document.createElement('button');btn.id='pp126';btn.type='button';btn.hidden=true;btn.innerHTML='<b>⟳</b>تحديث الموقع';
   document.body.appendChild(btn);
