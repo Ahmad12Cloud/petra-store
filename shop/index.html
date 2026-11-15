@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V124';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V125';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2342,7 +2342,7 @@ async function saveProduct(){
  cardBg:fd.has('customCardBg')?safeColor(fd.get('cardBg'),safeColor(state.settings.productCardBg,'#ffffff')):'',
  pp45RowCols:Math.round(pp35Limit(fd.get('pp45RowCols'),0,5,0)),
  pp35:pp35Collect(fd),relatedIds:[...formRelatedIds].filter(id=>id!==editId),active:fd.has('active'),visibility};
- if(old)state.products[state.products.indexOf(old)]=p;else{state.products.unshift(p);if(!pp49PendingProduct)pp121Place(p);}
+ if(old)state.products[state.products.indexOf(old)]=p;else{p.active=false;state.products.unshift(p);if(!pp49PendingProduct)pp121Place(p);} /* V125: new products start hidden until the owner taps «ظاهر» */
  if(mode==='auto'){state.settings.pp49ActivePrefix=prefix;state.settings.pp49Sequences=state.settings.pp49Sequences||{};const m=productCode.slice(prefix.length).match(/^\d+$/);if(m)state.settings.pp49Sequences[prefix]=Math.max(Number(state.settings.pp49Sequences[prefix])||0,Number(m[0]));}
  if(pp49PendingProduct){const target=state.settings.homeSections.find(s=>s.id===pp49PendingProduct.sectionId);if(target){if(pp49PendingProduct.kind==='product'){target.productIds=Array.isArray(target.productIds)?target.productIds:[];if(!target.productIds.includes(p.id))target.productIds.push(p.id);}else if(target.type==='showcase'){const j=pp49PendingProduct.index;target.pp49SlideMeta=Array.isArray(target.pp49SlideMeta)?target.pp49SlideMeta:[];target.pp49SlideMeta[j]={...(target.pp49SlideMeta[j]||{}),productId:p.id};target.pp46Slides=Array.isArray(target.pp46Slides)?target.pp46Slides:[];target.pp46Slides[j]=target.pp46Slides[j]||safeImg(p.images?.[0])||'';}}pp49PendingProduct=null;}
  if(p.category&&!state.settings.categories.includes(p.category))state.settings.categories.push(p.category);
