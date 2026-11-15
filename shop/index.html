@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V125';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V126';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -7407,6 +7407,62 @@ body.pp123-no-delete [data-action="pp85-delete"]{display:none!important}`;docume
   },true);
 })();}catch(e){try{console.error('V123',e)}catch(_){}}
 
+/* V126: owner "تحديث الموقع" button — always on screen; saves pending edits, reloads fresh from the server, then returns to the same page/scroll/product */
+try{(function(){
+  const KEY='pp126-back';
+  const st=document.createElement('style');
+  st.textContent='#pp126{position:fixed;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:9000;display:flex;align-items:center;gap:7px;height:44px;padding:0 16px 0 12px;border-radius:999px;border:1.5px solid #d4a531;background:rgba(255,253,247,.96);color:#5a3f0b;font:800 14px/1 inherit;font-family:inherit;box-shadow:0 6px 18px rgba(60,40,0,.18);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);cursor:pointer}#pp126[hidden]{display:none!important}#pp126 b{font-size:19px;display:inline-block}#pp126.go b{animation:pp126sp .9s linear infinite}@keyframes pp126sp{to{transform:rotate(360deg)}}';
+  document.head.appendChild(st);
+  const btn=document.createElement('button');btn.id='pp126';btn.type='button';btn.hidden=true;btn.innerHTML='<b>⟳</b>تحديث الموقع';
+  document.body.appendChild(btn);
+  const sync=()=>{let on=false;try{on=!!visibleAdmin()}catch(_){}if(btn.hidden===on)btn.hidden=!on;};
+  setInterval(sync,800);sync();
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  btn.addEventListener('click',async e=>{
+    e.preventDefault();e.stopPropagation();if(btn.classList.contains('go'))return;
+    btn.classList.add('go');btn.innerHTML='<b>⟳</b>جاري التحديث…';
+    const fail=m=>{btn.classList.remove('go');btn.innerHTML='<b>⟳</b>تحديث الموقع';try{note(m)}catch(_){}};
+    try{
+      // 1) flush unsaved edits first so nothing is lost
+      const dirty=()=>!!ppLS.get(PP_DIRTY_KEY);
+      if(dirty()||ppPushTimer||ppPushing){
+        clearTimeout(ppPushTimer);ppPushTimer=null;
+        for(let i=0;i<150&&ppPushing;i++)await sleep(100);
+        await ppPush();
+        for(let i=0;i<150&&ppPushing;i++)await sleep(100);
+        if(dirty()&&navigator.onLine===false)return fail('⚠️ ما في إنترنت — التعديلات ما انحفظت، ما عملت تحديث حتى ما تضيع');
+        if(dirty())return fail('⚠️ في تعديلات ما انحفظت عالسيرفر — جرّب مرة تانية');
+      }
+      // 2) remember where the owner is
+      let pid='';try{const m=document.getElementById('modal');if(m&&!m.classList.contains('hide')){const x=m.querySelector('[data-id]');pid=x?x.dataset.id:'';}}catch(_){}
+      const back={t:Date.now(),y:Math.round(window.scrollY||document.documentElement.scrollTop||0),tab:document.body.dataset.tab||'catalog',pid};
+      try{sessionStorage.setItem(KEY,JSON.stringify(back))}catch(_){}
+      // 3) reload fresh (new URL so the phone doesn't reuse the old page)
+      const u=new URL(location.href);u.searchParams.set('r',String(Date.now()));
+      location.replace(u.pathname+u.search+u.hash);
+    }catch(err){fail('⚠️ ما زبط التحديث: '+(err&&err.message||err));}
+  },true);
+  // after reload: return to the same place
+  let back=null;try{back=JSON.parse(sessionStorage.getItem(KEY)||'null');sessionStorage.removeItem(KEY);}catch(_){}
+  if(back&&Date.now()-back.t<120000){
+    try{history.scrollRestoration='manual'}catch(_){}
+    (async()=>{
+      for(let i=0;i<80&&!ppRemoteLoaded;i++)await sleep(100);
+      await sleep(300);
+      try{if(back.tab&&document.body.dataset.tab!==back.tab){tab=back.tab;render();}}catch(_){}
+      // keep nudging to the saved position while images/sections finish loading
+      const t0=Date.now();
+      while(Date.now()-t0<4000){
+        const max=document.documentElement.scrollHeight-innerHeight;
+        window.scrollTo(0,Math.min(back.y,Math.max(0,max)));
+        if(max>=back.y&&Math.abs((window.scrollY||0)-back.y)<3&&Date.now()-t0>1200)break;
+        await sleep(150);
+      }
+      try{if(back.pid){const p=state.products.find(x=>x.id===back.pid);if(p)detail(p);}}catch(_){}
+      try{note('✅ تم التحديث')}catch(_){}
+    })();
+  }
+})();}catch(e){}
 ppBoot();
 })();
 
