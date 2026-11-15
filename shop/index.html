@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V123';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V124';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1876,6 +1876,7 @@ function renderHomeSectionsBase71(){
  const content=state.settings.homeSections.filter(s=>s.visible!==false).map(s=>{
    const html=pp24SecHtml(s);
    if(easy)return `<div class="pp49-block" data-pp49-block="${esc(s.id)}">${html}<button class="pp49-pencil" type="button" data-pp49-edit="${esc(s.id)}">✏️ تعديل</button></div><button type="button" class="pp49-between" data-pp49-add-after="${esc(s.id)}">＋ إضافة قسم هنا</button>`;
+    if(!live&&!visibleAdmin()&&['products','new'].includes(s.type)&&/class="empty"/.test(html))return ''; // V124: no empty boxes for customers
     if(!live)return (visibleAdmin()?'<i hidden class="pp122-mk" data-sec="'+esc(s.id)+'" data-mem="'+esc((s._members||[s.id]).join(','))+'"></i>':'')+html;
    const title=pp24Types()[s.type]?.name||'قسم';
    return `<div class="pp-live-frame ${s.id===ppLiveSelectedId?'pp-live-selected':''}" data-live-id="${esc(s.id)}" style="--live-width:${pp34SectionWidth(s)};"><button type="button" class="pp-live-grip" data-live-grip="${esc(s.id)}" aria-label="اضغط مطولاً واسحب القسم بإصبعك">☷ امسك واسحب · ${esc(title)}</button>${html}</div>`;
@@ -7114,8 +7115,9 @@ try{(function(){
           else{const g=document.createElement('div');g.className='pp122-grid';g.style.setProperty('--c',String(Math.max(1,Math.min(4,cols))));slots.forEach(([t,d])=>g.appendChild(slotEl(t,d,h)));unit.dataset.pp122Hid='1';unit.style.display='none';unit.after(g);}
         }
         if(cards.length||slots.length)lastProd={unit:unit.dataset.pp122Hid?unit.nextElementSibling:unit,after:mem[mem.length-1].id};
-        if(mem.length===1&&first.pp122Added&&!cards.length&&slots.length){/* empty added row: its cells have ✕ ; also whole-row delete */const g=unit.nextElementSibling;if(g&&g.classList.contains('pp122-grid')){g.classList.add('pp122-host');const b=document.createElement('button');b.type='button';b.className='pp122-del';b.dataset.sec=first.id;b.textContent='🗑 احذف السطر';g.appendChild(b);}}
-      }else if(first.pp122Added){unit.classList.add('pp122-host');const b=document.createElement('button');b.type='button';b.className='pp122-del';b.dataset.sec=first.id;b.textContent='🗑 احذف';unit.appendChild(b);}
+        if(mem.length===1&&!cards.length&&!slots.length){unit.classList.add('pp122-host');const b=document.createElement('button');b.type='button';b.className='pp122-del';b.dataset.sec=first.id;b.textContent='🗑 احذف السطر';unit.appendChild(b);}
+        if(mem.length===1&&!cards.length&&slots.length){/* empty added row: its cells have ✕ ; also whole-row delete */const g=unit.nextElementSibling;if(g&&g.classList.contains('pp122-grid')){g.classList.add('pp122-host');const b=document.createElement('button');b.type='button';b.className='pp122-del';b.dataset.sec=first.id;b.textContent='🗑 احذف السطر';g.appendChild(b);}}
+      }else{unit.classList.add('pp122-host');const b=document.createElement('button');b.type='button';b.className='pp122-del';b.dataset.sec=first.id;b.textContent='🗑 احذف';unit.appendChild(b);}
     }
     const bar=document.createElement('button');bar.type='button';bar.className='pp122-addbar';bar.dataset.after=lastProd?lastProd.after:'';bar.innerHTML='＋ إضافة تحت<small>منتجات · سلايدر متحرك · صورة بالعرض</small>';
     if(lastProd)lastProd.unit.after(bar);else home.appendChild(bar);
