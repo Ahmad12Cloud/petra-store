@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V126';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V127';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -6558,12 +6558,18 @@ body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:non
   /* ---- shared drag state ---- */
   const mkPh=(txt,cls)=>{const d=document.createElement('div');d.className='pp113-ph'+(cls?' '+cls:'');d.textContent=txt;return d;};
   function pill(text,y){const p=document.createElement('div');p.className='pp113-pill';p.textContent=text;p.style.top=Math.max(10,y-70)+'px';document.body.appendChild(p);return p;}
-  function scrollBy(dy){if(drag.scroller===window)window.scrollBy(0,dy);else drag.scroller.scrollTop+=dy;}
+  /* V127: instant scroll (page has smooth scrolling, which made drag auto-scroll crawl) */
+  function scrollBy(dy){if(drag.scroller===window)window.scrollBy({top:dy,left:0,behavior:'instant'});else drag.scroller.scrollTop+=dy;}
   function loop(){
     if(!drag)return;
-    const y=drag.y,h=window.innerHeight;let v=0;
-    if(y<110)v=-Math.min(18,(110-y)/5+3);else if(y>h-130)v=Math.min(18,(y-(h-130))/5+3);
-    if(v){scrollBy(v);place();}
+    /* V127: bigger edge zones + speeds up the longer the finger stays at the edge (whole store reachable) */
+    const y=drag.y,h=window.innerHeight,now=performance.now(),dt=Math.min(50,now-(drag.lt||now));drag.lt=now;
+    const top=Math.min(190,h*.24),bot=Math.min(190,h*.24);let dir=0,depth=0;
+    if(y<top){dir=-1;depth=(top-y)/top;}else if(y>h-bot){dir=1;depth=(y-(h-bot))/bot;}
+    if(dir){if(drag.edgeDir!==dir){drag.edgeDir=dir;drag.edgeT=now;}
+      const held=Math.min(1,(now-drag.edgeT)/1500),pps=250+Math.min(1,depth)*900+held*1400;
+      scrollBy(dir*pps*dt/1000);place();
+    }else drag.edgeDir=0;
     drag.raf=requestAnimationFrame(loop);
   }
   function begin(e,o){
