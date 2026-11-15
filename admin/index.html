@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V119';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V120';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1799,6 +1799,7 @@ function pp24Products(sec){
  for(const row of previous){
   if(row.id===sec.id)break;
   if(row.visible===false||!['products','new'].includes(row.type))continue;
+  if(row.pp49Manual&&!(Array.isArray(row.productIds)&&row.productIds.length))continue; // V120: an empty hand-picked row shows nothing, so it must not reserve new products
   const pool=available(row);
   const chosen=Array.isArray(row.productIds)&&row.productIds.length
    ?row.productIds.map(id=>pool.find(p=>p.id===id)).filter(Boolean).slice(0,count(row))
