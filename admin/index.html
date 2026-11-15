@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V120';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V121';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1714,7 +1714,7 @@ function ppBindBuilderDrag(){
 const normalizeSearch=(s)=>pp87Pre(clean(s)).toLowerCase().normalize('NFKC').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[\u064B-\u065F\u0670]/g,'').replace(/[^\p{L}\p{N}]+/gu,' ');
 const searchable=(p)=>normalizeSearch([p.sku,p.productCode,p.barcode,p.nameAr,p.nameEn,p.category,p.brand,p.model,p.specs,p.descriptionAr,p.descriptionEn,(Array.isArray(p.sizes)?p.sizes.join(' '):'')].join(' '));
 const ALIASES={breaker:['breaker','mcb','mccb','قاطع','قواطع'],mcb:['mcb','قاطع','قواطع','breaker'],mccb:['mccb','قاطع','قواطع','breaker'],fuse:['fuse','fuses','فيوز','فيوزات'],inverter:['inverter','انفرتر','انفرترات'],battery:['battery','بطاريه','بطاريات'],قاطع:['قاطع','قواطع','mcb','mccb','breaker'],فيوز:['فيوز','فيوزات','fuse','fuses'],انفرتر:['انفرتر','انفرترات','inverter']};
-const list=()=>{const terms=normalizeSearch(q).split(' ').filter(Boolean);return state.products.filter(p=>p.active&&(!ppOnlyNew||ppIsNew(p))&&(!cat||p.category===cat)&&(!onlyStock||p.stock==null||p.stock>0)&&(!terms.length||terms.every(term=>(ALIASES[term]||[term]).some(alt=>searchable(p).includes(alt))))).sort((a,b)=>order==='az'?S(a.nameAr,a.nameEn).localeCompare(S(b.nameAr,b.nameEn),'ar'):order==='price-low'?(a.price??Infinity)-(b.price??Infinity):order==='price-high'?(b.price??-1)-(a.price??-1):order==='old'?(a.createdAt||0)-(b.createdAt||0):(b.createdAt||0)-(a.createdAt||0));};
+const list=()=>{const terms=normalizeSearch(q).split(' ').filter(Boolean);return state.products.filter(p=>(p.active||visibleAdmin())&&(!ppOnlyNew||ppIsNew(p))&&(!cat||p.category===cat)&&(!onlyStock||p.stock==null||p.stock>0)&&(!terms.length||terms.every(term=>(ALIASES[term]||[term]).some(alt=>searchable(p).includes(alt))))).sort((a,b)=>order==='az'?S(a.nameAr,a.nameEn).localeCompare(S(b.nameAr,b.nameEn),'ar'):order==='price-low'?(a.price??Infinity)-(b.price??Infinity):order==='price-high'?(b.price??-1)-(a.price??-1):order==='old'?(a.createdAt||0)-(b.createdAt||0):(b.createdAt||0)-(a.createdAt||0));};
 const allCategories=()=>[...new Set([...state.settings.categories,...state.products.map(p=>p.category)])].filter(Boolean);
 
 // 100% local product recommendations: never call an AI service and never add products to cart without a click.
@@ -1791,7 +1791,7 @@ function pp24Products(sec){
  if(sec?.pp49Manual && (!Array.isArray(sec.productIds)||sec.productIds.length===0))return [];
  // V48: automatic product rows consume the next as-yet-unshown products;
  // explicit productIds remain owner-selected and are never rewritten.
- const all=state.products.filter(p=>p.active!==false).slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+ const all=state.products.filter(p=>p.active!==false||visibleAdmin()).slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
  const count=p=>pp24Bound(p.count,1,200,8);
  const available=section=>all.filter(p=>!section.category||p.category===section.category);
  const used=new Set();
@@ -1887,7 +1887,7 @@ function pp24EditorInput(label,name,value,kind='text',opts={}){if(kind==='select
  if(kind==='textarea')return `<label class="pp24-wide">${esc(label)}<textarea data-pp24-field="${name}">${esc(value||'')}</textarea></label>`;
  return `<label class="${opts.wide?'pp24-wide':''}">${esc(label)}<input data-pp24-field="${name}" type="${kind}" ${kind==='number'?`min="${opts.min??0}" max="${opts.max??5000}" step="1"`:''} value="${esc(value??'')}"></label>`;}
 
-function pp26ProductChoices(sec,search){const term=normalizeSearch(search||'');let items=state.products.filter(p=>p.active!==false);
+function pp26ProductChoices(sec,search){const term=normalizeSearch(search||'');let items=state.products.filter(p=>p.active!==false||visibleAdmin());
  if(term)items=items.filter(p=>searchable(p).includes(term));
  else items=[...items.filter(p=>sec.productIds?.includes(p.id)),...items.filter(p=>!sec.productIds?.includes(p.id))];
  return items.slice(0,40).map(p=>`<label><input type="checkbox" data-pp24-product="${esc(p.id)}" ${sec.productIds.includes(p.id)?'checked':''}>${p.images?.length?`<img src="${safeImg(p.images[0])}" alt="" loading="lazy">`:''}<span>${esc(p.nameAr||p.nameEn)} <small>— ${esc(p.sku||'')}</small></span></label>`).join('')||'<div class="muted">ما في منتجات مطابقة</div>';
@@ -1968,7 +1968,7 @@ function searchProductsSmart(userText){
   if(found){concepts.push(options);for(const x of options)if((' '+query+' ').includes(' '+x+' '))for(const word of x.split(' '))remaining.delete(word)}
  }
  const words=[...remaining];const results=[];
- for(const p of state.products){if(!p.active)continue;const hay=searchable(p);const title=normalizeSearch([p.nameAr,p.nameEn,p.model,p.sku].join(' '));let hits=0;let score=0;
+ for(const p of state.products){if(!p.active&&!visibleAdmin())continue;const hay=searchable(p);const title=normalizeSearch([p.nameAr,p.nameEn,p.model,p.sku].join(' '));let hits=0;let score=0;
   for(const opts of concepts){if(opts.some(k=>k&&(' '+hay+' ').includes(' '+k+' '))){hits++;score+=8}else if(opts.some(k=>k&&hay.includes(k))){hits++;score+=6}}
   for(const word of words){if(hay.includes(word)){hits++;score+=title.includes(word)?5:2}}
   if(query&&title.includes(query))score+=16;
@@ -2341,7 +2341,7 @@ async function saveProduct(){
  cardBg:fd.has('customCardBg')?safeColor(fd.get('cardBg'),safeColor(state.settings.productCardBg,'#ffffff')):'',
  pp45RowCols:Math.round(pp35Limit(fd.get('pp45RowCols'),0,5,0)),
  pp35:pp35Collect(fd),relatedIds:[...formRelatedIds].filter(id=>id!==editId),active:fd.has('active'),visibility};
- if(old)state.products[state.products.indexOf(old)]=p;else state.products.unshift(p);
+ if(old)state.products[state.products.indexOf(old)]=p;else{state.products.unshift(p);if(!pp49PendingProduct)pp121Place(p);}
  if(mode==='auto'){state.settings.pp49ActivePrefix=prefix;state.settings.pp49Sequences=state.settings.pp49Sequences||{};const m=productCode.slice(prefix.length).match(/^\d+$/);if(m)state.settings.pp49Sequences[prefix]=Math.max(Number(state.settings.pp49Sequences[prefix])||0,Number(m[0]));}
  if(pp49PendingProduct){const target=state.settings.homeSections.find(s=>s.id===pp49PendingProduct.sectionId);if(target){if(pp49PendingProduct.kind==='product'){target.productIds=Array.isArray(target.productIds)?target.productIds:[];if(!target.productIds.includes(p.id))target.productIds.push(p.id);}else if(target.type==='showcase'){const j=pp49PendingProduct.index;target.pp49SlideMeta=Array.isArray(target.pp49SlideMeta)?target.pp49SlideMeta:[];target.pp49SlideMeta[j]={...(target.pp49SlideMeta[j]||{}),productId:p.id};target.pp46Slides=Array.isArray(target.pp46Slides)?target.pp46Slides:[];target.pp46Slides[j]=target.pp46Slides[j]||safeImg(p.images?.[0])||'';}}pp49PendingProduct=null;}
  if(p.category&&!state.settings.categories.includes(p.category))state.settings.categories.push(p.category);
@@ -3996,7 +3996,7 @@ function pp49OpenBlockBase66(id){
 }
 function pp49ProductSearch(target,term=''){
  const holder=document.querySelector(`[data-pp49-picker-target="${target}"]`);if(!holder)return;
- const needle=normalizeSearch(term);const matches=state.products.filter(p=>p.active!==false&&(!needle||searchable(p).includes(needle))).slice(0,35);
+ const needle=normalizeSearch(term);const matches=state.products.filter(p=>(p.active!==false||visibleAdmin())&&(!needle||searchable(p).includes(needle))).slice(0,35);
  holder.innerHTML=`<div class="pp49-product-picker"><input class="field" data-pp49-search="${target}" placeholder="ابحث بالاسم أو كود المنتج" value="${esc(term)}" autofocus><div class="pp49-pick-list">${matches.map(p=>`<button data-pp49-link="${target}" data-pp49-product-id="${esc(p.id)}"><b>${esc(p.nameAr||p.nameEn)}</b><small dir="ltr">${esc(p.productCode||p.sku)} · ${money(p.price,p.currency)}</small></button>`).join('')||'<span>لا توجد نتائج</span>'}</div></div>`;
  holder.querySelector('input')?.focus();
 }
@@ -4123,7 +4123,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-action="pp
 document.addEventListener('input',e=>{
  const inp=e.target.closest('[data-pp49-search]');if(!inp)return;
  const parent=inp.closest('.pp49-product-picker'),needle=normalizeSearch(inp.value);
- const matches=state.products.filter(p=>p.active!==false&&(!needle||searchable(p).includes(needle))).slice(0,35);
+ const matches=state.products.filter(p=>(p.active!==false||visibleAdmin())&&(!needle||searchable(p).includes(needle))).slice(0,35);
  const target=inp.dataset.pp49Search;
  const list=parent?.querySelector('.pp49-pick-list');if(!list)return;
  list.innerHTML=matches.map(p=>`<button data-pp49-link="${target}" data-pp49-product-id="${esc(p.id)}"><b>${esc(p.nameAr||p.nameEn)}</b><small>${esc(p.productCode||p.sku)} · ${money(p.price,p.currency)}</small></button>`).join('')||'<span>لا توجد نتائج</span>';
@@ -6472,7 +6472,7 @@ new MutationObserver(()=>{try{
     const s=secOf(sec);if(!s){o.remove();return;}
     const inSec=new Set((s.productIds||[]).filter(Boolean));
     const t=term.trim().toLowerCase();
-    const list=state.products.filter(p=>p.active!==false&&!inSec.has(p.id)&&(!t||[p.nameAr,p.nameEn,p.productCode,p.sku,p.category].join(' ').toLowerCase().includes(t)))
+    const list=state.products.filter(p=>(p.active!==false||visibleAdmin())&&!inSec.has(p.id)&&(!t||[p.nameAr,p.nameEn,p.productCode,p.sku,p.category].join(' ').toLowerCase().includes(t)))
       .sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0)).slice(0,60);
     const rows=list.map(p=>{const im=pic(p),isNew=(()=>{try{return ppIsNew(p)}catch(_){return false}})();
       return '<button type="button" class="rw" data-p112="pick" data-id="'+esc(p.id)+'"><span class="th" '+(im?'style="background-image:url(\''+esc(im)+'\')"':'')+'></span><span>'+esc(p.nameAr||p.nameEn||'—')+(isNew?'<span class="nw">جديد</span>':'')+'<span class="pr">'+esc(money(p.price,p.currency))+'</span></span><span class="ck">'+(sel.has(p.id)?'●':'○')+'</span></button>';}).join('');
@@ -6696,7 +6696,7 @@ body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:non
             const fa=ensure(from),ta=ensure(to);
             const i=fa.indexOf(d.pid);if(i>=0)fa.splice(i,1);
             let j=beforeId?ta.indexOf(beforeId):afterId?(ta.indexOf(afterId)<0?-1:ta.indexOf(afterId)+1):-1;
-            if(j<0){j=ta.length;while(j>0&&!state.products.some(p=>p.id===ta[j-1]&&p.active!==false))j--;/* after the last shown product */}
+            if(j<0){j=ta.length;while(j>0&&!state.products.some(p=>p.id===ta[j-1]&&(p.active!==false||visibleAdmin())))j--;/* after the last shown product */}
             ta.splice(j,0,d.pid);
             if(to!==from)to.count=Math.max(Number(to.count)||0,ta.filter(Boolean).length);
             if(JSON.stringify([from.productIds,to.productIds,from.pp49Manual,to.pp49Manual])!==snap){dirty=true;msg=to===from?'✅ تغيّر مكان المنتج — محفوظ تلقائياً':'✅ انتقل المنتج للسطر الجديد — محفوظ تلقائياً';}
@@ -7014,6 +7014,44 @@ body.pp117-open{padding-bottom:60vh}`;document.head.appendChild(st);
     catch(err){try{pp97Err('صورة خلفية الشريط',err)}catch(_){note('تعذّر رفع الصورة: '+(err&&err.message||err))}}
   },true);
 })();}catch(e){try{console.error('V117',e)}catch(_){}}
+
+/* V121: owner sees hidden products (marked) and switches them shown/hidden from the product page; new products join the end of the 2-per-row product flow */
+function pp121Place(p){
+  try{
+    const secs=state.settings.homeSections||[];if(!p||secs.some(s=>Array.isArray(s.productIds)&&s.productIds.includes(p.id)))return;
+    const real=id=>state.products.some(x=>x.id===id);
+    let tgt=null;for(const s of secs)if(s&&s.type==='products'&&s.visible!==false&&s.pp49Manual&&Array.isArray(s.productIds)&&s.productIds.some(real))tgt=s;
+    if(!tgt)return;
+    let j=tgt.productIds.length;while(j>0&&!real(tgt.productIds[j-1]))j--;
+    tgt.productIds.splice(j,0,p.id);tgt.count=Math.max(Number(tgt.count)||0,tgt.productIds.filter(Boolean).length);
+  }catch(e){}
+}
+try{(function(){
+  const st=document.createElement('style');st.textContent=`article.product.pp121-off{outline:3px dashed #7a4ad8;outline-offset:-3px}
+article.product.pp121-off .photo img{opacity:.55}
+.pp121-tag{position:absolute;top:6px;left:50%;transform:translateX(-50%);z-index:16;background:#7a4ad8;color:#fff;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap;box-shadow:0 1px 4px #0004;pointer-events:none}
+.pp121-vis{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px;padding:10px;border-radius:14px;border:2px solid #7a4ad8;background:#f6f1ff;font-weight:800;font-size:13.5px;color:#3a2470;direction:rtl}
+.pp121-vis.on{border-color:#2f9a4a;background:#eef8ee;color:#1d5c2e}
+.pp121-vis .sw{display:flex;border:1.5px solid #c9a24a;border-radius:10px;overflow:hidden;flex:none}
+.pp121-vis .sw button{border:0;padding:8px 12px;font:800 13px inherit;font-family:inherit;background:#fff;color:#2a1d0a}
+.pp121-vis .sw button.a{background:#000;color:#f6d790}`;document.head.appendChild(st);
+  const P=id=>state.products.find(x=>x.id===id);
+  function sync(){
+    const adm=visibleAdmin();
+    document.querySelectorAll('article.product[data-id]').forEach(a=>{const p=P(a.dataset.id),off=adm&&p&&p.active===false;a.classList.toggle('pp121-off',!!off);const ph=a.querySelector('.photo');let t=ph&&ph.querySelector(':scope > .pp121-tag');if(off&&ph&&!t){t=document.createElement('span');t.className='pp121-tag';t.textContent='🚫 مخفي عن الزبائن';ph.appendChild(t);}else if(!off&&t)t.remove();});
+    const own=document.getElementById('pp69-own');
+    if(own&&adm){const p=P(own.dataset.id);if(p){const on=p.active!==false;let v=own.querySelector(':scope > .pp121-vis');if(!v||v.dataset.on!==String(on)){if(!v){v=document.createElement('div');own.prepend(v);}v.className='pp121-vis'+(on?' on':'');v.dataset.on=String(on);v.innerHTML='<span>'+(on?'👁 المنتج ظاهر للزبائن':'🚫 المنتج مخفي عن الزبائن — إنت بس بتشوفه')+'</span><span class="sw"><button type="button" data-pp121-vis="1" class="'+(on?'a':'')+'">ظاهر</button><button type="button" data-pp121-vis="0" class="'+(on?'':'a')+'">مخفي</button></span>';}}}
+  }
+  let raf=0;const q=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;try{sync()}catch(e){}})};
+  new MutationObserver(q).observe(document.body,{childList:true,subtree:true});q();
+  document.addEventListener('click',async e=>{
+    const b=e.target.closest&&e.target.closest('[data-pp121-vis]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();
+    if(!visibleAdmin())return;const own=b.closest('#pp69-own'),p=own&&P(own.dataset.id);if(!p)return;
+    const on=b.dataset.pp121Vis==='1';if((p.active!==false)===on)return;
+    p.active=on;try{await changed();}catch(err){try{pp97Err('ظهور المنتج',err)}catch(_){}}
+    detail(p);note(on?'👁 صار المنتج ظاهر للزبائن':'🚫 صار المنتج مخفي عن الزبائن');
+  },true);
+})();}catch(e){try{console.error('V121',e)}catch(_){}}
 
 ppBoot();
 })();
