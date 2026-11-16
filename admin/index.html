@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V130';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V131';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -7581,6 +7581,19 @@ try{(function(){
     return Float32Array.from(out.emb.data);
   }
   const GAL=[[0,0,1,1],[0,.12,.62,.95],[.03,.18,.55,.9]],QRY=[[0,0,1,1],[.1,.1,.9,.9]];
+  /* V131: several crops in ONE model run (faster on phones) */
+  async function embedMany(img,rs){
+    const s=await session(),W=img.naturalWidth||img.width,H=img.naturalHeight||img.height,P=224*224,f=new Float32Array(rs.length*3*P);
+    rs.forEach((r,b)=>{const sx=r[0]*W,sy=r[1]*H,sw=(r[2]-r[0])*W,sh=(r[3]-r[1])*H,n=Math.max(sw,sh),k=224/n;
+      cx.fillStyle='#fff';cx.fillRect(0,0,224,224);cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality='high';cx.drawImage(img,sx,sy,sw,sh,(224-sw*k)/2,(224-sh*k)/2,sw*k,sh*k);
+      const d=cx.getImageData(0,0,224,224).data,o=b*3*P;for(let i=0;i<P;i++){f[o+i]=(d[i*4]/255-MEAN[0])/STD[0];f[o+P+i]=(d[i*4+1]/255-MEAN[1])/STD[1];f[o+2*P+i]=(d[i*4+2]/255-MEAN[2])/STD[2];}});
+    const out=(await s.run({pixel:new window.ort.Tensor('float32',f,[rs.length,3,224,224])})).emb.data;
+    return rs.map((_,b)=>Float32Array.from(out.subarray(b*512,(b+1)*512)));
+  }
+  /* V131: warm the AI + OCR in the background as soon as the add-product form opens (only if already downloaded once) */
+  let warmed=false;
+  async function warm(){if(warmed)return;warmed=true;try{const c=await caches.open(CACHE);if(!(await c.match(MODEL_URL))){warmed=false;return;}}catch(_){warmed=false;return;}
+    try{ocrWorker().catch(()=>{});await session();loadVecs().catch(()=>{});}catch(_){warmed=false;}}
 
   /* ---------- vectors of store products (computed once, saved on the server for owner/staff) ---------- */
   let vecMap=null;
@@ -7596,7 +7609,7 @@ try{(function(){
     let done=0,fail=0;const up=[];
     for(const p of todo){
       onp&&onp(done,todo.length);
-      try{const im=await imgFromUrl(p.images[0]);const vs=[];for(const g of GAL)vs.push(await embed(im,g));
+      try{const im=await imgFromUrl(p.images[0]);const vs=await embedMany(im,GAL);
         const row={product_id:p.id,img:imgKey(p.images[0]),model:MODEL_ID,vecs:packVecs(vs),updated_at:new Date().toISOString()};m.set(p.id,row);up.push(row);}
       catch(e){fail++;console.warn('V130 img',p.id,e);}
       done++;
@@ -7644,12 +7657,13 @@ try{(function(){
       '<div class="tip">💡 صوّر واجهة القطعة كاملة، والملصق قريب وواضح حتى ينقرا الموديل</div>');
     box.querySelectorAll('input[data-p130="file"]').forEach(i=>i.addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)run(f);}));
   }
-  const step=(id,cls,txt,em)=>'<div class="st '+cls+'" id="pp130-'+id+'"><span class="s">'+(cls==='ok'?'✓':cls==='bad'?'!':cls==='run'?'…':'•')+'</span>'+txt+(em!=null?'<em>'+esc(String(em))+'</em>':'')+'</div>';
+  let T0=0;const secs=()=>((performance.now()-T0)/1000).toFixed(1)+'ث';
+  const step=(id,cls,txt,em)=>'<div class="st '+cls+'" id="pp130-'+id+'"><span class="s">'+(cls==='ok'?'✓':cls==='bad'?'!':cls==='run'?'…':'•')+'</span>'+txt+(em!=null||cls==='ok'?'<em>'+esc(String(em||''))+(cls==='ok'?' ⏱'+secs():'')+'</em>':'')+'</div>';
   function setStep(id,cls,txt,em){const el=box&&box.querySelector('#pp130-'+id);if(el)el.outerHTML=step(id,cls,txt,em);}
   const pct=s=>Math.round(Math.max(0,Math.min(1,(s-0.45)/0.45))*100);
   const nameOf=p=>p.nameAr||p.nameEn||p.productCode||'منتج';
   async function run(file){
-    curFile=file;if(curUrl)URL.revokeObjectURL(curUrl);curUrl=URL.createObjectURL(file);
+    curFile=file;if(curUrl)URL.revokeObjectURL(curUrl);curUrl=URL.createObjectURL(file);T0=performance.now();fastShown=false;
     open(HD('🔍 عم بفحص الصورة…')+'<div class="shot"><img src="'+curUrl+'" alt=""></div>'+
       step('ai','run','تجهيز الذكاء الاصطناعي','')+step('ocr','','قراءة الموديل عن الملصق')+step('gal','','تحليل صور منتجاتك')+step('cmp','','مقارنة شكل القطعة'));
     const errs=[];let img;
@@ -7657,7 +7671,10 @@ try{(function(){
     // OCR in parallel with model download
     const ocrP=(async()=>{setStep('ocr','run','قراءة الموديل عن الملصق','');
       const w=await ocrWorker();const c=document.createElement('canvas'),W=img.naturalWidth,H=img.naturalHeight,k=Math.min(1,1800/Math.max(W,H));c.width=Math.round(W*k);c.height=Math.round(H*k);c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-      const r=await w.recognize(c);const toks=tokensFrom(r.data.text);setStep('ocr','ok','قراءة الموديل عن الملصق',toks.length?toks.slice(0,3).join(' · '):'ما في كتابة واضحة');return toks;})().catch(e=>{errs.push('قراءة الكتابة: '+(e.message||e));setStep('ocr','bad','قراءة الموديل ما زبطت','');return [];});
+      const r=await w.recognize(c);const toks=tokensFrom(r.data.text);setStep('ocr','ok','قراءة الموديل عن الملصق',toks.length?toks.slice(0,3).join(' · '):'ما في كتابة واضحة');
+      /* V131 fast path: model text found → show the answer right away, shape comparison keeps going underneath */
+      const om0=ocrMatch(toks);if(om0.size&&box&&!box.querySelector('.found')){const res0=[...om0].map(([id,m])=>{const p=state.products.find(x=>x.id===id);return p&&{p,s:0,m,score:1};}).filter(Boolean);if(res0.length){fastShown=true;show(res0,toks,[],false,true);}}
+      return toks;})().catch(e=>{errs.push('قراءة الكتابة: '+(e.message||e));setStep('ocr','bad','قراءة الموديل ما زبطت','');return [];});
     let qv=[],sims=new Map(),aiOk=false;
     try{
       let first=true;await session(p=>{if(first&&p<99)setStep('ai','run','تنزيل الذكاء الاصطناعي (أول مرة بس)',p+'%');});
@@ -7666,16 +7683,18 @@ try{(function(){
       const g=await ensureVecs((d,n)=>{if(n)setStep('gal','run','تحليل صور منتجاتك',d+' / '+n);});
       setStep('gal',g.fail?'bad':'ok',g.fresh?'تحليل صور منتجاتك':'صور منتجاتك محلّلة',g.fail?(g.fail+' صورة ما انفتحت'):(g.total+' منتج'));
       setStep('cmp','run','مقارنة شكل القطعة','');
-      for(const r of QRY)qv.push(await embed(img,r));
+      qv=await embedMany(img,QRY);
       for(const p of storeProducts()){const row=vecMap&&vecMap.get(p.id);if(!row)continue;let best=-1;for(const a of unpackVecs(row.vecs))for(const b of qv)best=Math.max(best,dot(a,b));sims.set(p.id,best);}
       setStep('cmp','ok','مقارنة شكل القطعة','');aiOk=true;
     }catch(e){errs.push('الذكاء الاصطناعي: '+(e.message||e));setStep('ai','bad','الذكاء الاصطناعي ما اشتغل','');}
     const toks=await ocrP,om=ocrMatch(toks);
     const ids=new Set([...sims.keys(),...om.keys()]);
     const res=[...ids].map(id=>{const p=state.products.find(x=>x.id===id);const s=sims.has(id)?sims.get(id):0,m=om.get(id)||null;return p&&{p,s,m,score:s+(m?0.3:0)};}).filter(Boolean).sort((a,b)=>b.score-a.score);
+    if(fastShown&&(!box||!box.querySelector('.found')))return; // owner already moved on
     show(res,toks,errs,aiOk);
   }
-  function show(res,toks,errs,aiOk){
+  let fastShown=false;
+  function show(res,toks,errs,aiOk,pending){
     const top=res[0],rest=res.slice(1,6);let cls='none',title='🆕 ما لقيت منتج متله عندك';
     if(top&&top.m){cls='';title='✅ هيدا المنتج موجود عندك';}
     else if(top&&top.s>=0.80){cls='';title='✅ على الأغلب موجود عندك — تأكد بعينك';}
@@ -7684,7 +7703,7 @@ try{(function(){
     if(top&&cls!=='none'){
       const pi=(top.p.images||[])[0]||'';
       h+='<div class="found '+cls+'"><div class="t">'+title+'</div><div class="cmp"><figure><img src="'+curUrl+'"><figcaption>صورتك</figcaption></figure><span class="vs">⇄</span><figure><img src="'+esc(pi)+'"><figcaption>'+esc(top.p.productCode||top.p.sku||'')+' بالمتجر</figcaption></figure></div>'+
-        '<div class="nm">'+esc(nameOf(top.p))+'</div><div class="chips">'+(top.m?'<span class="chip">✓ الموديل مطابق: '+esc(top.m.join(' · '))+'</span>':'')+(aiOk&&top.s>0?'<span class="chip'+(top.s<0.66?' g':'')+'">تشابه الشكل '+pct(top.s)+'%</span>':'')+(top.p.active===false?'<span class="chip g">🚫 مخفي عن الزبائن</span>':'')+'</div>'+
+        '<div class="nm">'+esc(nameOf(top.p))+'</div><div class="chips">'+(top.m?'<span class="chip">✓ الموديل مطابق: '+esc(top.m.join(' · '))+'</span>':'')+(aiOk&&top.s>0?'<span class="chip'+(top.s<0.66?' g':'')+'">تشابه الشكل '+pct(top.s)+'%</span>':'')+(top.p.active===false?'<span class="chip g">🚫 مخفي عن الزبائن</span>':'')+(pending?'<span class="chip g">⏳ عم كمّل مقارنة الشكل…</span>':'<span class="chip g">⏱ '+secs()+'</span>')+'</div>'+
         '<div class="btns"><button type="button" class="b1" data-p130="open" data-id="'+esc(top.p.id)+'">✎ افتح المنتج</button><button type="button" class="b2" data-p130="close">مش هو – كمّل</button></div></div>';
     }else h+='<div class="found none"><div class="t">'+title+'</div><div class="cmp"><figure><img src="'+curUrl+'"><figcaption>صورتك</figcaption></figure></div>'+(toks.length?'<div class="chips" style="margin-top:8px"><span class="chip g">الكتابة اللي انقرت: '+esc(toks.slice(0,4).join(' · '))+'</span></div>':'')+'</div>';
     const others=cls==='none'?res.slice(0,5):rest;
@@ -7708,6 +7727,7 @@ try{(function(){
     const b=document.createElement('button');b.type='button';b.id='pp130-btn';b.innerHTML='📷 فحص قبل الإضافة<small>تأكد إذا المنتج موجود عندك — بالصورة والذكاء الاصطناعي</small>';
     b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();pick();});
     f.insertBefore(b,f.firstChild);
+    setTimeout(warm,600);
   }
   new MutationObserver(inject).observe(document.body,{childList:true,subtree:true});
   window.pp130={pick,run,ensureVecs,tokensFrom,ocrMatch,_dbg:()=>({vecs:vecMap&&vecMap.size,BASE})};
