@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V133';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V134';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -4403,6 +4403,23 @@ async function pp107Merge(rows){
     });
   }catch(e){return rows;}
 }
+/* V134: product codes follow the home-page order — top to bottom, each row left to right (PP-0001, PP-0002…). Recomputed before every save, so moving or deleting a product renumbers the rest automatically; the SKU stays the internal stable id. */
+function pp134Renumber(){
+  if(!MANAGER||!ownerUnlocked||pp123Staff)return false;
+  if(document.body.classList.contains('pp113-on'))return false;
+  const cards=[...document.querySelectorAll('.pp24-home article.product[data-id]')].filter(c=>c.offsetParent!==null);
+  const real=state.products.filter(p=>p&&!p.demoOnly);
+  if(!real.length||cards.length<Math.ceil(real.length*0.6))return false;
+  const pos=cards.map(c=>{const r=c.getBoundingClientRect();return {id:c.dataset.id,y:Math.round((r.top+window.scrollY)/12),x:r.left};});
+  pos.sort((a,b)=>a.y-b.y||a.x-b.x);
+  const order=[],seen=new Set();
+  for(const q of pos)if(!seen.has(q.id)){const pr=real.find(p=>p.id===q.id);if(pr){seen.add(q.id);order.push(pr);}}
+  real.filter(p=>!seen.has(p.id)).sort((a,b)=>(Number(a.createdAt)||0)-(Number(b.createdAt)||0)).forEach(p=>order.push(p));
+  const prefix='PP-';let n=0,ch=0;
+  order.forEach(p=>{n++;const c=prefix+String(n).padStart(4,'0');if(p.productCode!==c){p.productCode=c;ch++;}if(!p.sku)p.sku=c;p.pp49CodeMode='auto';p.pp49CodePrefix=prefix;});
+  state.settings.pp49Sequences=state.settings.pp49Sequences||{};state.settings.pp49Sequences[prefix]=n;
+  return ch>0;
+}
 async function ppPush(){
   if(!MANAGER||!ownerUnlocked||!ppSession||!ppRemoteLoaded)return;
   if(ppPushing){ppPushAgain=true;return;}
@@ -4410,6 +4427,7 @@ async function ppPush(){
   try{
     await ppEnsureToken();
     if(pp123Staff){await pp123Submit();return;}
+    try{pp134Renumber()}catch(e){try{console.error('V134',e)}catch(_){}}
     await ppUploadDeep(state.settings,'site');
     for(const p of state.products)if(Array.isArray(p.images)&&p.images.some(ppIsDataImg))await ppUploadDeep(p.images,'products/'+String(p.id).replace(/[^\w-]/g,''));
     for(const p of state.products)if(Array.isArray(p.blocks)&&JSON.stringify(p.blocks).includes('data:image'))await ppUploadDeep(p.blocks,'products/'+String(p.id).replace(/[^\w-]/g,''));
