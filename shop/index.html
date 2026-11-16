@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V135';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V136';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -7526,7 +7526,7 @@ try{(function(){
   }
   let raf=0;new MutationObserver(()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;try{badge()}catch(_){}})}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
   /* 2) search by code (owner) */
-  const isCode=v=>/^\s*pp[\s-]?\d{1,6}\s*$/i.test(v)||/^\s*\d{4}\s*$/.test(v);
+  const isCode=v=>/^\s*p\s*p\s*[-_.\s]*\d{1,6}\s*$/i.test(String(v||''))||/^\s*\d{4}\s*$/.test(String(v||''));
   const pill=t=>{let e=document.getElementById('pp135-pill');if(!e){e=document.createElement('div');e.id='pp135-pill';document.body.appendChild(e);}e.textContent=t;clearTimeout(e._t);e._t=setTimeout(()=>e.remove(),5000);};
   async function jump(val){
     const n=num(val);const p=state.products.find(q=>num(q.productCode||q.sku)===n&&/^pp/i.test(q.productCode||q.sku||''));
@@ -7540,6 +7540,7 @@ try{(function(){
     card.scrollIntoView({block:'center'});card.classList.add('pp135-hit');setTimeout(()=>card.classList.remove('pp135-hit'),3500);
     pill('📍 '+p.productCode+(prev?' · السابق '+prev.productCode:'')+(next?' · التالي '+next.productCode:''));
   }
+  try{const orig=doSmartSearch;doSmartSearch=function(v){if(adm()&&isCode(v))return jump(v);return orig.apply(this,arguments);};}catch(_){}
   document.addEventListener('keydown',e=>{const t=e.target;if(!t||t.id!=='v12-search-input'||e.key!=='Enter')return;if(!adm()||!isCode(t.value))return;e.preventDefault();e.stopImmediatePropagation();jump(t.value);},true);
   document.addEventListener('click',e=>{const t=e.target&&e.target.closest&&e.target.closest('[data-action="search-go"]');if(!t)return;const inp=document.getElementById('v12-search-input');if(!inp||!adm()||!isCode(inp.value))return;e.preventDefault();e.stopImmediatePropagation();jump(inp.value);},true);
 })();}catch(e){try{console.error('V135',e)}catch(_){}}
