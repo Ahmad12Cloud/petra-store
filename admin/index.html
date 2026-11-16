@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V129';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V130';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -7495,6 +7495,223 @@ try{(function(){
   new MutationObserver(sync).observe(document.body,{childList:true,subtree:true,characterData:true});
   sync();setInterval(sync,1000);
 })();}catch(e){}
+/* V130: «📷 فحص قبل الإضافة» — owner/staff photo or gallery image → reads the model on the label (OCR, Tesseract) + compares the product's front shape with every store product image (AI, OpenCLIP ViT-B/16, on-device) → shows if it already exists or the closest options. Everything runs on the phone, files self-hosted in /vendor (free). */
+try{(function(){
+  const BASE=(()=>{const p=location.pathname,i=p.search(/\/(admin|shop)\//);return (i>=0?p.slice(0,i):p.replace(/\/[^/]*$/,''))+'/vendor/';})();
+  const MODEL_URL=BASE+'clip/v16-q8.onnx',MODEL_ID='oclip-b16-l400m-q8-v1',CACHE='pp130-v1';
+  const MEAN=[0.48145466,0.4578275,0.40821073],STD=[0.26862954,0.26130258,0.27577711];
+  const st=document.createElement('style');st.textContent=`
+#pp130-btn{display:block;width:100%;margin:0 0 12px;border-radius:16px;padding:13px;background:linear-gradient(135deg,#f7cf6f,#d4a531);color:#2b1d05;font:900 16px/1.2 inherit;font-family:inherit;text-align:center;box-shadow:0 6px 18px #d4a53155;border:2px solid #b8871f;cursor:pointer}
+#pp130-btn small{display:block;font-weight:600;font-size:12px;margin-top:4px;color:#5a3f0b}
+#pp130{position:fixed;inset:0;z-index:2147483640;background:#0008;display:flex;align-items:flex-end;justify-content:center;direction:rtl;font-family:inherit}
+#pp130 .bx{width:100%;max-width:560px;max-height:92vh;overflow:auto;background:#fbf8f2;border-radius:24px 24px 0 0;padding:14px 14px 22px;box-shadow:0 -8px 30px #0005}
+#pp130 .hd{display:flex;align-items:center;justify-content:space-between;font-weight:900;font-size:17px;color:#2b2016;margin-bottom:10px}
+#pp130 .x{border:0;background:#eee6d6;border-radius:12px;width:38px;height:38px;font-size:18px;cursor:pointer}
+#pp130 .opt{display:flex;align-items:center;gap:12px;border:2px solid #ead9b4;border-radius:16px;padding:13px;margin-bottom:10px;background:#fffaf0;width:100%;text-align:right;font-family:inherit;cursor:pointer}
+#pp130 .opt i{font-style:normal;font-size:28px;width:50px;height:50px;border-radius:14px;background:#f7cf6f;display:flex;align-items:center;justify-content:center;flex:none}
+#pp130 .opt b{font-size:16px;color:#2b2016;display:block}#pp130 .opt small{color:#7a6a50;font-size:12px}
+#pp130 .tip{font-size:12px;color:#7a6a50;text-align:center}
+#pp130 .shot{border-radius:16px;overflow:hidden;border:2px solid #e5dccb;background:#fff;max-height:280px;display:flex;justify-content:center}
+#pp130 .shot img{max-width:100%;max-height:276px;object-fit:contain}
+#pp130 .st{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #eee3cf;border-radius:12px;padding:10px 12px;margin-top:8px;font-weight:700;font-size:14px;color:#3a2d1c}
+#pp130 .st .s{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;background:#ccc;flex:none}
+#pp130 .st.ok .s{background:#22a35a}#pp130 .st.run .s{background:#d4a531}#pp130 .st.bad .s{background:#c0392b}
+#pp130 .st em{font-style:normal;margin-right:auto;font-weight:900;color:#17763f;direction:ltr;font-size:13px;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#pp130 .st.run em{color:#a07415}
+#pp130 .found{border:2.5px solid #22a35a;border-radius:18px;background:#f1fbf4;padding:10px}
+#pp130 .found.maybe{border-color:#d4a531;background:#fffaf0}#pp130 .found.none{border-color:#c9bda5;background:#fff}
+#pp130 .found .t{font-weight:900;color:#17763f;font-size:17px;margin:2px 4px 8px}#pp130 .found.maybe .t{color:#8a6410}#pp130 .found.none .t{color:#5a4a2c}
+#pp130 .cmp{display:flex;gap:8px;align-items:center}#pp130 .cmp figure{margin:0;flex:1;text-align:center}
+#pp130 .cmp img{width:100%;aspect-ratio:1;object-fit:contain;border-radius:12px;border:1.5px solid #ddd;background:#fff}
+#pp130 .cmp figcaption{font-size:11px;color:#55705e;margin-top:3px;font-weight:700}#pp130 .vs{font-weight:900;color:#17763f;font-size:18px}
+#pp130 .nm{font-weight:800;font-size:13.5px;color:#22301f;margin:8px 4px 6px;line-height:1.45}
+#pp130 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 4px 8px}#pp130 .chip{font-size:12px;font-weight:800;border-radius:999px;padding:4px 10px;background:#fff;border:1.5px solid #9fd4b3;color:#17763f}
+#pp130 .chip.g{border-color:#e2c27a;color:#8a6410}
+#pp130 .btns{display:flex;gap:8px}#pp130 .b1,#pp130 .b2{font-family:inherit;cursor:pointer;border-radius:12px;padding:11px 6px;font-size:14px;font-weight:900}
+#pp130 .b1{flex:1.2;background:#22a35a;color:#fff;border:0}#pp130 .b2{flex:1;background:#fff;border:1.5px solid #cdbf9f;color:#5a4a2c}
+#pp130 .sim{margin:12px 4px 4px;font-weight:900;color:#3a2d1c;font-size:14px}
+#pp130 .row{display:flex;align-items:center;gap:10px;margin-top:7px;background:#fff;border:1.5px solid #eee3cf;border-radius:14px;padding:7px;width:100%;font-family:inherit;text-align:right;cursor:pointer}
+#pp130 .row img{width:56px;height:56px;border-radius:10px;object-fit:contain;background:#fff;flex:none}
+#pp130 .row div{flex:1;font-size:12.5px;font-weight:700;color:#3a2d1c;line-height:1.4}#pp130 .row small{color:#8a7d68;font-weight:600}
+#pp130 .row .pct{font-weight:900;font-size:14px;color:#b0862a;direction:ltr}#pp130 .row .pct.m{color:#17763f}
+#pp130 .newbtn{display:block;width:100%;margin-top:12px;text-align:center;border:2px dashed #d4a531;border-radius:14px;padding:12px;font-weight:900;color:#7a5a12;background:#fffaf0;font-size:14px;font-family:inherit;cursor:pointer}
+#pp130 .err{color:#b0362b;font-size:12.5px;margin-top:8px;line-height:1.5;white-space:pre-wrap}`;
+  document.head.appendChild(st);
+
+  /* ---------- helpers ---------- */
+  const loaded={};
+  const loadScript=src=>loaded[src]||(loaded[src]=new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=()=>res();s.onerror=()=>{delete loaded[src];rej(Error('ما قدرت حمّل '+src.split('/').pop()))};document.head.appendChild(s);}));
+  const imgFromBlob=b=>new Promise((res,rej)=>{const u=URL.createObjectURL(b),i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(Error('الصورة ما انفتحت'));i.src=u;});
+  const imgFromUrl=src=>new Promise((res,rej)=>{const i=new Image();if(!/^data:|^blob:/.test(src))i.crossOrigin='anonymous';i.onload=()=>res(i);i.onerror=()=>rej(Error('صورة المنتج ما انفتحت'));i.src=src;});
+  function hashStr(s){let h=0;for(let i=0;i<s.length;i+=Math.max(1,Math.floor(s.length/4000)))h=(h*31+s.charCodeAt(i))|0;return (h>>>0).toString(36)+'_'+s.length;}
+  const imgKey=src=>/^data:/.test(src)?'data#'+hashStr(src):String(src);
+  const b64=u8=>{let s='';for(let i=0;i<u8.length;i+=8192)s+=String.fromCharCode.apply(null,u8.subarray(i,i+8192));return btoa(s);};
+  const unb64=s=>{const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;};
+  const packVecs=vs=>b64(new Uint8Array(Int8Array.from(vs.flatMap(v=>Array.from(v,x=>Math.max(-127,Math.min(127,Math.round(x*127)))))).buffer));
+  const unpackVecs=s=>{const i8=new Int8Array(unb64(s).buffer),out=[];for(let k=0;k+512<=i8.length;k+=512){const v=new Float32Array(512);let n=0;for(let j=0;j<512;j++){v[j]=i8[k+j]/127;n+=v[j]*v[j];}n=Math.sqrt(n)||1;for(let j=0;j<512;j++)v[j]/=n;out.push(v);}return out;};
+  const dot=(a,b)=>{let s=0;for(let i=0;i<a.length;i++)s+=a[i]*b[i];return s;};
+
+  /* ---------- AI model (OpenCLIP ViT-B/16, int8) ---------- */
+  let sessP=null;
+  async function modelBytes(onp){
+    let cache=null;try{cache=await caches.open(CACHE);const hit=await cache.match(MODEL_URL);if(hit)return await hit.arrayBuffer();}catch(_){}
+    const r=await fetch(MODEL_URL);if(!r.ok)throw Error('تنزيل النموذج فشل (HTTP '+r.status+')');
+    const total=Number(r.headers.get('content-length'))||87e6;let got=0;const parts=[];
+    if(r.body&&r.body.getReader){const rd=r.body.getReader();for(;;){const {done,value}=await rd.read();if(done)break;parts.push(value);got+=value.length;onp&&onp(Math.min(99,Math.round(got/total*100)));}}else parts.push(new Uint8Array(await r.arrayBuffer()));
+    const blob=new Blob(parts);try{cache&&await cache.put(MODEL_URL,new Response(blob,{headers:{'content-type':'application/octet-stream'}}));}catch(_){}
+    return await blob.arrayBuffer();
+  }
+  function session(onp){
+    return sessP||(sessP=(async()=>{
+      await loadScript(BASE+'ort/ort.wasm.min.js');const ort=window.ort;if(!ort)throw Error('مكتبة الذكاء الاصطناعي ما اشتغلت');
+      ort.env.wasm.wasmPaths=BASE+'ort/';ort.env.wasm.numThreads=1;
+      const bytes=await modelBytes(onp);
+      return await ort.InferenceSession.create(new Uint8Array(bytes),{executionProviders:['wasm'],graphOptimizationLevel:'all'});
+    })().catch(e=>{sessP=null;throw e;}));
+  }
+  const cv=document.createElement('canvas');cv.width=cv.height=224;const cx=cv.getContext('2d',{willReadFrequently:true});
+  async function embed(img,r){ // r = [x0,y0,x1,y1] fractions; pad to square on white, like the store posters
+    const s=await session(),W=img.naturalWidth||img.width,H=img.naturalHeight||img.height;
+    const sx=r[0]*W,sy=r[1]*H,sw=(r[2]-r[0])*W,sh=(r[3]-r[1])*H,n=Math.max(sw,sh),k=224/n;
+    cx.fillStyle='#fff';cx.fillRect(0,0,224,224);cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality='high';
+    cx.drawImage(img,sx,sy,sw,sh,(224-sw*k)/2,(224-sh*k)/2,sw*k,sh*k);
+    const d=cx.getImageData(0,0,224,224).data,f=new Float32Array(3*224*224),P=224*224;
+    for(let i=0;i<P;i++){f[i]=(d[i*4]/255-MEAN[0])/STD[0];f[P+i]=(d[i*4+1]/255-MEAN[1])/STD[1];f[2*P+i]=(d[i*4+2]/255-MEAN[2])/STD[2];}
+    const out=await s.run({pixel:new window.ort.Tensor('float32',f,[1,3,224,224])});
+    return Float32Array.from(out.emb.data);
+  }
+  const GAL=[[0,0,1,1],[0,.12,.62,.95],[.03,.18,.55,.9]],QRY=[[0,0,1,1],[.1,.1,.9,.9]];
+
+  /* ---------- vectors of store products (computed once, saved on the server for owner/staff) ---------- */
+  let vecMap=null;
+  async function loadVecs(){
+    if(vecMap)return vecMap;vecMap=new Map();
+    try{await ppEnsureToken();const r=await ppFetch('/rest/v1/product_vecs?select=product_id,img,model,vecs');for(const x of await r.json())vecMap.set(x.product_id,x);}catch(e){console.warn('V130 vecs',e);}
+    return vecMap;
+  }
+  const storeProducts=()=>state.products.filter(p=>p&&!p.demoOnly&&Array.isArray(p.images)&&p.images[0]);
+  async function ensureVecs(onp){
+    const m=await loadVecs(),list=storeProducts();
+    const todo=list.filter(p=>{const r=m.get(p.id);return !r||r.model!==MODEL_ID||r.img!==imgKey(p.images[0]);});
+    let done=0,fail=0;const up=[];
+    for(const p of todo){
+      onp&&onp(done,todo.length);
+      try{const im=await imgFromUrl(p.images[0]);const vs=[];for(const g of GAL)vs.push(await embed(im,g));
+        const row={product_id:p.id,img:imgKey(p.images[0]),model:MODEL_ID,vecs:packVecs(vs),updated_at:new Date().toISOString()};m.set(p.id,row);up.push(row);}
+      catch(e){fail++;console.warn('V130 img',p.id,e);}
+      done++;
+      if(up.length>=5||(done===todo.length&&up.length)){const b=up.splice(0);try{await ppEnsureToken();await ppFetch('/rest/v1/product_vecs?on_conflict=product_id',{method:'POST',headers:{'content-type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(b)});}catch(e){console.warn('V130 save',e);}}
+    }
+    onp&&onp(todo.length,todo.length);
+    return {total:list.length,fresh:todo.length,fail};
+  }
+
+  /* ---------- OCR (Tesseract, English model) ---------- */
+  let workerP=null;
+  function ocrWorker(){
+    return workerP||(workerP=(async()=>{await loadScript(BASE+'tess/tesseract.min.js');
+      return await window.Tesseract.createWorker('eng',1,{workerPath:BASE+'tess/worker.min.js',corePath:BASE+'tess/',langPath:BASE+'tess/',gzip:true});})().catch(e=>{workerP=null;throw e;}));
+  }
+  const GEN=[/^\d+(\.\d+)?(A|V|W|KW|HZ|KA|MA|UF|MM|VA|VAC|VDC|MIN|S|H|KWH|IP\d*)$/,/^(AC|DC)\d*[A-Z]?\d*V?$/,/^(AC|DC)\d+(\.\d+)?V$/,/^IP\d+$/,/^[A-Z]\d{1,3}$/,/^(IEC|EN|ISO|UL)\d*$/];
+  const norm=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  function tokensFrom(text){
+    const raw=(String(text||'').toUpperCase().match(/[A-Z0-9][A-Z0-9\-\/]{2,}/g)||[]);const out=new Set();
+    for(const t0 of raw){const t=t0.replace(/^[\-\/]+|[\-\/]+$/g,'');if(!/[A-Z]/.test(t)||!/\d/.test(t))continue;
+      const parts=t.split(/[\-\/]/).filter(Boolean);if(parts.every(x=>GEN.some(g=>g.test(x))))continue;
+      if((t.match(/[A-Z]/g)||[]).length<2&&!/-/.test(t))continue;const n=norm(t);if(n.length>=4)out.add(t);}
+    return [...out];
+  }
+  function lev1(a,b){if(Math.abs(a.length-b.length)>1)return false;let i=0,j=0,e=0;while(i<a.length&&j<b.length){if(a[i]===b[j]){i++;j++;continue;}if(++e>1)return false;if(a.length>b.length)i++;else if(b.length>a.length)j++;else{i++;j++;}}return e+(a.length-i)+(b.length-j)<=1;}
+  function ocrMatch(tokens){
+    const list=storeProducts().concat(state.products.filter(p=>p&&!p.demoOnly&&!(p.images||[])[0]));
+    const docs=list.map(p=>{const t=[p.nameEn,p.nameAr,p.descriptionEn,p.descriptionAr,p.productCode,p.sku,p.model].join(' ');return {p,n:norm(t),w:new Set((String(t).toUpperCase().match(/[A-Z0-9]+(?:-[A-Z0-9]+)*/g)||[]).map(norm))};});
+    const hit=new Map();
+    for(const t of tokens){const n=norm(t);let ms=docs.filter(d=>d.n.includes(n));
+      if(!ms.length&&n.length>=6)ms=docs.filter(d=>[...d.w].some(w=>w.length>=5&&lev1(w,n)));
+      if(ms.length&&ms.length<=8)for(const d of ms){const h=hit.get(d.p.id)||[];h.push(t);hit.set(d.p.id,h);}}
+    return hit;
+  }
+
+  /* ---------- UI ---------- */
+  let box=null,curFile=null,curUrl='';
+  function close(){if(box){box.remove();box=null;}if(curUrl){try{URL.revokeObjectURL(curUrl)}catch(_){}curUrl='';}}
+  function open(html){if(!box){box=document.createElement('div');box.id='pp130';box.addEventListener('click',onClick);document.body.appendChild(box);}box.innerHTML='<div class="bx">'+html+'</div>';}
+  const HD=t=>'<div class="hd"><span>'+t+'</span><button type="button" class="x" data-p130="close">✕</button></div>';
+  function pick(){
+    open(HD('فحص المنتج بالصورة')+
+      '<label class="opt"><i>📸</i><span><b>صوّر المنتج</b><small>افتح الكاميرا وصوّر واجهة القطعة</small></span><input type="file" accept="image/*" capture="environment" hidden data-p130="file"></label>'+
+      '<label class="opt"><i>🖼️</i><span><b>اختر صورة من الجهاز</b><small>من المعرض أو الملفات</small></span><input type="file" accept="image/*" hidden data-p130="file"></label>'+
+      '<div class="tip">💡 صوّر واجهة القطعة كاملة، والملصق قريب وواضح حتى ينقرا الموديل</div>');
+    box.querySelectorAll('input[data-p130="file"]').forEach(i=>i.addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)run(f);}));
+  }
+  const step=(id,cls,txt,em)=>'<div class="st '+cls+'" id="pp130-'+id+'"><span class="s">'+(cls==='ok'?'✓':cls==='bad'?'!':cls==='run'?'…':'•')+'</span>'+txt+(em!=null?'<em>'+esc(String(em))+'</em>':'')+'</div>';
+  function setStep(id,cls,txt,em){const el=box&&box.querySelector('#pp130-'+id);if(el)el.outerHTML=step(id,cls,txt,em);}
+  const pct=s=>Math.round(Math.max(0,Math.min(1,(s-0.45)/0.45))*100);
+  const nameOf=p=>p.nameAr||p.nameEn||p.productCode||'منتج';
+  async function run(file){
+    curFile=file;if(curUrl)URL.revokeObjectURL(curUrl);curUrl=URL.createObjectURL(file);
+    open(HD('🔍 عم بفحص الصورة…')+'<div class="shot"><img src="'+curUrl+'" alt=""></div>'+
+      step('ai','run','تجهيز الذكاء الاصطناعي','')+step('ocr','','قراءة الموديل عن الملصق')+step('gal','','تحليل صور منتجاتك')+step('cmp','','مقارنة شكل القطعة'));
+    const errs=[];let img;
+    try{img=await imgFromBlob(file);}catch(e){setStep('ai','bad','الصورة ما انفتحت',e.message);return;}
+    // OCR in parallel with model download
+    const ocrP=(async()=>{setStep('ocr','run','قراءة الموديل عن الملصق','');
+      const w=await ocrWorker();const c=document.createElement('canvas'),W=img.naturalWidth,H=img.naturalHeight,k=Math.min(1,1800/Math.max(W,H));c.width=Math.round(W*k);c.height=Math.round(H*k);c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      const r=await w.recognize(c);const toks=tokensFrom(r.data.text);setStep('ocr','ok','قراءة الموديل عن الملصق',toks.length?toks.slice(0,3).join(' · '):'ما في كتابة واضحة');return toks;})().catch(e=>{errs.push('قراءة الكتابة: '+(e.message||e));setStep('ocr','bad','قراءة الموديل ما زبطت','');return [];});
+    let qv=[],sims=new Map(),aiOk=false;
+    try{
+      let first=true;await session(p=>{if(first&&p<99)setStep('ai','run','تنزيل الذكاء الاصطناعي (أول مرة بس)',p+'%');});
+      setStep('ai','ok','الذكاء الاصطناعي جاهز','');
+      setStep('gal','run','تحليل صور منتجاتك','');
+      const g=await ensureVecs((d,n)=>{if(n)setStep('gal','run','تحليل صور منتجاتك',d+' / '+n);});
+      setStep('gal',g.fail?'bad':'ok',g.fresh?'تحليل صور منتجاتك':'صور منتجاتك محلّلة',g.fail?(g.fail+' صورة ما انفتحت'):(g.total+' منتج'));
+      setStep('cmp','run','مقارنة شكل القطعة','');
+      for(const r of QRY)qv.push(await embed(img,r));
+      for(const p of storeProducts()){const row=vecMap&&vecMap.get(p.id);if(!row)continue;let best=-1;for(const a of unpackVecs(row.vecs))for(const b of qv)best=Math.max(best,dot(a,b));sims.set(p.id,best);}
+      setStep('cmp','ok','مقارنة شكل القطعة','');aiOk=true;
+    }catch(e){errs.push('الذكاء الاصطناعي: '+(e.message||e));setStep('ai','bad','الذكاء الاصطناعي ما اشتغل','');}
+    const toks=await ocrP,om=ocrMatch(toks);
+    const ids=new Set([...sims.keys(),...om.keys()]);
+    const res=[...ids].map(id=>{const p=state.products.find(x=>x.id===id);const s=sims.has(id)?sims.get(id):0,m=om.get(id)||null;return p&&{p,s,m,score:s+(m?0.3:0)};}).filter(Boolean).sort((a,b)=>b.score-a.score);
+    show(res,toks,errs,aiOk);
+  }
+  function show(res,toks,errs,aiOk){
+    const top=res[0],rest=res.slice(1,6);let cls='none',title='🆕 ما لقيت منتج متله عندك';
+    if(top&&top.m){cls='';title='✅ هيدا المنتج موجود عندك';}
+    else if(top&&top.s>=0.80){cls='';title='✅ على الأغلب موجود عندك — تأكد بعينك';}
+    else if(top&&top.s>=0.66){cls='maybe';title='🤔 في منتج شبيه — تأكد بعينك';}
+    let h=HD('نتيجة الفحص');
+    if(top&&cls!=='none'){
+      const pi=(top.p.images||[])[0]||'';
+      h+='<div class="found '+cls+'"><div class="t">'+title+'</div><div class="cmp"><figure><img src="'+curUrl+'"><figcaption>صورتك</figcaption></figure><span class="vs">⇄</span><figure><img src="'+esc(pi)+'"><figcaption>'+esc(top.p.productCode||top.p.sku||'')+' بالمتجر</figcaption></figure></div>'+
+        '<div class="nm">'+esc(nameOf(top.p))+'</div><div class="chips">'+(top.m?'<span class="chip">✓ الموديل مطابق: '+esc(top.m.join(' · '))+'</span>':'')+(aiOk&&top.s>0?'<span class="chip'+(top.s<0.66?' g':'')+'">تشابه الشكل '+pct(top.s)+'%</span>':'')+(top.p.active===false?'<span class="chip g">🚫 مخفي عن الزبائن</span>':'')+'</div>'+
+        '<div class="btns"><button type="button" class="b1" data-p130="open" data-id="'+esc(top.p.id)+'">✎ افتح المنتج</button><button type="button" class="b2" data-p130="close">مش هو – كمّل</button></div></div>';
+    }else h+='<div class="found none"><div class="t">'+title+'</div><div class="cmp"><figure><img src="'+curUrl+'"><figcaption>صورتك</figcaption></figure></div>'+(toks.length?'<div class="chips" style="margin-top:8px"><span class="chip g">الكتابة اللي انقرت: '+esc(toks.slice(0,4).join(' · '))+'</span></div>':'')+'</div>';
+    const others=cls==='none'?res.slice(0,5):rest;
+    if(others.length)h+='<div class="sim">'+(cls==='none'?'أقرب المنتجات عندك (للتأكد):':'منتجات شبيهة:')+'</div>'+others.map(r=>'<button type="button" class="row" data-p130="open" data-id="'+esc(r.p.id)+'"><img src="'+esc((r.p.images||[])[0]||'')+'" alt=""><div>'+esc(nameOf(r.p))+'<br><small>'+esc(r.p.productCode||r.p.sku||'')+(r.m?' · ✓ الموديل مطابق':'')+(r.p.active===false?' · مخفي':'')+'</small></div><span class="pct'+(r.m?' m':'')+'">'+(aiOk&&r.s>0?pct(r.s)+'%':'✓')+'</span></button>').join('');
+    h+='<button type="button" class="newbtn" data-p130="new">🆕 مش موجود؟ كمّل إضافة منتج جديد بهالصورة</button>';
+    if(errs.length)h+='<div class="err">⚠️ '+esc(errs.join('\n'))+'</div>';
+    open(h);
+  }
+  async function onClick(e){
+    const t=e.target.closest('[data-p130]');if(!t){if(e.target===box)close();return;}
+    const a=t.dataset.p130;
+    if(a==='close'){e.preventDefault();close();}
+    else if(a==='open'){e.preventDefault();const p=state.products.find(x=>x.id===t.dataset.id);close();if(p){try{edit(p);}catch(err){try{pp97Err('فتح المنتج',err)}catch(_){}}}}
+    else if(a==='new'){e.preventDefault();const f=curFile;close();if(!f)return;
+      try{if(formImages.length>=6){note('الحد الأقصى 6 صور');return;}formImages.push(await compressImage(f,(Number(state.settings.imgMaxSide)||900)));renderFormImages();try{pp35Preview()}catch(_){}note('✅ انحطّت الصورة بالمنتج الجديد — كمّل الاسم والسعر');}catch(err){note('ما قدرت حط الصورة: '+(err.message||err));}}
+  }
+  // inject the button into "＋ إضافة منتج جديد" (new products only)
+  function inject(){
+    const f=document.getElementById('product-form');if(!f||editId||f.querySelector('#pp130-btn'))return;
+    let ok=false;try{ok=!!visibleAdmin();}catch(_){}if(!ok)return;
+    const b=document.createElement('button');b.type='button';b.id='pp130-btn';b.innerHTML='📷 فحص قبل الإضافة<small>تأكد إذا المنتج موجود عندك — بالصورة والذكاء الاصطناعي</small>';
+    b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();pick();});
+    f.insertBefore(b,f.firstChild);
+  }
+  new MutationObserver(inject).observe(document.body,{childList:true,subtree:true});
+  window.pp130={pick,run,ensureVecs,tokensFrom,ocrMatch,_dbg:()=>({vecs:vecMap&&vecMap.size,BASE})};
+})();}catch(e){try{console.error('V130',e)}catch(_){}}
 ppBoot();
 })();
 
