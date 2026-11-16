@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V131';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V132';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -6632,6 +6632,7 @@ body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:non
 
   /* ---- start ---- */
   window.addEventListener('pointerdown',e=>{
+    if(document.body.classList.contains('pp132-lock'))return;
     if(drag||(e.pointerType==='mouse'&&e.button!==0))return;
     const t=e.target;if(!t||!t.closest)return;
     let g=t.closest('.pp113-rgrip');
@@ -7435,7 +7436,7 @@ body.pp123-no-delete [data-action="pp85-delete"]{display:none!important}`;docume
 try{(function(){
   const KEY='pp126-back';
   const st=document.createElement('style');
-  st.textContent='#pp126{position:fixed;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:9000;display:flex;align-items:center;gap:7px;height:44px;padding:0 16px 0 12px;border-radius:999px;border:1.5px solid #d4a531;background:rgba(255,253,247,.96);color:#5a3f0b;font:800 14px/1 inherit;font-family:inherit;box-shadow:0 6px 18px rgba(60,40,0,.18);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);cursor:pointer}#pp126[hidden]{display:none!important}body.pp113-on #pp126{display:none!important}#pp126 b{font-size:19px;display:inline-block}#pp126.go b{animation:pp126sp .9s linear infinite}@keyframes pp126sp{to{transform:rotate(360deg)}}';
+  st.textContent='#pp126{position:fixed;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 88px);z-index:9000;display:flex;align-items:center;gap:5px;height:32px;padding:0 11px 0 9px;border-radius:999px;border:1.5px solid #d4a531;background:rgba(255,253,247,.96);color:#5a3f0b;font:800 12px/1 inherit;font-family:inherit;box-shadow:0 6px 18px rgba(60,40,0,.18);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);cursor:pointer}#pp126[hidden]{display:none!important}body.pp113-on #pp126{display:none!important}#pp126 b{font-size:14px;display:inline-block}#pp126.go b{animation:pp126sp .9s linear infinite}@keyframes pp126sp{to{transform:rotate(360deg)}}';
   document.head.appendChild(st);
   const btn=document.createElement('button');btn.id='pp126';btn.type='button';btn.hidden=true;btn.innerHTML='<b>⟳</b>تحديث الموقع';
   document.body.appendChild(btn);
@@ -7487,6 +7488,20 @@ try{(function(){
     })();
   }
 })();}catch(e){}
+
+/* V132: owner "قفل التحريك" — moving products/rows is locked by default so scrolling with a finger never moves anything; tap to unlock, re-locks itself after 5 minutes and on every app open */
+try{(function(){
+  const st=document.createElement('style');
+  st.textContent='#pp132{position:fixed;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 126px);z-index:9000;display:flex;align-items:center;gap:4px;height:32px;padding:0 11px 0 9px;border-radius:999px;font:800 12px/1 inherit;font-family:inherit;box-shadow:0 4px 12px rgba(0,0,0,.18);cursor:pointer;border:1.5px solid #555;background:rgba(40,40,40,.92);color:#fff}#pp132[hidden]{display:none!important}#pp132.open{background:linear-gradient(#ffd24a,#e9a400);color:#1d1404;border-color:#b98400}#pp132 b{font-size:13px}body.pp113-on #pp132{display:none!important}body.pp132-lock .pp114-move,body.pp132-lock .pp113-rgrip,body.pp132-lock .pp113-cgrip,body.pp132-lock .pp113-pgrip{display:none!important}';
+  document.head.appendChild(st);
+  const btn=document.createElement('button');btn.id='pp132';btn.type='button';btn.hidden=true;document.body.appendChild(btn);
+  let timer=0;
+  const set=locked=>{document.body.classList.toggle('pp132-lock',locked);btn.classList.toggle('open',!locked);btn.innerHTML=locked?'<b>🔒</b>التحريك مقفول':'<b>🔓</b>التحريك مفتوح';btn.setAttribute('aria-pressed',String(!locked));clearTimeout(timer);if(!locked)timer=setTimeout(()=>{set(true);try{note('🔒 تسكّر التحريك لحاله')}catch(_){}},5*60*1000);};
+  set(true);
+  const sync=()=>{let on=false;try{on=!!visibleAdmin()}catch(_){}if(btn.hidden===on)btn.hidden=!on;};
+  setInterval(sync,800);sync();
+  btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const lock=!document.body.classList.contains('pp132-lock');set(lock);try{note(lock?'🔒 التحريك مقفول':'🔓 التحريك مفتوح – بيتسكّر لحاله بعد 5 دقائق')}catch(_){}},true);
+})();}catch(e){try{console.error('V132',e)}catch(_){}}
 /* V129: cart badge hidden when the cart is empty (no "0"); shows the count as soon as something is added */
 try{(function(){
   const st=document.createElement('style');st.textContent='.pp129-zero{display:none!important}';document.head.appendChild(st);
