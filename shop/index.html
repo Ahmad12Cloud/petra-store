@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V137';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V138';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -7339,6 +7339,7 @@ body.pp123-no-delete [data-action="pp85-delete"]{display:none!important}`;docume
   const close=()=>document.getElementById('pp123')?.remove();
 
   /* ---------- menu entries & staff gating ---------- */
+  function pp138PwSheet(title){sheet(title,'<div class="card">اختار كلمة سر جديدة لحسابك (8 أحرف أو أكتر).<input type="password" data-p123in="pw1" placeholder="كلمة السر الجديدة"><input type="password" data-p123in="pw2" placeholder="أعد كتابة كلمة السر"><button type="button" class="b" data-p123="setpw" style="width:100%">💾 احفظ كلمة السر</button></div>');}
   function deco(){
     pp123Body();
     const m=document.querySelector('.v12-owner-menu');
@@ -7356,6 +7357,11 @@ body.pp123-no-delete [data-action="pp85-delete"]{display:none!important}`;docume
     }
     let bar=document.querySelector('.pp123-bar');
     if(staff()){if(!bar){bar=document.createElement('div');bar.className='pp123-bar';document.body.appendChild(bar);}bar.textContent='👷 '+(pp123Staff.name||'موظف')+' · تعديلاتك بتروح للمراجعة';}else if(bar)bar.remove();
+    /* V138: owner login screen gets «نسيت كلمة المرور؟»; dev menu gets «تغيير كلمة المرور» */
+    const lg=document.querySelector('[data-action="dev-unlock"]');
+    if(lg&&document.getElementById('pp-dev-email')&&!document.querySelector('[data-p123="forgot"]')){const b=document.createElement('button');b.type='button';b.dataset.p123='forgot';b.textContent='🔑 نسيت كلمة المرور؟';b.style.cssText='display:block;margin:12px auto 0;background:none;border:0;color:#a06a00;font-weight:800;text-decoration:underline;font-size:15px;cursor:pointer';lg.after(b);}
+    if(m&&(owner()||staff())&&!m.querySelector('[data-p123="chpw"]')){const b=document.createElement('button');b.type='button';b.dataset.p123='chpw';b.textContent='🔑 تغيير كلمة المرور';const lo=m.querySelector('[data-action="dev-logout"]');lo?lo.before(b):m.appendChild(b);}
+    if(!staff()&&window.pp123NeedPass&&ppSession&&!document.getElementById('pp123')){window.pp123NeedPass=false;pp138PwSheet('🔑 كلمة سر جديدة');}
     if(staff()&&window.pp123NeedPass&&!document.getElementById('pp123')){window.pp123NeedPass=false;sheet('🔑 أهلاً '+esc(pp123Staff.name||''),'<div class="card">اختار كلمة سر لحسابك، لتفوت فيها بعدين من «دخول المطوّر» بإيميلك.<input type="password" data-p123in="pw1" placeholder="كلمة السر (8 أحرف أو أكتر)"><input type="password" data-p123in="pw2" placeholder="أعد كتابة كلمة السر"><button type="button" class="b" data-p123="setpw" style="width:100%">💾 احفظ كلمة السر</button></div>');}
   }
   let raf=0;const q=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;try{deco()}catch(e){}})};
@@ -7430,6 +7436,13 @@ body.pp123-no-delete [data-action="pp85-delete"]{display:none!important}`;docume
       if(a==='mine'){if(!staff())return;try{setMenu(false)}catch(_){}await drawMine();return;}
       if(a==='setpw'){const p1=document.querySelector('[data-p123in="pw1"]')?.value||'',p2=document.querySelector('[data-p123in="pw2"]')?.value||'';if(p1.length<8){note('كلمة السر لازم تكون 8 أحرف أو أكتر');return;}if(p1!==p2){note('كلمتين السر مش متطابقين');return;}
         await ppEnsureToken();const r=await fetch(PP_SB_URL+'/auth/v1/user',{method:'PUT',headers:{apikey:PP_SB_KEY,Authorization:'Bearer '+ppSession.access_token,'Content-Type':'application/json'},body:JSON.stringify({password:p1})});if(!r.ok)throw Error('HTTP '+r.status);close();note('✅ انحفظت كلمة السر');return;}
+      if(a==='chpw'){try{setMenu(false)}catch(_){}pp138PwSheet('🔑 تغيير كلمة المرور');return;}
+      if(a==='forgot'){const em=(document.getElementById('pp-dev-email')?.value||'').trim();sheet('🔑 استرجاع كلمة المرور','<div class="card">اكتب إيميل حسابك، ومنبعتلك رابط تختار فيه كلمة سر جديدة.<input type="email" dir="ltr" inputmode="email" data-p123in="recmail" placeholder="you@example.com" value="'+esc(em)+'"><button type="button" class="b" data-p123="sendrec" style="width:100%">📧 أرسل رابط الاسترجاع</button><div data-p123in="recmsg"></div></div>');return;}
+      if(a==='sendrec'){const em=(document.querySelector('[data-p123in="recmail"]')?.value||'').trim();if(!/^\S+@\S+\.\S+$/.test(em)){note('اكتب الإيميل صح');return;}
+        b.disabled=true;const r=await fetch(PP_SB_URL+'/auth/v1/recover?redirect_to='+encodeURIComponent(location.origin+location.pathname),{method:'POST',headers:{apikey:PP_SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:em})});
+        const j=await r.json().catch(()=>({}));b.disabled=false;const box=document.querySelector('[data-p123in="recmsg"]');
+        if(!r.ok){const msg=j.msg||j.error_description||j.message||('HTTP '+r.status);if(box)box.innerHTML='<div style="margin-top:10px;padding:10px;border-radius:10px;background:#fdecec;border:1px solid #e08080;color:#8a1c1c;font-weight:700">✕ ما انبعت الرابط: '+esc(msg)+(r.status===429?'<br>استنى شوي وجرّب مرة تانية.':'')+'</div>';return;}
+        if(box)box.innerHTML='<div style="margin-top:10px;padding:10px;border-radius:10px;background:#eaf8ee;border:1px solid #6cc28a;color:#155c2c;font-weight:700;line-height:1.6">✅ بعتنا رابط على إيميلك.<br>افتح الإيميل (وشوف الـ Spam كمان) واضغط على الرابط — رح يفتح المتجر ويطلب منك كلمة سر جديدة.<br><small>الرابط صالح لمدة ساعة ولمرة واحدة.</small></div>';return;}
       if(!owner())return;
       if(a==='staff'){try{setMenu(false)}catch(_){}await drawStaff();return;}
       if(a==='reqs'){try{setMenu(false)}catch(_){}await drawReqs();return;}
