@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V146';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V147';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -4339,16 +4339,51 @@ function ppSetSync(kind,msg){
   el.hidden=!ownerUnlocked;
 }
 /* ---- pull ---- */
-// PostgREST returns at most 1000 rows per request, so read the catalog in pages until a short page comes back.
-async function ppPullProducts(){
+/* V147: catalog cache in IndexedDB (no 3MB localStorage limit) + delta sync —
+   after the first visit only products whose updated_at changed are downloaded again. */
+const ppIDB=(()=>{let dbp=null;
+  const open=()=>dbp||(dbp=new Promise((res,rej)=>{try{const r=indexedDB.open('petra-cache',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);}catch(e){rej(e)}}));
+  const tx=(mode,fn)=>open().then(db=>new Promise((res,rej)=>{const t=db.transaction('kv',mode),q=fn(t.objectStore('kv'));t.oncomplete=()=>res(q&&q.result);t.onerror=t.onabort=()=>rej(t.error);}));
+  return {get:k=>tx('readonly',st=>st.get(k)).catch(()=>null),set:(k,v)=>tx('readwrite',st=>st.put(v,k)).catch(()=>{}),del:k=>tx('readwrite',st=>st.delete(k)).catch(()=>{})};
+})();
+const PP_ROWS_KEY='pp147-rows-'+(MANAGER?'m':'c');
+let ppRowsMem=null;
+// PostgREST returns at most 1000 rows per request, so read in pages until a short page comes back.
+async function ppPullPages(q){
   const PAGE=1000,all=[];
   for(let off=0;off<100000;off+=PAGE){
-    const rows=await ppFetch('/rest/v1/products?select=*&order=created_at_ms.desc,id.asc&limit='+PAGE+'&offset='+off).then(r=>r.json());
+    const rows=await ppFetch('/rest/v1/products?'+q+'&limit='+PAGE+'&offset='+off).then(r=>r.json());
     if(!Array.isArray(rows))throw Error('bad products page');
     all.push(...rows);
     if(rows.length<PAGE)break;
   }
   return all;
+}
+async function ppPullProducts(){
+  const ORD='order=created_at_ms.desc,id.asc';
+  if(!ppRowsMem){const c=await ppIDB.get(PP_ROWS_KEY);if(c&&Array.isArray(c.rows))ppRowsMem=c.rows;}
+  let rows,changed=true;
+  if(!ppRowsMem||!ppRowsMem.length){rows=await ppPullPages('select=*&'+ORD);}
+  else{
+    const idx=await ppPullPages('select=id,updated_at&'+ORD);
+    const have=new Map(ppRowsMem.map(r=>[String(r.id),r]));
+    const need=idx.filter(x=>{const h=have.get(String(x.id));return !h||h.updated_at!==x.updated_at;}).map(x=>String(x.id));
+    if(need.length>Math.max(60,idx.length*0.5)){rows=await ppPullPages('select=*&'+ORD);}
+    else{
+      const got=new Map();
+      for(let i=0;i<need.length;i+=60){
+        const ids=need.slice(i,i+60).map(id=>'"'+id.replace(/"/g,'')+'"').join(',');
+        const part=await ppFetch('/rest/v1/products?select=*&id=in.('+encodeURIComponent(ids)+')').then(r=>r.json());
+        if(!Array.isArray(part))throw Error('bad products delta');
+        part.forEach(r=>got.set(String(r.id),r));
+      }
+      rows=idx.map(x=>got.get(String(x.id))||have.get(String(x.id))).filter(Boolean);
+      changed=need.length>0||rows.length!==ppRowsMem.length;
+    }
+  }
+  ppRowsMem=rows;
+  if(changed)ppIDB.set(PP_ROWS_KEY,{t:Date.now(),rows});
+  return rows;
 }
 async function ppPull(){
   const [s,c,p]=await Promise.all([
@@ -4364,7 +4399,10 @@ async function ppPull(){
   return {rows:p,raw:{version:1,lastEdited:Date.parse(s[0]?.updated_at||'')||Date.now(),settings:{...data,categories:c.map(x=>x.name_ar),catEn:Object.fromEntries(c.filter(x=>x.name_en).map(x=>[x.name_ar,x.name_en]))},products:p.map(ppRowToProduct)}};
 }
 function ppCacheSave(){
-  try{const j=JSON.stringify({lastEdited:state.lastEdited,settings:state.settings,products:state.products});if(j.length<3_000_000&&!j.includes('data:image/'))ppLS.set(PP_CACHE_KEY,j);}catch(e){}
+  try{const j=JSON.stringify({lastEdited:state.lastEdited,settings:state.settings,products:state.products});if(j.includes('data:image/'))return;
+    let ok=false;if(j.length<1_500_000){try{localStorage.setItem(PP_CACHE_KEY,j);ok=true;}catch(_){}}
+    if(ok)ppIDB.del(PP_CACHE_KEY);else{ppLS.del(PP_CACHE_KEY);ppIDB.set(PP_CACHE_KEY,j);} // V147: big catalogs go to IndexedDB
+  }catch(e){}
 }
 async function ppLoadRemote(opts={}){
   const {rows,raw}=await ppPull();
@@ -4483,7 +4521,7 @@ async function ownerAuthorize(){
   closeModal();start();ppSetSync('saved');
 }
 async function ppSignOut(){
-  ppSaveSession(null);ppLS.del(PP_CACHE_KEY);ppLS.del(PP_DIRTY_KEY);
+  ppSaveSession(null);ppLS.del(PP_CACHE_KEY);ppLS.del(PP_DIRTY_KEY);ppIDB.del(PP_CACHE_KEY);ppIDB.del(PP_ROWS_KEY);ppRowsMem=null;
   const el=document.getElementById('pp53-sync');if(el)el.hidden=true;
   try{await ppLoadRemote({render:true});}catch(e){}
 }
@@ -4607,6 +4645,7 @@ async function ppRefreshCustomer(){
 async function ppBoot(){
   try{pp123Hash()}catch(_){}
   let cached=null;try{cached=JSON.parse(ppLS.get(PP_CACHE_KEY)||'null')}catch(e){}
+  if(!cached){try{const j=await ppIDB.get(PP_CACHE_KEY);if(j)cached=JSON.parse(j);}catch(e){}}
   if(cached&&Array.isArray(cached.products)){state=normalize(cached);try{pp89Restore()}catch(_){}try{pp91Gate()}catch(_){}}
   if(MANAGER){
     try{const s=JSON.parse(ppLS.get(PP_SESSION_KEY)||'null');
@@ -4619,7 +4658,7 @@ async function ppBoot(){
   const pp109Hold=async()=>{if(MANAGER)return;const c=pp111Get();if(!c.on||c.sec<=0)return;const w=c.sec*1000-performance.now();if(w>0)await new Promise(r=>setTimeout(r,w));const sp=document.getElementById('pp108');if(sp){sp.classList.add('out');await new Promise(r=>setTimeout(r,280));}};
   if(!pp108Cold){await pp109Hold();start();}
   try{
-    if(pp108Cold)await Promise.race([ppLoadRemote(),new Promise((_,rj)=>setTimeout(()=>rj(Error('timeout')),12000))]);
+    if(pp108Cold)await Promise.race([ppLoadRemote(),new Promise((_,rj)=>setTimeout(()=>rj(Error('timeout')),25000))]);
     else await ppLoadRemote();
     if(MANAGER&&ownerUnlocked&&ppLS.get(PP_DIRTY_KEY)){
       // edits made while offline / before the last push finished: re-apply them on top of the server copy
