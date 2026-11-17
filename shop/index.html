@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V141';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V142';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -4415,9 +4415,9 @@ function pp134Renumber(){
   const order=[],seen=new Set();
   for(const q of pos)if(!seen.has(q.id)){const pr=real.find(p=>p.id===q.id);if(pr){seen.add(q.id);order.push(pr);}}
   real.filter(p=>!seen.has(p.id)).sort((a,b)=>(Number(a.createdAt)||0)-(Number(b.createdAt)||0)).forEach(p=>order.push(p));
-  const prefix='PP-';let n=0,ch=0;
-  order.forEach(p=>{n++;const c=prefix+String(n).padStart(4,'0');if(p.productCode!==c){p.productCode=c;ch++;}if(!p.sku)p.sku=c;p.pp49CodeMode='auto';p.pp49CodePrefix=prefix;});
-  state.settings.pp49Sequences=state.settings.pp49Sequences||{};state.settings.pp49Sequences[prefix]=n;
+  const cnt={};let ch=0;
+  order.forEach(p=>{if(p.pp49CodeMode==='manual'&&String(p.productCode||'').trim())return;let prefix='PP-';try{prefix=pp142Prefix(p)}catch(_){}cnt[prefix]=(cnt[prefix]||0)+1;const c=prefix+String(cnt[prefix]).padStart(4,'0');if(p.productCode!==c){p.productCode=c;ch++;}if(!p.sku)p.sku=c;p.pp49CodeMode='auto';p.pp49CodePrefix=prefix;});
+  state.settings.pp49Sequences=state.settings.pp49Sequences||{};Object.entries(cnt).forEach(([k,v])=>{state.settings.pp49Sequences[k]=v;});
   return ch>0;
 }
 async function ppPush(){
@@ -4831,7 +4831,7 @@ function addCart(id,size,qty){
 function ppItemLine(p,qty,size,i){
   const up0=ppUnit(p,size);const price=up0==null?T('السعر عند الطلب','Price on request'):(up0+' '+(p.currency||'USD'));
   const im=(Array.isArray(p.images)?p.images:[]).find(x=>typeof x==='string'&&/^https:\/\//.test(x));
-  return (i+1)+'. '+(p.nameAr||p.nameEn)+' ['+p.sku+']'+(size?' — '+ppSizeLabel(p)+': '+size:'')+' × '+qty+' — '+price+(im?'\n🖼 '+T('الصورة: ','Photo: ')+im:'');
+  return (i+1)+'. '+(p.nameAr||p.nameEn)+' ['+(p.productCode||p.sku)+']'+(size?' — '+ppSizeLabel(p)+': '+size:'')+' × '+qty+' — '+price+(im?'\n🖼 '+T('الصورة: ','Photo: ')+im:'');
 }
 function ppOrderTextFor(lines,note){
   if(!lines.length)return'';
@@ -4850,7 +4850,7 @@ function drawCart(){
   const items=cart.map(x=>({...x,p:state.products.find(p=>p.id===x.id)})).filter(x=>x.p);
   const totals={};for(const {qty,p,size} of items){const up=ppUnit(p,size);if(up!=null)totals[p.currency||'USD']=(totals[p.currency||'USD']||0)+up*qty}
   const sum=Object.entries(totals).map(([c,v])=>money(v,c)).join(' + ');
-  $('view').innerHTML=`<div class="maxcontent"><h2>${T('سلة الطلب','Order cart')}</h2>${pp88Banner()}${!items.length?`<div class="empty"><div class="symbol">🛒</div><h3>${T('السلة فارغة','Your cart is empty')}</h3><button class="btn dark" data-tab="catalog">${T('تصفح الكتالوج','Browse catalog')}</button></div>`:`<div class="list">${items.map(({p,qty,size})=>`<div class="line-item"><div class="photo" style="width:70px;height:70px;flex:0 0 70px">${photo(p)}</div><div class="line-main"><strong>${esc(S(p.nameAr,p.nameEn))}</strong>${size?`<small class="pp64-size">${esc(ppSizeLabel(p))}: <b>${esc(size)}</b></small>`:''}<small>${esc(p.sku)} • ${money(ppUnit(p,size),p.currency)}</small></div><div class="actions"><button class="btn small" data-action="qty-minus" data-id="${esc(p.id)}" data-size="${esc(size||'')}">−</button><span style="min-width:19px;text-align:center">${qty}</span><button class="btn small" data-action="qty-plus" data-id="${esc(p.id)}" data-size="${esc(size||'')}">＋</button><button class="btn small danger" data-action="remove-cart" data-id="${esc(p.id)}" data-size="${esc(size||'')}">✕</button></div></div>`).join('')}</div>${cartRecommendations()}<div class="panel"><div><strong>${T('المجموع التقريبي:','Estimated total:')} ${sum||T('حسب التسعير','To be quoted')}</strong></div><label class="pp64-notebox">${T('ملاحظات أو استفسار (اختياري)','Notes or inquiry (optional)')}<textarea id="pp64-cartnote" maxlength="600" rows="3" placeholder="${esc(ppCartPh())}">${esc(ppCartNote)}</textarea></label>${MANAGER&&ownerUnlocked?`<button type="button" class="btn small" data-action="pp65-ph">✏️ ${T('تعديل نص خانة الاستفسار','Edit inquiry box text')}</button>`:''}<p class="smallnote">${T('لإرسال طلبك: اضغط على واتساب فرعنا (لبنان أو سوريا) بالأسفل ⬇ بتنفتح محادثة فيها قائمة طلبك كاملة، فقط اضغط إرسال. لا يوجد دفع إلكتروني.','To send your order tap our branch WhatsApp below ⬇ — a chat opens with your full order list ready to send. No online payment.')}</p><div class="actions" style="margin-top:15px"><button class="btn" data-action="copy-order">${T('نسخ الطلب','Copy order')}</button></div></div>`}</div>`;
+  $('view').innerHTML=`<div class="maxcontent"><h2>${T('سلة الطلب','Order cart')}</h2>${pp88Banner()}${!items.length?`<div class="empty"><div class="symbol">🛒</div><h3>${T('السلة فارغة','Your cart is empty')}</h3><button class="btn dark" data-tab="catalog">${T('تصفح الكتالوج','Browse catalog')}</button></div>`:`<div class="list">${items.map(({p,qty,size})=>`<div class="line-item"><div class="photo" style="width:70px;height:70px;flex:0 0 70px">${photo(p)}</div><div class="line-main"><strong>${esc(S(p.nameAr,p.nameEn))}</strong>${size?`<small class="pp64-size">${esc(ppSizeLabel(p))}: <b>${esc(size)}</b></small>`:''}<small>${esc(p.productCode||p.sku)} • ${money(ppUnit(p,size),p.currency)}</small></div><div class="actions"><button class="btn small" data-action="qty-minus" data-id="${esc(p.id)}" data-size="${esc(size||'')}">−</button><span style="min-width:19px;text-align:center">${qty}</span><button class="btn small" data-action="qty-plus" data-id="${esc(p.id)}" data-size="${esc(size||'')}">＋</button><button class="btn small danger" data-action="remove-cart" data-id="${esc(p.id)}" data-size="${esc(size||'')}">✕</button></div></div>`).join('')}</div>${cartRecommendations()}<div class="panel"><div><strong>${T('المجموع التقريبي:','Estimated total:')} ${sum||T('حسب التسعير','To be quoted')}</strong></div><label class="pp64-notebox">${T('ملاحظات أو استفسار (اختياري)','Notes or inquiry (optional)')}<textarea id="pp64-cartnote" maxlength="600" rows="3" placeholder="${esc(ppCartPh())}">${esc(ppCartNote)}</textarea></label>${MANAGER&&ownerUnlocked?`<button type="button" class="btn small" data-action="pp65-ph">✏️ ${T('تعديل نص خانة الاستفسار','Edit inquiry box text')}</button>`:''}<p class="smallnote">${T('لإرسال طلبك: اضغط على واتساب فرعنا (لبنان أو سوريا) بالأسفل ⬇ بتنفتح محادثة فيها قائمة طلبك كاملة، فقط اضغط إرسال. لا يوجد دفع إلكتروني.','To send your order tap our branch WhatsApp below ⬇ — a chat opens with your full order list ready to send. No online payment.')}</p><div class="actions" style="margin-top:15px"><button class="btn" data-action="copy-order">${T('نسخ الطلب','Copy order')}</button></div></div>`}</div>`;
 }
 /* detail modal: replace the plain "add to order" with size picker + qty + note + add/send buttons */
 let ppSel={size:'',qty:1};
@@ -5425,7 +5425,7 @@ function ppOrderTextFor(lines,note){
     if(g.items.length===1){return ppItemLine(g.p,g.items[0].qty,g.items[0].size,n++);}
     const p=g.p;const im=(Array.isArray(p.images)?p.images:[]).find(x=>typeof x==='string'&&/^https:\/\//.test(x));
     n++;
-    return n+'. '+(p.nameAr||p.nameEn)+' ['+p.sku+']'+(im?'\n🖼 '+T('الصورة: ','Photo: ')+im:'')+'\n'+g.items.map(l=>{const u=ppUnit(p,l.size);return '   • '+(l.size?ppSizeLabel(p)+': '+l.size+' × ':'× ')+l.qty+' — '+(u==null?T('السعر عند الطلب','Price on request'):u+' '+(p.currency||'USD'));}).join('\n');
+    return n+'. '+(p.nameAr||p.nameEn)+' ['+(p.productCode||p.sku)+']'+(im?'\n🖼 '+T('الصورة: ','Photo: ')+im:'')+'\n'+g.items.map(l=>{const u=ppUnit(p,l.size);return '   • '+(l.size?ppSizeLabel(p)+': '+l.size+' × ':'× ')+l.qty+' — '+(u==null?T('السعر عند الطلب','Price on request'):u+' '+(p.currency||'USD'));}).join('\n');
   }).join('\n\n');
   return T('مرحباً Petra Power، أريد الاستفسار عن المنتجات التالية:','Hello Petra Power, please quote the following products:')+'\n\n'+(note&&note.trim()?'📝 '+T('ملاحظتي: ','My note: ')+note.trim()+'\n\n':'')+body+ppTotalLine(lines)+'\n\n'+T('يرجى تأكيد التوافر والأسعار، وشكراً.','Please confirm availability and prices. Thank you.');
 }
@@ -7522,7 +7522,10 @@ try{(function(){
 
 /* V139: departments (⚡ الكهرباء / ❄️ المكيفات …) — editable bottom bar, department view with its own WhatsApp numbers */
 function pp139Depts(){const d=state.settings.pp139Depts;if(Array.isArray(d)&&d.length)return d;
-  return [{id:'elec',name:'الكهرباء',nameEn:'Electrical',icon:'⚡',rest:true,cats:[],wa:[]},{id:'ac',name:'المكيفات',nameEn:'Air Conditioners',icon:'❄️',rest:false,cats:['مكيفات (Air Conditioners)'],wa:[]}];}
+  return [{id:'elec',name:'الكهرباء',nameEn:'Electrical',icon:'⚡',rest:true,prefix:'PP-',cats:[],wa:[]},{id:'ac',name:'المكيفات',nameEn:'Air Conditioners',icon:'❄️',rest:false,prefix:'MK-',cats:['مكيفات (Air Conditioners)'],wa:[]}];}
+function pp142DeptPrefix(d){const v=String(d&&d.prefix||'').trim();return v||(d&&d.id==='ac'?'MK-':'PP-');}
+function pp142DeptOf(p){const ds=pp139Depts(),c=p&&p.category;return ds.find(d=>(d.cats||[]).includes(c))||ds.find(d=>d.rest)||null;}
+function pp142Prefix(p){return pp142DeptPrefix(pp142DeptOf(p));}
 function pp139Dept(id){return pp139Depts().find(d=>d.id===id)||null;}
 function pp139InDept(id,c){const d=pp139Dept(id);if(!d)return true;if((d.cats||[]).includes(c))return true;if(d.rest)return !pp139Depts().some(o=>o.id!==id&&(o.cats||[]).includes(c));return false;}
 function pp139Nav(){let n=state.settings.pp139Nav;if(!Array.isArray(n)||!n.length)n=[{k:'home',on:true},{k:'dept:elec',on:true},{k:'dept:ac',on:true},{k:'cats',on:true},{k:'contact',on:true},{k:'cart',on:false},{k:'fav',on:false}];
@@ -7547,7 +7550,7 @@ try{(function(){
   +'#pp139ed .pp139-sec{border:1px solid #e6d6b0;border-radius:12px;padding:10px;margin:0 0 12px;background:#fffdf7}#pp139ed h3{margin:0 0 8px;font-size:16px}#pp139ed .r{display:flex;gap:6px;align-items:center;margin:6px 0;flex-wrap:wrap}#pp139ed input[type=text],#pp139ed input[type=tel]{border:1px solid #d9c49a;border-radius:9px;padding:7px;font:inherit;min-width:0}#pp139ed .ic{width:52px;text-align:center}#pp139ed .nm{flex:1}#pp139ed .mv{border:1px solid #d9c49a;background:#fff;border-radius:8px;padding:4px 8px}#pp139ed .cats{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:13px;margin:6px 0}#pp139ed .del{background:#fdecec;border:1px solid #e08080;color:#8a1c1c;border-radius:9px;padding:6px 10px}#pp139ed .hint{font-size:12px;color:#6b5b45;line-height:1.6}#pp139ed .dep{border-top:1px dashed #d9c49a;padding-top:8px;margin-top:8px}';
   document.head.appendChild(st);
   const _dc=drawCatalog;drawCatalog=function(){_dc.apply(this,arguments);try{const v=$('view');if(ppDept&&v&&!pp24HomeMode()){v.insertAdjacentHTML('afterbegin',pp139DeptHead());}
-    footSync();document.querySelectorAll('[data-pp139n]').forEach(b=>{const k=b.dataset.pp139n;b.classList.toggle('selected',k==='home'?(tab==='catalog'&&!ppDept):k==='dept:'+ppDept);});}catch(e){}};
+    if(ppDept&&isOwner()){const nb=v&&v.querySelector('.owner-tools [data-action="edit-new"]');if(nb){nb.removeAttribute('data-action');nb.dataset.pp139='addindept';nb.textContent='＋ إضافة منتجات / سلايدر / صورة';}}footSync();document.querySelectorAll('[data-pp139n]').forEach(b=>{const k=b.dataset.pp139n;b.classList.toggle('selected',k==='home'?(tab==='catalog'&&!ppDept):k==='dept:'+ppDept);});}catch(e){}};
 
   /* V140: WhatsApp numbers — main numbers on the general store, each department shows only its own numbers */
   function waSheet(focus){const ds=JSON.parse(JSON.stringify(pp139Depts()));draftWa=ds;
@@ -7589,12 +7592,21 @@ try{(function(){
       ppSendPhone(phone,(d?(d.icon||'')+' '+T('قسم','')+' '+(d.name||'')+'\n':'')+ppOrderTextFor(lines,s.note));return;}
     const x=cartGroups().get(gk);if(!x)return;const nt=document.getElementById('pp64-cartnote')?.value??ppCartNote;
     ppSendPhone(phone,(x.d?(x.d.icon||'')+' '+T('قسم','')+' '+(x.d.name||'')+'\n':'')+ppOrderTextFor(x.items,nt));},true);
+  /* V142: department code series (PP- / MK- …), owner-controlled; manual codes are never renumbered; adding from a department opens the full add picker */
+  let pp142AddDept='';
+  function formHook(){const f=document.getElementById('product-form');if(!f||f.dataset.pp142)return;f.dataset.pp142='1';
+    const isNew=!editId,catSel=f.querySelector('[name="category"]'),pre=f.querySelector('#pp49-code-prefix'),mode=f.querySelector('#pp49-code-mode');
+    const setPre=()=>{if(!pre||!mode||mode.value!=='auto')return;const c=catSel&&catSel.value;if(!c&&!isNew)return;const d=c?pp142DeptOf({category:c}):pp139Dept(pp142AddDept||ppDept);if(!d)return;const want=pp142DeptPrefix(d);if(pre.value.trim()!==want){pre.value=want;try{pp49CodeRefresh()}catch(_){}}};
+    if(isNew){const d=pp139Dept(pp142AddDept||ppDept);pp142AddDept='';if(d&&catSel&&!catSel.value){const c=allCategories().find(x=>pp139InDept(d.id,x)&&(d.cats||[]).includes(x))||allCategories().find(x=>pp139InDept(d.id,x));if(c){catSel.value=c;}}setPre();}
+    catSel&&catSel.addEventListener('change',setPre);}
+  new MutationObserver(()=>{try{formHook()}catch(e){}}).observe(document.body,{childList:true,subtree:true});
   let draft=null;
   const isOwner=()=>{try{return visibleAdmin()&&!pp123Staff}catch(e){return false}};
   function edHtml(){const n=draft.nav,ds=draft.depts,cats=allCategories();
     const navRows=n.map((x,i)=>{const it=x.k.startsWith('dept:')?{icon:x.icon||((ds.find(d=>'dept:'+d.id===x.k)||{}).icon)||'▣',label:x.label||((ds.find(d=>'dept:'+d.id===x.k)||{}).name)||''}:{icon:x.icon||pp139Base()[x.k][0],label:x.label||pp139Base()[x.k][1]};
       const fixed=x.k.startsWith('dept:');return `<div class="r"><button type="button" class="mv" data-pp139="up" data-i="${i}">▲</button><button type="button" class="mv" data-pp139="down" data-i="${i}">▼</button><input type="text" class="ic" data-n="icon" data-i="${i}" value="${esc(x.icon||'')}" placeholder="${esc(it.icon)}"><input type="text" class="nm" data-n="label" data-i="${i}" value="${esc(x.label||'')}" placeholder="${esc(it.label)}"${fixed?' title="اسم القسم بيتعدّل من تحت"':''}><label><input type="checkbox" data-n="on" data-i="${i}" ${x.on?'checked':''}> ${T('ظاهر','Shown')}</label></div>`;}).join('');
     const depRows=ds.map((d,j)=>`<div class="dep"><div class="r"><input type="text" class="ic" data-d="icon" data-j="${j}" value="${esc(d.icon||'')}" placeholder="❄️"><input type="text" class="nm" data-d="name" data-j="${j}" value="${esc(d.name||'')}" placeholder="اسم القسم"><input type="text" class="nm" dir="ltr" data-d="nameEn" data-j="${j}" value="${esc(d.nameEn||'')}" placeholder="English name"><button type="button" class="del" data-pp139="deldep" data-j="${j}">🗑</button></div>
+      <div class="r"><span class="hint">🔢 بادئة كود منتجات هالقسم:</span><input type="text" class="ic" style="width:90px" dir="ltr" data-d="prefix" data-j="${j}" value="${esc(pp142DeptPrefix(d))}" placeholder="PP-"></div>
       <div class="hint">التصنيفات اللي بتطلع بهالقسم:</div><div class="cats">${cats.map(c=>`<label><input type="checkbox" data-dc="${esc(c)}" data-j="${j}" ${(d.cats||[]).includes(c)?'checked':''}> ${esc(c)}</label>`).join('')}</div>
       <label class="hint"><input type="checkbox" data-d="rest" data-j="${j}" ${d.rest?'checked':''}> وكمان كل تصنيف جديد أو مش موجود بقسم تاني</label>
       <div class="hint" style="margin-top:6px">أرقام واتساب هالقسم (لحد 4):</div>${[0,1,2,3].map(k=>{const w=(d.wa||[])[k]||{};return `<div class="r"><input type="text" class="nm" data-w="name" data-k="${k}" data-j="${j}" value="${esc(w.name||'')}" placeholder="الاسم (مثلاً: جمال – مبيعات)"><input type="tel" class="nm" dir="ltr" data-w="phone" data-k="${k}" data-j="${j}" value="${esc(w.phone||'')}" placeholder="+961 …"></div>`;}).join('')}</div>`).join('');
@@ -7611,6 +7623,7 @@ try{(function(){
       if(a==='dept'){try{setMenu(false)}catch(_){}ppDept=b.dataset.d||'';cat='';q='';pg=1;pp24ShowAllProducts=false;goto('catalog');return;}
       if(a==='cat'){cat=b.dataset.c||'';pg=1;goto('catalog');return;}
       if(!isOwner())return;
+      if(a==='addindept'){pp142AddDept=ppDept;ppDept='';cat='';q='';pg=1;pp24ShowAllProducts=false;goto('catalog');setTimeout(()=>{const t=document.createElement('button');t.type='button';t.dataset.action='pp49-add';t.style.display='none';document.body.appendChild(t);t.click();t.remove();},60);return;}
       if(a==='waed'){try{setMenu(false)}catch(_){}waSheet(b.dataset.f||'');return;}
       if(a==='waclr'){const r=b.closest('.r');r&&r.querySelectorAll('input').forEach(i=>i.value='');return;}
       if(a==='wasave'&&draftWa){const ed=document.getElementById('pp139ed');const bad=[];
@@ -7625,7 +7638,7 @@ try{(function(){
       if(a==='adddep'){readDraft();const id='d'+Date.now().toString(36);draft.depts.push({id,name:'قسم جديد',nameEn:'',icon:'▣',rest:false,cats:[],wa:[]});draft.nav.push({k:'dept:'+id,on:false});open();return;}
       if(a==='deldep'){readDraft();const j=+b.dataset.j,d=draft.depts[j];if(!d||!confirm('حذف قسم «'+(d.name||'')+'»؟ المنتجات والتصنيفات ما بتنحذف.'))return;draft.depts.splice(j,1);draft.nav=draft.nav.filter(x=>x.k!=='dept:'+d.id);open();return;}
       if(a==='save'){readDraft();const on=draft.nav.filter(x=>x.on).length;if(on>5){note('أقصى شي 5 أزرار ظاهرة بالشريط السفلي');return;}if(on<1){note('لازم يكون في زر واحد ظاهر على الأقل');return;}
-        if(draft.depts.some(d=>!d.name)){note('اكتب اسم لكل قسم');return;}
+        if(draft.depts.some(d=>!d.name)){note('اكتب اسم لكل قسم');return;}draft.depts.forEach(d=>{d.prefix=String(d.prefix||'').trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'');if(d.prefix&&!/[-_]$/.test(d.prefix))d.prefix+='-';if(!d.prefix)d.prefix=d.id==='ac'?'MK-':'PP-';});
         state.settings.pp139Nav=draft.nav;state.settings.pp139Depts=draft.depts;draft=null;if(ppDept&&!pp139Dept(ppDept))ppDept='';await changed();closeModal();start();note('✅ انحفظ الشريط السفلي والأقسام');return;}
     }catch(err){note('صار خطأ: '+(err&&err.message||err));}
   },true);
