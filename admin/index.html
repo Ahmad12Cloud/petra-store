@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V144';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V145';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2329,8 +2329,9 @@ async function saveProduct(){
  let productCode=mode==='manual'?v('productCode'):(old&&v('productCode')===(old.productCode||old.sku)?v('productCode'):pp49NextCode(prefix));
  if(!productCode){note('اكتب كود المنتج، أو اختر تكملة تلقائية');return;}
  if(state.products.some(p=>p.id!==editId && String(p.productCode||p.sku||'').toLowerCase()===productCode.toLowerCase())){note('كود المنتج مستخدم؛ اختر كوداً مختلفاً');return;}
- const sku=old?.sku||productCode;
- if(state.products.some(p=>p.id!==editId && clean(p.sku).toLowerCase()===sku.toLowerCase())){note('الكود مستخدم؛ اختر كوداً مختلفاً');return;}
+ let sku=old?.sku||productCode;
+ /* V145: internal SKU must never block saving — when it collides (codes are renumbered), give the new product a unique internal SKU */
+ if(state.products.some(p=>p.id!==editId && clean(p.sku).toLowerCase()===sku.toLowerCase())){if(old){note('الكود الداخلي مستخدم؛ اختر كوداً مختلفاً');return;}sku=productCode+'-'+Date.now().toString(36).toUpperCase();}
  const price=v('price'),stock=v('stock');
  if((price!==''&&(!Number.isFinite(+price)||+price<0))||(stock!==''&&!/^\d+$/.test(stock))){note('راجع السعر والكمية');return;}
  const visibility={showName:fd.has('showName'),showPrice:fd.has('showPrice'),showDesc:fd.has('showDesc'),showCode:fd.has('showCode'),showCategory:fd.has('showCategory'),showBrandModel:fd.has('showBrandModel'),showSpecs:fd.has('showSpecs')};
