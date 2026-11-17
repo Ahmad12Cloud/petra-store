@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V147';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V148';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -8022,4 +8022,12 @@ ppBoot();
 </script>
 
 <script>if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>
+<style id="pp148-noimgsave">/* V148: customers can't long-press / drag-save product photos (screenshots still work) */
+html[data-edition="customer"] img{-webkit-touch-callout:none;-webkit-user-drag:none;user-drag:none;-webkit-user-select:none;user-select:none}
+</style>
+<script id="pp148-noimgsave-js">(function(){if(document.documentElement.dataset.edition!=='customer')return;
+const isImg=t=>t&&(t.tagName==='IMG'||(t.closest&&t.closest('picture')));
+window.addEventListener('contextmenu',e=>{if(isImg(e.target))e.preventDefault();},true);
+window.addEventListener('dragstart',e=>{if(isImg(e.target))e.preventDefault();},true);
+})();</script>
 </body></html>
