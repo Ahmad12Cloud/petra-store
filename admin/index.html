@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V145';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V146';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -4417,7 +4417,8 @@ function pp134Renumber(){
   for(const q of pos)if(!seen.has(q.id)){const pr=real.find(p=>p.id===q.id);if(pr){seen.add(q.id);order.push(pr);}}
   real.filter(p=>!seen.has(p.id)).sort((a,b)=>(Number(a.createdAt)||0)-(Number(b.createdAt)||0)).forEach(p=>order.push(p));
   const cnt={};let ch=0;
-  order.forEach(p=>{if(p.pp49CodeMode==='manual'&&String(p.productCode||'').trim())return;let prefix='PP-';try{prefix=pp142Prefix(p)}catch(_){}cnt[prefix]=(cnt[prefix]||0)+1;const c=prefix+String(cnt[prefix]).padStart(4,'0');if(p.productCode!==c){p.productCode=c;ch++;}if(!p.sku)p.sku=c;p.pp49CodeMode='auto';p.pp49CodePrefix=prefix;});
+  const taken=new Set(order.filter(p=>p.pp49CodeMode==='manual'&&String(p.productCode||'').trim()).map(p=>String(p.productCode).trim().toUpperCase()));
+  order.forEach(p=>{if(p.pp49CodeMode==='manual'&&String(p.productCode||'').trim())return;let prefix='PP-';try{prefix=pp142Prefix(p)}catch(_){}let c;do{cnt[prefix]=(cnt[prefix]||0)+1;c=prefix+String(cnt[prefix]).padStart(4,'0');}while(taken.has(c.toUpperCase()));if(p.productCode!==c){p.productCode=c;ch++;}if(!p.sku)p.sku=c;p.pp49CodeMode='auto';p.pp49CodePrefix=prefix;});
   state.settings.pp49Sequences=state.settings.pp49Sequences||{};Object.entries(cnt).forEach(([k,v])=>{state.settings.pp49Sequences[k]=v;});
   return ch>0;
 }
