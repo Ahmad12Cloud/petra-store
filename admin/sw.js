@@ -1,4 +1,4 @@
-/* Petra Admin service worker: app shell works offline, always fetches the newest code when online */
+/* V149: hidden photo cache capped at 400 photos. Petra Admin service worker: app shell works offline, always fetches the newest code when online */
 const V='pp112-admin-1',IMG='pp112-img';
 const SHELL=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>Promise.all(SHELL.map(u=>c.add(u).catch(()=>{})))).then(()=>self.skipWaiting()));});
@@ -9,6 +9,6 @@ self.addEventListener('fetch',e=>{
   if(u.origin===location.origin){
     e.respondWith(fetch(r).then(res=>{if(res.ok){const c=res.clone();caches.open(V).then(ca=>ca.put(r,c));}return res;}).catch(()=>caches.match(r).then(m=>m||caches.match('index.html'))));
   }else if(u.hostname.endsWith('.supabase.co')&&u.pathname.startsWith('/storage/v1/object/public/')){
-    e.respondWith(caches.match(r).then(m=>m||fetch(r).then(res=>{if(res.ok){const c=res.clone();caches.open(IMG).then(ca=>ca.put(r,c));}return res;})));
+    e.respondWith(caches.match(r).then(m=>m||fetch(r).then(res=>{if(res.ok){const c=res.clone();caches.open(IMG).then(ca=>ca.put(r,c).then(()=>ca.keys()).then(ks=>{const extra=ks.length-400;for(let i=0;i<extra;i++)ca.delete(ks[i]);}));}return res;})));
   }
 });

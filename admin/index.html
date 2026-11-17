@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V148';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V149';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1514,7 +1514,7 @@ const money=(v,c)=>v==null||!Number.isFinite(Number(v))?T('السعر عند ا�
 const safeImg=(s)=>typeof s==='string'&&(/^data:image\/(webp|png|jpeg|gif);base64,[a-z0-9+/=]+$/i.test(s)||PP_IMG_RE.test(s))?s:'';
 const applyAppearance=()=>{const st=state.settings;document.documentElement.dataset.storeTheme=st.storeTheme==='dark'?'dark':'light';document.documentElement.style.setProperty('--pp-card-default',safeColor(st.productCardBg,'#ffffff'));document.documentElement.style.setProperty('--pp-photo-default',safeColor(st.productPhotoBg,'#ffffff'));document.documentElement.style.setProperty('--pp-banner-default',safeColor(st.bannerStageBg,'#fff8ed'));document.documentElement.style.setProperty('--pp-intro-bg',safeColor(st.introBg,'#fffdfa'));document.documentElement.style.setProperty('--pp-intro-text',safeColor(st.introTextColor,'#2d2f33'));document.documentElement.style.setProperty('--pp-page-bg',safeColor(st.pageBg,'#f9f6ef'));document.documentElement.style.setProperty('--pp-banner-text',safeColor(st.bannerTitleColor,'#ffffff'));};
 const cardFg=(hex)=>{const v=safeColor(hex,'#ffffff').slice(1);const r=parseInt(v.slice(0,2),16),g=parseInt(v.slice(2,4),16),b=parseInt(v.slice(4,6),16);return (r*299+g*587+b*114)/1000<145?'#fff9ed':'#29313a';};
-const photo=(p)=>safeImg(p.images?.[0])?`<img src="${safeImg(p.images[0])}" alt="${esc(S(p.nameAr,p.nameEn))}" loading="lazy">`:'<span class="place" aria-label="no product image">⚡</span>';
+const photo=(p)=>safeImg(p.images?.[0])?`<img src="${safeImg(pp149Thumb(p.images[0]))||safeImg(p.images[0])}" data-full="${safeImg(p.images[0])}" onerror="pp149Fallback(this)" alt="${esc(S(p.nameAr,p.nameEn))}" loading="lazy" decoding="async">`:'<span class="place" aria-label="no product image">⚡</span>';
 const note=(message)=>{const el=$('flash');el.textContent=message;el.classList.remove('hide');clearTimeout(note.timer);note.timer=setTimeout(()=>el.classList.add('hide'),3200)};
 const visibleAdmin=()=>MANAGER&&ownerUnlocked&&!preview;
 
@@ -4324,13 +4324,49 @@ async function ppCleanOrphans(removedIds,changedRows,rows,sdata){
   const failed=[];
   for(let i=0;i<orphans.length;i+=50){
     const chunk=orphans.slice(i,i+50);
-    try{await ppFetch('/storage/v1/object/'+PP_BUCKET,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({prefixes:chunk.map(u=>u.slice(PP_PUB.length))})});}
+    try{await ppFetch('/storage/v1/object/'+PP_BUCKET,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({prefixes:chunk.flatMap(u=>[u.slice(PP_PUB.length),u.slice(PP_PUB.length)+'.t.webp'])})});}
     catch(e){failed.push(...chunk);}
   }
   if(failed.length)ppLS.set(PP_ORPH_KEY,JSON.stringify(failed));else ppLS.del(PP_ORPH_KEY);
 }
 /* ---- sync status badge (owner only) ---- */
+/* V149: small card photos (520px WebP, ~40KB instead of ~70-90KB). Path = original + ".t.webp".
+   Cards load the small copy; product details keep the full photo. The owner app creates missing copies in the background. */
+function pp149Thumb(u){return (typeof u==='string'&&u.startsWith(PP_PUB)&&!/\.t\.webp$/.test(u))?u+'.t.webp':u;}
+function pp149Fallback(el){const f=el.dataset.full;if(f&&el.getAttribute('src')!==f){el.onerror=null;el.src=f;}}
+let pp149Timer=null,pp149Busy=false;
+function pp149Kick(){if(!MANAGER)return;clearTimeout(pp149Timer);pp149Timer=setTimeout(pp149Run,4000);}
+async function pp149Run(){
+  if(pp149Busy||!MANAGER||!ownerUnlocked||!ppSession||typeof pp123Staff!=='undefined'&&pp123Staff)return;
+  pp149Busy=true;
+  const K='pp149-thumbs';let done;try{done=new Set(JSON.parse(localStorage.getItem(K)||'[]'))}catch(_){done=new Set()}
+  const save=()=>{try{localStorage.setItem(K,JSON.stringify([...done]))}catch(_){}};
+  try{
+    const urls=[...new Set(state.products.filter(p=>p&&!p.demoOnly&&Array.isArray(p.images)).map(p=>p.images[0]).filter(u=>typeof u==='string'&&u.startsWith(PP_PUB)&&!/\.t\.webp$/.test(u)&&!done.has(u)))];
+    let made=0,fail=0;
+    for(const u of urls){
+      try{
+        const h=await fetch(u+'.t.webp',{method:'HEAD',cache:'no-store'});
+        if(h.ok){done.add(u);continue;}
+        const blob=await fetch(u,{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.blob();});
+        const bmp=await createImageBitmap(blob),W=520,sc=Math.min(1,W/Math.max(bmp.width,bmp.height));
+        if(sc>=1&&blob.size<45000){done.add(u);continue;} // already small: the card falls back to the original
+        const c=document.createElement('canvas');c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);
+        const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(bmp,0,0,c.width,c.height);
+        let out=await new Promise(r=>c.toBlob(r,'image/webp',0.8));
+        if(!out||out.type!=='image/webp')out=await new Promise(r=>c.toBlob(r,'image/jpeg',0.82));
+        await ppEnsureToken();
+        await ppFetch('/storage/v1/object/'+PP_BUCKET+'/'+u.slice(PP_PUB.length)+'.t.webp',{method:'POST',headers:{'Content-Type':out.type,'x-upsert':'true','cache-control':'max-age=31536000'},body:out});
+        done.add(u);made++;if(made%10===0)save();
+      }catch(e){fail++;try{console.warn('V149 thumb',u,e)}catch(_){}}
+    }
+    save();
+    if(made)try{note('🖼️ تم تجهيز '+made+' صورة مصغّرة للكروت'+(fail?' — تعذّر '+fail:''))}catch(_){}
+  }finally{pp149Busy=false;}
+}
+window.pp149Fallback=pp149Fallback;
 function ppSetSync(kind,msg){
+  if(kind==='saved'){try{pp149Kick()}catch(_){}}
   if(!MANAGER)return;
   let el=document.getElementById('pp53-sync');
   if(!el){el=document.createElement('div');el.id='pp53-sync';el.setAttribute('role','status');document.body.appendChild(el);}
