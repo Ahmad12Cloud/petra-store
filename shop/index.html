@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V162';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V163';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -8392,12 +8392,19 @@ function pp162Sync(){try{const pk=pp162Key();document.querySelectorAll('.pp26-na
   b.classList.toggle('selected',on);});}catch(_){}}
 (function(){
   document.addEventListener('click',e=>{try{const b=e.target.closest&&e.target.closest('.pp26-nav button');
+    if(b&&b.dataset.action!=='toggle-menu'&&pp162MenuOpen()){try{setMenu(false);}catch(_){}}
     if(b){if(b.dataset.action==='pp26-contact'){pp162Contact=true;pp162At=Date.now();}else pp162Contact=false;}}catch(_){}
     setTimeout(pp162Sync,30);setTimeout(pp162Sync,350);},true);
   let t=0;window.addEventListener('scroll',()=>{if(!pp162Contact||t)return;t=setTimeout(()=>{t=0;if(Date.now()-pp162At<1500)return;
     const f=document.querySelector('footer.footer');if(!f||f.getBoundingClientRect().top>window.innerHeight-60){pp162Contact=false;pp162Sync();}},150);},{passive:true});
   window.addEventListener('popstate',()=>setTimeout(pp162Sync,60));
-  try{const obs=new MutationObserver(()=>pp162Sync());const hook=()=>{const m=document.getElementById('v12-menu');if(m&&!m.dataset.pp162){m.dataset.pp162='1';obs.observe(m,{attributes:true,attributeFilter:['class']});}};
+  /* V163: the categories menu always ends above the bottom bar, and the bar stays on top so its buttons can be tapped */
+  try{const st=document.createElement('style');st.textContent='html body .v12-customer-nav.pp26-nav{z-index:95!important}';document.head.appendChild(st);}catch(_){}
+  window.pp163Fit=function(){try{const m=document.getElementById('v12-menu');if(!m||m.classList.contains('hide'))return;const nav=document.querySelector('.pp26-nav');
+    const nt=(nav&&nav.offsetHeight&&!nav.classList.contains('pp43-hide-customer-nav'))?nav.getBoundingClientRect().top:window.innerHeight;
+    const top=Math.max(0,m.getBoundingClientRect().top);m.style.setProperty('max-height',Math.max(200,Math.floor(nt-top-8))+'px','important');}catch(_){}};
+  window.addEventListener('resize',()=>window.pp163Fit());window.addEventListener('scroll',()=>window.pp163Fit(),{passive:true});
+  try{const obs=new MutationObserver(()=>{pp162Sync();window.pp163Fit&&window.pp163Fit();});const hook=()=>{const m=document.getElementById('v12-menu');if(m&&!m.dataset.pp162){m.dataset.pp162='1';obs.observe(m,{attributes:true,attributeFilter:['class']});}};
     new MutationObserver(hook).observe(document.body||document.documentElement,{childList:true,subtree:true});hook();}catch(_){}
 })();
 
