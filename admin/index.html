@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V170';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V171';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -8431,7 +8431,7 @@ function pp165Box(t,k,path,on){let inner='';
   else if(k==='pole'){const cur=path.find(x=>/^(AC|DC)$/i.test(x))||'';const v=pp165Volt(cur,t);inner=`<span dir="ltr">${esc(t)}</span>${v?`<small dir="ltr">${v}</small>`:''}`;}
   else inner=`<span>${esc(t)}</span>`;
   return `<button type="button" data-pp165l="${path.length}" data-pp165v="${esc(t)}" class="${on?'on':''}">${inner}</button>`;}
-(function(){const st=document.createElement('style');st.textContent='.pp165-g{display:grid;gap:8px;margin:2px 0 10px}.pp165-g button{border:2px solid #d8c28d;background:#fffdf7;border-radius:14px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:inherit;font-weight:800;color:#30261e;cursor:pointer;min-height:58px}.pp165-g button small{font-weight:700;color:#7a5410;font-size:12px;text-align:center}.pp165-g button.on{border-color:#e8a317;background:linear-gradient(#fff3cf,#ffe39a);box-shadow:0 0 0 3px #f5c24a55}.pp165-g button.on svg{color:#1f7a3a}.pp165-g.need{outline:2px solid #d33;border-radius:14px}.pp165-cur{font:900 italic 28px/1 sans-serif;color:#fff;border-radius:10px;padding:6px 16px}';document.head.appendChild(st);})();
+(function(){const st=document.createElement('style');st.textContent='.pp165-g{display:grid;gap:8px;margin:2px 0 10px}.pp165-g button{border:2px solid #d8c28d;background:#fffdf7;border-radius:14px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:inherit;font-weight:800;color:#30261e;cursor:pointer;min-height:58px}.pp165-g button small{font-weight:700;color:#7a5410;font-size:12px;text-align:center}.pp165-g button.on{border-color:#e8a317;background:linear-gradient(#fff3cf,#ffe39a);box-shadow:0 0 0 3px #f5c24a55}.pp165-g button.on svg{color:#1f7a3a}.pp165-g.need{outline:2px solid #d33;border-radius:14px}.pp171-hint{width:100%;background:#fff4e0;border:2px dashed #d96c00;border-radius:12px;padding:10px;text-align:center;font-weight:800;color:#8a4500}.pp165-g.pp171-miss{outline:2px dashed #d96c00;outline-offset:3px;border-radius:14px}.pp165-cur{font:900 italic 28px/1 sans-serif;color:#fff;border-radius:10px;padding:6px 16px}';document.head.appendChild(st);})();
 function pp164Customer(){
   const box=document.getElementById('pp64-order');if(!box)return;const p=state.products.find(x=>x.id===box.dataset.id);if(!p)return;
   const L=pp165Levels(ppSizes(p));if(!L){box.classList.remove('pp164');return;}
@@ -8453,9 +8453,20 @@ function pp164Customer(){
   if(!mc){mc=document.createElement('div');mc.className='pp64-chips pp164-chips';orig.insertAdjacentElement('afterend',mc);}
   const sizeLab=box.querySelector('.pp64-l:not(.pp164-l)');if(sizeLab){sizeLab.style.display=done?'':'none';if(!sizeLab.dataset.pp165){sizeLab.dataset.pp165='1';sizeLab.insertAdjacentText('afterbegin',L.n+'. ');}}
   const ch=done?L.rows.filter(r=>r.slice(0,L.n-1).join(' · ')===pref).map(r=>{const z=r.join(' · '),u=ppUnit(p,z);return `<button type="button" class="pp64-chip${pp76Sel.has(z)?' on':''}" data-pp164c="${esc(z)}">${esc(r[L.n-1])}${ppHasSP(p)&&u!=null?`<small class="pp78-pr">${esc(pp78fmt(p,u))}</small>`:''}</button>`;}).join(''):'';
-  if(mc.dataset.h!==ch){mc.dataset.h=ch;mc.innerHTML=ch;}
-  mc.style.display=done?'':'none';
+  let ch2=ch;
+  if(!done){const miss=[];for(let i=0;i<N;i++)if(cur[i]===undefined)miss.push(pp165Label(pp165Kind(L.lv[i])));
+    const m=L.rows.filter(r=>cur.every((x,j)=>x===undefined||r[j]===x));const amps=[];m.forEach(r=>{if(!amps.includes(r[N]))amps.push(r[N]);});
+    const pend=pp171Pend[p.id];
+    ch2=amps.map(a=>{const us=m.filter(r=>r[N]===a).map(r=>ppUnit(p,r.join(' · '))).filter(u=>u!=null);let pr='';if(ppHasSP(p)&&us.length){const lo=Math.min(...us),hi=Math.max(...us);pr=lo===hi?pp78fmt(p,lo):pp78fmt(p,lo).replace(/\s*\$$/,'')+'–'+pp78fmt(p,hi);}
+      return `<button type="button" class="pp64-chip${pend===a?' on':''}" data-pp171a="${esc(a)}">${esc(a)}${pr?`<small class="pp78-pr">${esc(pr)}</small>`:''}</button>`;}).join('')+(pend||cur.some(x=>x!==undefined)?`<div class="pp171-hint">⬆️ ${T('اختر','Choose')} «${esc(miss.join(' / '))}» ${T('لتكمل الطلب وتظهر الأسعار الدقيقة','to complete your order and see exact prices')}</div>`:'');}
+  else{const pend=pp171Pend[p.id];if(pend){pp171Pend[p.id]='';const z=cur.join(' · ')+' · '+pend;if(!pp76Sel.has(z)){const o=[...box.querySelectorAll('.pp64-chip[data-pp64-size]')].find(c=>c.dataset.pp64Size===z);if(o)setTimeout(()=>{o.click();setTimeout(pp164Customer,0);},0);}}}
+  box.querySelectorAll('.pp165-g').forEach(g=>g.classList.toggle('pp171-miss',!done&&(cur.some(x=>x!==undefined)||!!pp171Pend[p.id])&&cur[Number(g.dataset.pp165g)]===undefined));
+  if(mc.dataset.h!==ch2){mc.dataset.h=ch2;mc.innerHTML=ch2;}
+  mc.style.display=ch2?'':'none';
+  if(sizeLab)sizeLab.style.display=ch2?'':'none';
 }
+var pp171Pend={};
+window.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-pp171a]');if(!b)return;e.preventDefault();e.stopPropagation();const box=document.getElementById('pp64-order');if(!box)return;const id=box.dataset.id;pp171Pend[id]=pp171Pend[id]===b.dataset.pp171a?'':b.dataset.pp171a;pp164Customer();const g=box.querySelector('.pp165-g.pp171-miss');if(g&&pp171Pend[id])g.scrollIntoView({block:'center',behavior:'smooth'});},true);
 new MutationObserver(()=>{try{pp164Customer()}catch(e){}}).observe(document.body,{childList:true,subtree:true});
 window.addEventListener('click',e=>{const t=e.target;if(!t||!t.closest)return;
   let b=t.closest('[data-pp165v]');
