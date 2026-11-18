@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V161';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V162';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -7611,11 +7611,11 @@ function pp139Nav(){let n=state.settings.pp139Nav;if(!Array.isArray(n)||!n.lengt
 function pp139Base(){return {home:['⌂','الرئيسية','Home'],cats:['▦','التصنيفات','Categories'],contact:['☏','تواصل معنا','Contact us'],cart:['🛒','السلة','Cart'],fav:['♡','المفضلة','Favorites']};}
 function pp139Item(x){if(x.k.startsWith('dept:')){const d=pp139Dept(x.k.slice(5))||{};return {icon:x.icon||d.icon||'▣',label:x.label||(lang==='en'?(d.nameEn||d.name):d.name)||''};}
   const b=pp139Base()[x.k]||['•',x.k,x.k];return {icon:x.icon||b[0],label:(lang==='en'?(x.labelEn||b[2]):(x.label||b[1]))};}
-function pp139NavHtml(){const homeOn=tab==='catalog'&&!ppDept;
+function pp139NavHtml(){const pk=pp162Key(),homeOn=!pk&&tab==='catalog'&&!ppDept;
   return pp139Nav().filter(x=>x.on).slice(0,5).map(x=>{const it=pp139Item(x),lab=esc(it.label),ic=esc(it.icon);
     if(x.k==='home')return `<button type="button" data-action="pp24-home" data-pp139n="home" class="${homeOn?'selected':''}" aria-label="${lab}">${ic} <span>${lab}</span></button>`;
-    if(x.k.startsWith('dept:')){const id=x.k.slice(5);return `<button type="button" data-pp139="dept" data-d="${esc(id)}" data-pp139n="${esc(x.k)}" class="${ppDept===id?'selected':''}" aria-label="${lab}">${ic} <span>${lab}</span></button>`;}
-    const act={cats:'toggle-menu',contact:'pp26-contact',cart:'cart',fav:'pp26-favorites'}[x.k];return `<button type="button" data-action="${act}" aria-label="${lab}">${ic} <span>${lab}</span></button>`;}).join('');}
+    if(x.k.startsWith('dept:')){const id=x.k.slice(5);return `<button type="button" data-pp139="dept" data-d="${esc(id)}" data-pp139n="${esc(x.k)}" class="${!pk&&ppDept===id?'selected':''}" aria-label="${lab}">${ic} <span>${lab}</span></button>`;}
+    const act={cats:'toggle-menu',contact:'pp26-contact',cart:'cart',fav:'pp26-favorites'}[x.k];return `<button type="button" data-action="${act}" data-pp162n="${x.k}" class="${pk===x.k?'selected':''}" aria-label="${lab}">${ic} <span>${lab}</span></button>`;}).join('');}
 function pp139WaLinks(list){return (list||[]).filter(w=>w&&String(w.phone||'').replace(/[^0-9]/g,'').length>=6).map(w=>`<a class="pp139-wa" href="https://wa.me/${String(w.phone).replace(/[^0-9]/g,'')}" target="_blank" rel="noopener noreferrer">${WA_ICON}<span><b>${esc(w.name||T('واتساب','WhatsApp'))}</b><small dir="ltr">${esc(w.phone)}</small></span></a>`).join('');}
 function pp139DeptHead(){const d=pp139Dept(ppDept);if(!d)return '';const cats=allCategories().filter(c=>pp139InDept(d.id,c));
   return `<div class="pp139-head"><div class="pp139-title">${esc(d.icon||'')} ${T('قسم','')} ${esc(lang==='en'?(d.nameEn||d.name):d.name)}</div>${cats.length>1?`<div class="pp139-chips"><button type="button" data-pp139="cat" data-c="" class="${!cat?'on':''}">${T('الكل','All')}</button>${cats.map(c=>`<button type="button" data-pp139="cat" data-c="${esc(c)}" class="${cat===c?'on':''}">${esc(ppCatLabel(c))}</button>`).join('')}</div>`:''}</div>`;}
@@ -7626,7 +7626,7 @@ try{(function(){
   +'#pp139ed .pp139-sec{border:1px solid #e6d6b0;border-radius:12px;padding:10px;margin:0 0 12px;background:#fffdf7}#pp139ed h3{margin:0 0 8px;font-size:16px}#pp139ed .r{display:flex;gap:6px;align-items:center;margin:6px 0;flex-wrap:wrap}#pp139ed input[type=text],#pp139ed input[type=tel]{border:1px solid #d9c49a;border-radius:9px;padding:7px;font:inherit;min-width:0}#pp139ed .ic{width:52px;text-align:center}#pp139ed .nm{flex:1}#pp139ed .mv{border:1px solid #d9c49a;background:#fff;border-radius:8px;padding:4px 8px}#pp139ed .cats{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:13px;margin:6px 0}#pp139ed .del{background:#fdecec;border:1px solid #e08080;color:#8a1c1c;border-radius:9px;padding:6px 10px}#pp139ed .hint{font-size:12px;color:#6b5b45;line-height:1.6}#pp139ed .dep{border-top:1px dashed #d9c49a;padding-top:8px;margin-top:8px}';
   document.head.appendChild(st);
   const _dc=drawCatalog;drawCatalog=function(){_dc.apply(this,arguments);try{const v=$('view');if(ppDept&&v&&!pp24HomeMode()){v.insertAdjacentHTML('afterbegin',pp139DeptHead()+pp157DeptSecs());}
-    if(ppDept&&(isOwner()||pp156CanDept(ppDept))){const nb=v&&v.querySelector('.owner-tools [data-action="edit-new"]');if(nb){nb.removeAttribute('data-action');nb.dataset.pp139='addindept';nb.textContent='＋ إضافة منتجات / سلايدر / صورة';}}footSync();document.querySelectorAll('[data-pp139n]').forEach(b=>{const k=b.dataset.pp139n;b.classList.toggle('selected',k==='home'?(tab==='catalog'&&!ppDept):k==='dept:'+ppDept);});}catch(e){}};
+    if(ppDept&&(isOwner()||pp156CanDept(ppDept))){const nb=v&&v.querySelector('.owner-tools [data-action="edit-new"]');if(nb){nb.removeAttribute('data-action');nb.dataset.pp139='addindept';nb.textContent='＋ إضافة منتجات / سلايدر / صورة';}}footSync();pp162Sync();}catch(e){}};
 
   /* V140: WhatsApp numbers — main numbers on the general store, each department shows only its own numbers */
   function waSheet(focus){const ds=JSON.parse(JSON.stringify(pp139Depts()));draftWa=ds;
@@ -8382,6 +8382,24 @@ document.addEventListener('click',async e=>{const b=e.target&&e.target.closest&&
 (function(){const st=document.createElement('style');st.textContent='html body #modal,html body #pp123,html body #pp49-sheet{padding-top:env(safe-area-inset-top,0px)}';document.head.appendChild(st);
   const fix=()=>{const h=document.querySelector('header.v12-header');if(h&&!h.dataset.pp159){h.dataset.pp159='1';h.style.setProperty('border-top','env(safe-area-inset-top,0px) solid transparent','important');h.style.setProperty('background-clip','border-box','important');}};
   try{new MutationObserver(fix).observe(document.documentElement,{childList:true,subtree:true});}catch(_){}fix();})();
+
+/* ===== V162: bottom bar — «التصنيفات» lights while the categories menu is open, «تواصل معنا» while at the contact section ===== */
+var pp162Contact=false,pp162At=0;
+function pp162MenuOpen(){const m=document.getElementById('v12-menu');return !!(m&&!m.classList.contains('hide'));}
+function pp162Key(){try{if(pp162MenuOpen())return 'cats';if(pp162Contact)return 'contact';}catch(_){}return '';}
+function pp162Sync(){try{const pk=pp162Key();document.querySelectorAll('.pp26-nav button').forEach(b=>{let on=false;const k=b.dataset.pp139n,k2=b.dataset.pp162n;
+  if(pk)on=(k2===pk);else if(k==='home')on=(tab==='catalog'&&!ppDept);else if(k&&k.startsWith('dept:'))on=(k==='dept:'+ppDept);
+  b.classList.toggle('selected',on);});}catch(_){}}
+(function(){
+  document.addEventListener('click',e=>{try{const b=e.target.closest&&e.target.closest('.pp26-nav button');
+    if(b){if(b.dataset.action==='pp26-contact'){pp162Contact=true;pp162At=Date.now();}else pp162Contact=false;}}catch(_){}
+    setTimeout(pp162Sync,30);setTimeout(pp162Sync,350);},true);
+  let t=0;window.addEventListener('scroll',()=>{if(!pp162Contact||t)return;t=setTimeout(()=>{t=0;if(Date.now()-pp162At<1500)return;
+    const f=document.querySelector('footer.footer');if(!f||f.getBoundingClientRect().top>window.innerHeight-60){pp162Contact=false;pp162Sync();}},150);},{passive:true});
+  window.addEventListener('popstate',()=>setTimeout(pp162Sync,60));
+  try{const obs=new MutationObserver(()=>pp162Sync());const hook=()=>{const m=document.getElementById('v12-menu');if(m&&!m.dataset.pp162){m.dataset.pp162='1';obs.observe(m,{attributes:true,attributeFilter:['class']});}};
+    new MutationObserver(hook).observe(document.body||document.documentElement,{childList:true,subtree:true});hook();}catch(_){}
+})();
 
 ppBoot();
 })();
