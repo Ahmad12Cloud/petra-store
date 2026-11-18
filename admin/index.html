@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V164';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V165';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -4891,7 +4891,7 @@ document.addEventListener('change',async e=>{
 },true);
 
 /* ===== V64: ordering — size options (e.g. 2A…63A), customer note, direct WhatsApp order, full-cart WhatsApp order ===== */
-function ppParseSizes(s){return [...new Set(String(s||'').split(/[\n,،;|]+/).map(x=>x.trim()).filter(Boolean))].slice(0,80);}
+function ppParseSizes(s){return [...new Set(String(s||'').split(/[\n,،;|]+/).map(x=>x.trim()).filter(Boolean))].slice(0,300);}
 function ppSizes(p){return Array.isArray(p&&p.sizes)?p.sizes.map(x=>String(x).trim()).filter(Boolean):[];}
 function ppSizeLabel(p){return(p&&p.sizeLabel&&String(p.sizeLabel).trim())||T('القياس','Size');}
 let ppCartNote='';try{ppCartNote=localStorage.getItem('pp64-note')||'';}catch(_){}
@@ -8418,34 +8418,51 @@ function pp164Icon(t){if(!pp164Wifi(t))return '';const x=pp164No(t)?'<path d="M3
 function pp164Name(t){if(lang!=='en'||!pp164Wifi(t))return t;return pp164No(t)?'Without Wi-Fi':'With Wi-Fi';}
 function pp164Sub(t){if(!pp164Wifi(t))return '';return pp164No(t)?T('إعادة تشغيل تلقائي','Auto reclosing'):T('تحكم من الموبايل','Phone control');}
 (function(){const st=document.createElement('style');st.textContent='#pp64-order.pp164 .pp64-chips:not(.pp164-chips){display:none!important}.pp164-v{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:2px 0 12px}.pp164-v button{border:2px solid #d8c28d;background:#fffdf7;border-radius:14px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:3px;font:inherit;font-weight:800;color:#30261e;cursor:pointer}.pp164-v button small{font-weight:700;color:#7a5410;font-size:12px}.pp164-v button.on{border-color:#e8a317;background:linear-gradient(#fff3cf,#ffe39a);box-shadow:0 0 0 3px #f5c24a55}.pp164-v button.on svg{color:#1f7a3a}.pp164-v.need{outline:2px solid #d33;border-radius:14px}.pp164-t{width:100%;border-collapse:separate;border-spacing:0 5px;margin-top:6px}.pp164-t th{font-size:12px;color:#7a5410;font-weight:800;text-align:center;padding:0 2px}.pp164-t td{text-align:center}.pp164-t td b{display:inline-block;background:#f4c04e;border-radius:9px;padding:5px 9px;min-width:40px;direction:ltr}.pp164-t input{width:84px;padding:7px;border:1.5px solid #d9c797;border-radius:9px;text-align:center;font:inherit;font-weight:700;background:#fffdf7}.pp164-own .pp78-row{display:none!important}';document.head.appendChild(st);})();
+/* V165: any number of levels — "النوع · التيار · الأقطاب · الأمبير": one row of big boxes per level, then the amps of the chosen path */
+function pp165Levels(list){if(!list||list.length<2)return null;const rows=list.map(z=>String(z).split(' · ').map(s=>s.trim()));const n=rows[0].length;if(n<2||rows.some(r=>r.length!==n||r.some(x=>!x)))return null;
+  const lv=[];for(let i=0;i<n-1;i++){const o=[];rows.forEach(r=>{if(!o.includes(r[i]))o.push(r[i]);});lv.push(o);}
+  if(!lv.some(o=>o.length>=2)||lv.some(o=>o.length>8))return null;return {n,rows,lv};}
+function pp165Kind(opts){if(opts.some(pp164Wifi))return 'wifi';if(opts.every(o=>/^(AC|DC)$/i.test(o)))return 'cur';if(opts.every(o=>/^\d+P(\+N)?$/i.test(o)))return 'pole';return '';}
+function pp165Label(k){return k==='wifi'?T('النوع','Type'):k==='cur'?T('التيار','Current'):k==='pole'?T('عدد الأقطاب','Poles'):T('الخيار','Option');}
+function pp165Volt(cur,pole){const n=parseInt(pole,10);if(!n)return '';if(/^DC$/i.test(cur))return ({1:'250V',2:'500V',3:'750V',4:'1000V'})[n]||'';if(/^AC$/i.test(cur))return n===1?'230V':'400V';return '';}
+function pp165Box(t,k,path,on){let inner='';
+  if(k==='wifi')inner=`${pp164Icon(t)}<span>${esc(pp164Name(t))}</span>${pp164Sub(t)?`<small>${esc(pp164Sub(t))}</small>`:''}`;
+  else if(k==='cur'){const ac=/^AC$/i.test(t);inner=`<span class="pp165-cur" style="background:${ac?'#13852f':'#c40000'}">${esc(t)}</span><small>${ac?T('تيار متناوب – البيوت واللوحات','Alternating current – homes & boards'):T('تيار مستمر – ألواح الطاقة الشمسية ☀️','Direct current – solar panels ☀️')}</small>`;}
+  else if(k==='pole'){const cur=path.find(x=>/^(AC|DC)$/i.test(x))||'';const v=pp165Volt(cur,t);inner=`<span dir="ltr">${esc(t)}</span>${v?`<small dir="ltr">${v}</small>`:''}`;}
+  else inner=`<span>${esc(t)}</span>`;
+  return `<button type="button" data-pp165l="${path.length}" data-pp165v="${esc(t)}" class="${on?'on':''}">${inner}</button>`;}
+(function(){const st=document.createElement('style');st.textContent='.pp165-g{display:grid;gap:8px;margin:2px 0 10px}.pp165-g button{border:2px solid #d8c28d;background:#fffdf7;border-radius:14px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:inherit;font-weight:800;color:#30261e;cursor:pointer;min-height:58px}.pp165-g button small{font-weight:700;color:#7a5410;font-size:12px;text-align:center}.pp165-g button.on{border-color:#e8a317;background:linear-gradient(#fff3cf,#ffe39a);box-shadow:0 0 0 3px #f5c24a55}.pp165-g button.on svg{color:#1f7a3a}.pp165-g.need{outline:2px solid #d33;border-radius:14px}.pp165-cur{font:900 italic 28px/1 sans-serif;color:#fff;border-radius:10px;padding:6px 16px}';document.head.appendChild(st);})();
 function pp164Customer(){
   const box=document.getElementById('pp64-order');if(!box)return;const p=state.products.find(x=>x.id===box.dataset.id);if(!p)return;
-  const info=pp164Info(ppSizes(p));if(!info){box.classList.remove('pp164');return;}
+  const L=pp165Levels(ppSizes(p));if(!L){box.classList.remove('pp164');return;}
   const orig=box.querySelector('.pp64-chips:not(.pp164-chips)');if(!orig)return;
   box.classList.add('pp164');
-  if(!pp164Cur[p.id]||!info.pre.includes(pp164Cur[p.id]))pp164Cur[p.id]='';
-  const cur=pp164Cur[p.id];
-  let v=box.querySelector('.pp164-v');
-  if(!v){const lab=document.createElement('div');lab.className='pp64-l pp164-l';lab.innerHTML=T('النوع','Type')+' <b class="pp64-req">*</b>';
-    v=document.createElement('div');v.className='pp164-v';
-    const first=box.querySelector('.pp64-l')||orig;first.insertAdjacentElement('beforebegin',lab);lab.insertAdjacentElement('afterend',v);}
-  const vh=info.pre.map(t=>`<button type="button" data-pp164v="${esc(t)}" class="${cur===t?'on':''}">${pp164Icon(t)}<span>${esc(pp164Name(t))}</span>${pp164Sub(t)?`<small>${esc(pp164Sub(t))}</small>`:''}</button>`).join('');
-  if(v.dataset.h!==vh){v.dataset.h=vh;v.innerHTML=vh;}
+  let cur=Array.isArray(pp164Cur[p.id])?pp164Cur[p.id].slice(0,L.n-1):[];
+  for(let i=0;i<cur.length;i++){const ok=L.rows.some(r=>cur.slice(0,i+1).every((x,j)=>r[j]===x));if(!ok){cur=cur.slice(0,i);break;}}
+  pp164Cur[p.id]=cur;
+  let wrap=box.querySelector('.pp165-w');
+  if(!wrap){wrap=document.createElement('div');wrap.className='pp165-w';const first=box.querySelector('.pp64-l')||orig;first.insertAdjacentElement('beforebegin',wrap);}
+  let h='';for(let i=0;i<L.n-1;i++){if(i>cur.length)break;const pre=cur.slice(0,i);const opts=L.lv[i].filter(o=>L.rows.some(r=>pre.every((x,j)=>r[j]===x)&&r[i]===o));const k=pp165Kind(L.lv[i]);
+    const cols=k==='pole'?Math.min(4,opts.length):Math.min(2,opts.length)||1;
+    h+=`<div class="pp64-l pp164-l">${i+1}. ${pp165Label(k)} <b class="pp64-req">*</b></div><div class="pp165-g" data-pp165g="${i}" style="grid-template-columns:repeat(${cols},1fr)">${opts.map(o=>pp165Box(o,k,pre,cur[i]===o)).join('')}</div>`;}
+  if(wrap.dataset.h!==h){wrap.dataset.h=h;wrap.innerHTML=h;}
+  const done=cur.length===L.n-1;const pref=cur.join(' · ');
   let mc=box.querySelector('.pp164-chips');
   if(!mc){mc=document.createElement('div');mc.className='pp64-chips pp164-chips';orig.insertAdjacentElement('afterend',mc);}
-  const sizeLab=box.querySelector('.pp64-l:not(.pp164-l)');if(sizeLab)sizeLab.style.display=cur?'':'none';
-  const ch=cur?info.amps.filter(a=>ppSizes(p).includes(cur+' · '+a)).map(a=>{const z=cur+' · '+a,u=ppUnit(p,z);return `<button type="button" class="pp64-chip${pp76Sel.has(z)?' on':''}" data-pp164c="${esc(z)}">${esc(a)}${ppHasSP(p)&&u!=null?`<small class="pp78-pr">${esc(pp78fmt(p,u))}</small>`:''}</button>`;}).join(''):'';
+  const sizeLab=box.querySelector('.pp64-l:not(.pp164-l)');if(sizeLab){sizeLab.style.display=done?'':'none';if(!sizeLab.dataset.pp165){sizeLab.dataset.pp165='1';sizeLab.insertAdjacentText('afterbegin',L.n+'. ');}}
+  const ch=done?L.rows.filter(r=>r.slice(0,L.n-1).join(' · ')===pref).map(r=>{const z=r.join(' · '),u=ppUnit(p,z);return `<button type="button" class="pp64-chip${pp76Sel.has(z)?' on':''}" data-pp164c="${esc(z)}">${esc(r[L.n-1])}${ppHasSP(p)&&u!=null?`<small class="pp78-pr">${esc(pp78fmt(p,u))}</small>`:''}</button>`;}).join(''):'';
   if(mc.dataset.h!==ch){mc.dataset.h=ch;mc.innerHTML=ch;}
-  mc.style.display=cur?'':'none';
+  mc.style.display=done?'':'none';
 }
 new MutationObserver(()=>{try{pp164Customer()}catch(e){}}).observe(document.body,{childList:true,subtree:true});
 window.addEventListener('click',e=>{const t=e.target;if(!t||!t.closest)return;
-  let b=t.closest('[data-pp164v]');
-  if(b){e.preventDefault();e.stopPropagation();const box=document.getElementById('pp64-order');if(!box)return;pp164Cur[box.dataset.id]=b.dataset.pp164v;box.querySelector('.pp164-v')?.classList.remove('need');const m=document.getElementById('pp64-msg');if(m)m.textContent='';pp164Customer();return;}
+  let b=t.closest('[data-pp165v]');
+  if(b){e.preventDefault();e.stopPropagation();const box=document.getElementById('pp64-order');if(!box)return;const i=Number(b.dataset.pp165l)||0;const cur=(pp164Cur[box.dataset.id]||[]).slice(0,i);cur[i]=b.dataset.pp165v;pp164Cur[box.dataset.id]=cur;box.querySelectorAll('.pp165-g.need').forEach(x=>x.classList.remove('need'));const m=document.getElementById('pp64-msg');if(m)m.textContent='';pp164Customer();return;}
   b=t.closest('[data-pp164c]');
   if(b){e.preventDefault();e.stopPropagation();const box=document.getElementById('pp64-order');const o=box&&[...box.querySelectorAll('.pp64-chip[data-pp64-size]')].find(c=>c.dataset.pp64Size===b.dataset.pp164c);if(o)o.click();setTimeout(pp164Customer,0);return;}
   b=t.closest('#pp64-order [data-pp64-add],#pp64-order [data-pp64-wa],#pp64-order [data-pp75-send]');
-  if(b){const box=document.getElementById('pp64-order');if(box&&box.classList.contains('pp164')&&!pp164Cur[box.dataset.id]&&!pp76Sel.size){e.preventDefault();e.stopImmediatePropagation();box.querySelector('.pp164-v')?.classList.add('need');const m=document.getElementById('pp64-msg');if(m){m.style.color='#b00';m.textContent=T('اختر النوع أولاً','Choose the type first');}return;}
+  if(b){const box=document.getElementById('pp64-order');const okMsg=/✓/.test(document.getElementById('pp64-msg')?.textContent||'');if(box&&box.classList.contains('pp164')&&!pp76Sel.size&&!okMsg){const p=state.products.find(x=>x.id===box.dataset.id);const L=p&&pp165Levels(ppSizes(p));const cur=pp164Cur[box.dataset.id]||[];
+      if(L&&cur.length<L.n-1){e.preventDefault();e.stopImmediatePropagation();box.querySelector(`.pp165-g[data-pp165g="${cur.length}"]`)?.classList.add('need');const m=document.getElementById('pp64-msg');if(m){m.style.color='#b00';m.textContent=T('أكمل الاختيار أولاً','Complete your choice first');}return;}}
     setTimeout(pp164Customer,30);setTimeout(pp164Customer,1700);}
 },true);
 /* owner: price table with one column per option (mirrors the existing per-size price inputs, so saving works as before) */
