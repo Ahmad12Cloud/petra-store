@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V150';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V151';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -8169,15 +8169,15 @@ async function pp150Stats(){if(!pp150Owner()){note('للمالك فقط');return
 /* ---------- deleted photos (owner): orphans go to trash/ for N days instead of being deleted ---------- */
 const pp150TrashDays=()=>{const n=Math.round(Number(state.settings.pp150TrashDays));return Number.isFinite(n)&&n>=1&&n<=30?n:7;};
 async function pp150Move(src,dst){return ppFetch('/storage/v1/object/move',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bucketId:PP_BUCKET,sourceKey:src,destinationKey:dst})});}
-const pp150Gone=e=>/not.?found|404|NoSuchKey/i.test(String(e&&e.message||''));
+const pp150Gone=e=>/not.?found|NoSuchKey/i.test(String(e&&e.message||''));
 async function pp150TrashUrls(urls){const failed=[];const ts=Date.now();
-  for(const u of urls){const path=u.slice(PP_PUB.length),dst='trash/'+ts+'__'+path.replace(/\//g,'~~');
+  for(const u of urls){const path=u.slice(PP_PUB.length),dst='trash/'+ts+'__'+path.replace(/\//g,'!'); // V151: '!' (Supabase rejects '~' in keys)
     try{await pp150Move(path,dst);}catch(e){if(!pp150Gone(e)){failed.push(u);continue;}}
     try{await pp150Move(path+'.t.webp',dst+'.t.webp');}catch(_){}}
   return failed;}
 async function pp150List(){const out=[];for(let off=0;off<20000;off+=1000){const r=await ppFetch('/storage/v1/object/list/'+PP_BUCKET,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prefix:'trash',limit:1000,offset:off,sortBy:{column:'name',order:'desc'}})}).then(r=>r.json());
   if(!Array.isArray(r))break;out.push(...r.filter(x=>x&&x.name&&x.id!==null));if(r.length<1000)break;}return out;}
-function pp150Parse(name){const m=/^(\d{10,})__(.+)$/.exec(name);if(!m)return null;const path=m[2].replace(/~~/g,'/');const pid=(/^products\/([^/]+)\//.exec(path)||[])[1]||'';return {name,ts:Number(m[1]),path,pid};}
+function pp150Parse(name){const m=/^(\d{10,})__(.+)$/.exec(name);if(!m)return null;const path=m[2].replace(/~~/g,'/').replace(/!/g,'/');const pid=(/^products\/([^/]+)\//.exec(path)||[])[1]||'';return {name,ts:Number(m[1]),path,pid};}
 async function pp150Purge(force){if(!pp150Owner()||!ppSession)return;let last=0;try{last=Number(localStorage.getItem('pp150-purge')||0)}catch(_){}
   if(!force&&Date.now()-last<6*3600*1000)return;try{localStorage.setItem('pp150-purge',String(Date.now()))}catch(_){}
   try{await ppEnsureToken();const lim=pp150TrashDays()*86400000,list=await pp150List();
