@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V167';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V168';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2336,7 +2336,7 @@ async function saveProduct(){
  if((price!==''&&(!Number.isFinite(+price)||+price<0))||(stock!==''&&!/^\d+$/.test(stock))){note('راجع السعر والكمية');return;}
  const visibility={showName:fd.has('showName'),showPrice:fd.has('showPrice'),showDesc:fd.has('showDesc'),showCode:fd.has('showCode'),showCategory:fd.has('showCategory'),showBrandModel:fd.has('showBrandModel'),showSpecs:fd.has('showSpecs')};
  const p={id:old?.id||id(),demoOnly:old?.demoOnly===true,createdAt:old?.createdAt||Date.now(),
- nameAr:v('nameAr'),nameEn:v('nameEn'),sku,productCode,pp49CodeMode:mode,pp49CodePrefix:prefix,barcode:v('barcode'),category:v('category'),sizes:ppParseSizes(v('sizes')),sizePrices:ppCleanSP(v('sizePrices'),ppParseSizes(v('sizes'))),sizeLabel:v('sizeLabel'),...ppEnSave(old,v),blocks:pp96Take(old),specLine:v('specLine'),specTable:v('specTable'),datasheet:v('datasheet'),brand:v('brand'),model:v('model'),
+ nameAr:v('nameAr'),nameEn:v('nameEn'),sku,productCode,pp49CodeMode:mode,pp49CodePrefix:prefix,barcode:v('barcode'),category:v('category'),sizes:ppParseSizes(v('sizes')),sizePrices:ppCleanSP(v('sizePrices'),ppParseSizes(v('sizes'))),sizeLabel:v('sizeLabel'),...ppEnSave(old,v),blocks:pp96Take(old),...(old&&old.optDetails?{optDetails:old.optDetails}:{}),specLine:v('specLine'),specTable:v('specTable'),datasheet:v('datasheet'),brand:v('brand'),model:v('model'),
  currency:v('currency')||'USD',price:price===''?null:((v('priceMax')!==''&&Number(v('priceMax'))>=0&&Number(v('priceMax'))<Number(price))?Number(v('priceMax')):Number(price)),priceMax:(v('priceMax')===''||price===''||Number(v('priceMax'))===Number(price))?null:Math.max(Number(v('priceMax')),Number(price)),stock:stock===''?null:Number(stock),specs:v('specs'),
  descriptionAr:v('descriptionAr'),descriptionEn:v('descriptionEn'),images:[...formImages],
  photoBg:fd.has('customPhotoBg')?safeColor(fd.get('photoBg'),safeColor(state.settings.productPhotoBg,'#ffffff')):'',
@@ -8445,6 +8445,7 @@ function pp164Customer(){
   let h='';for(let i=0;i<L.n-1;i++){if(i>cur.length)break;const pre=cur.slice(0,i);const opts=L.lv[i].filter(o=>L.rows.some(r=>pre.every((x,j)=>r[j]===x)&&r[i]===o));const k=pp165Kind(L.lv[i]);
     const cols=k==='pole'?Math.min(4,opts.length):Math.min(2,opts.length)||1;
     h+=`<div class="pp64-l pp164-l">${i+1}. ${pp165Label(k)} <b class="pp64-req">*</b></div><div class="pp165-g" data-pp165g="${i}" style="grid-template-columns:repeat(${cols},1fr)">${opts.map(o=>pp165Box(o,k,pre,cur[i]===o)).join('')}</div>`;}
+  h+=pp168Box(p,cur);
   if(wrap.dataset.h!==h){wrap.dataset.h=h;wrap.innerHTML=h;}
   const done=cur.length===L.n-1;const pref=cur.join(' · ');
   let mc=box.querySelector('.pp164-chips');
@@ -8465,6 +8466,14 @@ window.addEventListener('click',e=>{const t=e.target;if(!t||!t.closest)return;
       if(L&&cur.length<L.n-1){e.preventDefault();e.stopImmediatePropagation();box.querySelector(`.pp165-g[data-pp165g="${cur.length}"]`)?.classList.add('need');const m=document.getElementById('pp64-msg');if(m){m.style.color='#b00';m.textContent=T('أكمل الاختيار أولاً','Complete your choice first');}return;}}
     setTimeout(pp164Customer,30);setTimeout(pp164Customer,1700);}
 },true);
+
+/* ===== V168: "مواصفات اختيارك" — per-option details (extra.optDetails) shown only for what the customer picked ===== */
+function pp168Box(p,cur){const od=p&&p.optDetails;if(!od||typeof od!=='object'||!cur.length)return '';
+  const keys=[];cur.forEach((x,i)=>{keys.push(x);for(let j=i+1;j<cur.length;j++)keys.push(x+' · '+cur[j]);});
+  const lines=[];keys.forEach(k=>{const v=od[k];(Array.isArray(v)?v:v?[v]:[]).forEach(t=>{t=String(t);if(t&&!lines.includes(t))lines.push(t);});});
+  if(!lines.length)return '';
+  return `<div class="pp168"><div class="pp168-h">📋 ${T('مواصفات اختيارك','Your selection')}: <b dir="rtl">${esc(cur.join(" · "))}</b></div><ul>${lines.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>`;}
+(function(){const st=document.createElement('style');st.textContent='.pp168{background:#fff;border:2px solid #e8a317;border-radius:14px;padding:10px 12px;margin:2px 0 12px}.pp168-h{font-weight:900;color:#5a3c06;margin-bottom:6px}.pp168-h b{color:#d96c00}.pp168 ul{margin:0;padding:0 18px 0 0;list-style:none}.pp168 li{position:relative;padding:3px 0;font-weight:700;color:#2b1d05;line-height:1.5}.pp168 li::before{content:"✔";color:#13852f;margin-left:6px;font-weight:900}';document.head.appendChild(st);})();
 /* owner: price table with one column per option (mirrors the existing per-size price inputs, so saving works as before) */
 function pp164OwnerBox(bx){
   const rows=[...bx.querySelectorAll('.pp78-row')];const keys=rows.map(r=>r.querySelector('b')?.textContent||'');
