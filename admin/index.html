@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V165';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V166';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1510,7 +1510,7 @@ loadCustomerCart();
 
 const T=(ar,en)=>lang==='ar'?ar:en;
 const S=(ar,en)=>lang==='ar'?(clean(ar)||clean(en)):(clean(en)||clean(ar));
-const money=(v,c)=>v==null||!Number.isFinite(Number(v))?T('السعر عند الطلب','Ask for price'):`${Number(v).toLocaleString('en-US',{maximumFractionDigits:2})} ${esc(c||'USD')}`;
+const money=(v,c)=>v==null||!Number.isFinite(Number(v))?T('السعر عند الطلب','Ask for price'):(String(c||'USD').toUpperCase()==='USD'?`${Number(v).toLocaleString('en-US',{maximumFractionDigits:2})}\u00a0$`:`${Number(v).toLocaleString('en-US',{maximumFractionDigits:2})} ${esc(c||'USD')}`); /* V166: 31 $ */
 const safeImg=(s)=>typeof s==='string'&&(/^data:image\/(webp|png|jpeg|gif);base64,[a-z0-9+/=]+$/i.test(s)||PP_IMG_RE.test(s))?s:'';
 const applyAppearance=()=>{const st=state.settings;document.documentElement.dataset.storeTheme=st.storeTheme==='dark'?'dark':'light';document.documentElement.style.setProperty('--pp-card-default',safeColor(st.productCardBg,'#ffffff'));document.documentElement.style.setProperty('--pp-photo-default',safeColor(st.productPhotoBg,'#ffffff'));document.documentElement.style.setProperty('--pp-banner-default',safeColor(st.bannerStageBg,'#fff8ed'));document.documentElement.style.setProperty('--pp-intro-bg',safeColor(st.introBg,'#fffdfa'));document.documentElement.style.setProperty('--pp-intro-text',safeColor(st.introTextColor,'#2d2f33'));document.documentElement.style.setProperty('--pp-page-bg',safeColor(st.pageBg,'#f9f6ef'));document.documentElement.style.setProperty('--pp-banner-text',safeColor(st.bannerTitleColor,'#ffffff'));};
 const cardFg=(hex)=>{const v=safeColor(hex,'#ffffff').slice(1);const r=parseInt(v.slice(0,2),16),g=parseInt(v.slice(2,4),16),b=parseInt(v.slice(4,6),16);return (r*299+g*587+b*114)/1000<145?'#fff9ed':'#29313a';};
@@ -8479,6 +8479,18 @@ function pp164Owner(){document.querySelectorAll('.pp78-own').forEach(bx=>{try{pp
 new MutationObserver(()=>{pp164Owner()}).observe(document.body,{childList:true,subtree:true});
 const pp164Fwd=(e,ev)=>{const i=e.target.closest&&e.target.closest('[data-pp164p]');if(!i)return;const bx=i.closest('.pp78-own');const o=bx&&[...bx.querySelectorAll('.pp78-row input')].find(x=>(x.dataset.pp78p||x.dataset.pp78f)===i.dataset.pp164p);if(!o)return;o.value=i.value;if(ev==='input'&&o.dataset.pp78f!==undefined)o.dispatchEvent(new Event('input',{bubbles:true}));if(ev==='change'&&o.dataset.pp78p!==undefined)o.dispatchEvent(new Event('change',{bubbles:true}));};
 document.addEventListener('input',e=>pp164Fwd(e,'input'),true);document.addEventListener('change',e=>pp164Fwd(e,'change'),true);
+
+/* ===== V166: prices — "$" after the number (31$) everywhere instead of "USD", darker digits, and the price line sits just above the cart button so prices line up across a row ===== */
+(function(){
+  const sym=c=>String(c||'USD').toUpperCase()==='USD'?'$':'';
+  const f=n=>Number(n).toLocaleString('en-US',{maximumFractionDigits:2});
+  const _h=pp104Html;pp104Html=function(a,b,cur,rtl,single){
+    if(cur!=='USD')return _h(a,b,cur,rtl,single);
+    const N=x=>'<span class="pp102n" dir="ltr">'+f(x)+'<span class="pp166d">$</span></span>',W=x=>'<span class="pp102w">'+x+'</span>';
+    if(single)return N(a);const lo=Math.min(a,b),hi=Math.max(a,b);
+    return rtl?'<bdi dir="rtl">'+W('من')+' '+N(lo)+' '+W('إلى')+' '+N(hi)+'</bdi>':'<bdi dir="ltr">'+W('From')+' '+N(lo)+' '+W('to')+' '+N(hi)+'</bdi>';};
+  const st=document.createElement('style');st.textContent='article.product{display:flex!important;flex-direction:column!important}article.product .product-price{margin-top:auto!important;padding-top:6px}article.product .product-bottom{margin-top:6px!important}.pp166d{margin-left:.22em}html body .pp102n,html body article.product .pp102n{color:#4a3104!important;font-weight:800!important}html body .pp102w,html body article.product .pp102w{color:#4a3104!important;opacity:1!important;font-weight:700!important}.pp78-pr{color:#5a3c06!important;font-weight:800!important}';document.head.appendChild(st);
+})();
 
 ppBoot();
 })();
