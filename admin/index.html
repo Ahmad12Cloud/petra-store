@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V151';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V152';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -8187,7 +8187,9 @@ async function pp150Purge(force){if(!pp150Owner()||!ppSession)return;let last=0;
 let pp150Items=[],pp150Names={};
 async function pp150Trash(){if(!pp150Owner()){note('للمالك فقط');return;}
   modal('🗑️ الصور المحذوفة','<div id="pp150-tr"><div class="pp150-ld">⏳ عم جيب الصور…</div></div>',`<button type="button" class="btn" data-action="close-modal">${T('إغلاق','Close')}</button>`);
-  try{await ppEnsureToken();await pp150Purge(true);const list=await pp150List();const names=new Set(list.map(x=>x.name));
+  try{await ppEnsureToken();
+    try{await ppCleanOrphans([],[],state.products.map(ppProductToRow),ppSettingsForDb());}catch(_){} // V152: retry photos whose earlier move failed
+    await pp150Purge(true);const list=await pp150List();const names=new Set(list.map(x=>x.name));
     pp150Items=list.map(x=>x.name).filter(n=>!/\.t\.webp$/.test(n)).map(pp150Parse).filter(Boolean).map(it=>({...it,thumb:names.has(it.name+'.t.webp')}));
     const missing=[...new Set(pp150Items.map(i=>i.pid).filter(id=>id&&!state.products.some(p=>p.id===id)))];
     pp150Names={};if(missing.length){try{pp150Names=await ppFetch('/rest/v1/rpc/pp_snapshot_names',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({p_pids:missing})}).then(r=>r.json())||{}}catch(_){}}
