@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V168';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V169';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -8437,17 +8437,18 @@ function pp164Customer(){
   const L=pp165Levels(ppSizes(p));if(!L){box.classList.remove('pp164');return;}
   const orig=box.querySelector('.pp64-chips:not(.pp164-chips)');if(!orig)return;
   box.classList.add('pp164');
-  let cur=Array.isArray(pp164Cur[p.id])?pp164Cur[p.id].slice(0,L.n-1):[];
-  for(let i=0;i<cur.length;i++){const ok=L.rows.some(r=>cur.slice(0,i+1).every((x,j)=>r[j]===x));if(!ok){cur=cur.slice(0,i);break;}}
+  const N=L.n-1;let cur=Array.isArray(pp164Cur[p.id])?pp164Cur[p.id].slice(0,N):[];while(cur.length<N)cur.push(undefined);
+  const fits=(r,c,skip)=>c.every((x,j)=>j===skip||x===undefined||r[j]===x);
+  for(let i=0;i<N;i++){if(cur[i]!==undefined&&!L.rows.some(r=>fits(r,cur)))cur[i]=undefined;}
   pp164Cur[p.id]=cur;
   let wrap=box.querySelector('.pp165-w');
   if(!wrap){wrap=document.createElement('div');wrap.className='pp165-w';const first=box.querySelector('.pp64-l')||orig;first.insertAdjacentElement('beforebegin',wrap);}
-  let h='';for(let i=0;i<L.n-1;i++){if(i>cur.length)break;const pre=cur.slice(0,i);const opts=L.lv[i].filter(o=>L.rows.some(r=>pre.every((x,j)=>r[j]===x)&&r[i]===o));const k=pp165Kind(L.lv[i]);
-    const cols=k==='pole'?Math.min(4,opts.length):Math.min(2,opts.length)||1;
-    h+=`<div class="pp64-l pp164-l">${i+1}. ${pp165Label(k)} <b class="pp64-req">*</b></div><div class="pp165-g" data-pp165g="${i}" style="grid-template-columns:repeat(${cols},1fr)">${opts.map(o=>pp165Box(o,k,pre,cur[i]===o)).join('')}</div>`;}
-  h+=pp168Box(p,cur);
+  let h='';for(let i=0;i<N;i++){const opts=L.lv[i].filter(o=>L.rows.some(r=>fits(r,cur,i)&&r[i]===o));const k=pp165Kind(L.lv[i]);
+    const cols=k==='pole'?Math.min(4,opts.length):Math.min(2,opts.length)||1;const ctx=cur.filter(x=>x!==undefined);
+    h+=`<div class="pp64-l pp164-l">${i+1}. ${pp165Label(k)} <b class="pp64-req">*</b></div><div class="pp165-g" data-pp165g="${i}" style="grid-template-columns:repeat(${cols},1fr)">${opts.map(o=>pp165Box(o,k,ctx,cur[i]===o).replace('data-pp165l="'+ctx.length+'"','data-pp165l="'+i+'"')).join('')}</div>`;}
+  h+=pp168Box(p,cur.filter(x=>x!==undefined));
   if(wrap.dataset.h!==h){wrap.dataset.h=h;wrap.innerHTML=h;}
-  const done=cur.length===L.n-1;const pref=cur.join(' · ');
+  const done=cur.every(x=>x!==undefined);const pref=cur.join(' · ');
   let mc=box.querySelector('.pp164-chips');
   if(!mc){mc=document.createElement('div');mc.className='pp64-chips pp164-chips';orig.insertAdjacentElement('afterend',mc);}
   const sizeLab=box.querySelector('.pp64-l:not(.pp164-l)');if(sizeLab){sizeLab.style.display=done?'':'none';if(!sizeLab.dataset.pp165){sizeLab.dataset.pp165='1';sizeLab.insertAdjacentText('afterbegin',L.n+'. ');}}
@@ -8458,12 +8459,12 @@ function pp164Customer(){
 new MutationObserver(()=>{try{pp164Customer()}catch(e){}}).observe(document.body,{childList:true,subtree:true});
 window.addEventListener('click',e=>{const t=e.target;if(!t||!t.closest)return;
   let b=t.closest('[data-pp165v]');
-  if(b){e.preventDefault();e.stopPropagation();const box=document.getElementById('pp64-order');if(!box)return;const i=Number(b.dataset.pp165l)||0;const cur=(pp164Cur[box.dataset.id]||[]).slice(0,i);cur[i]=b.dataset.pp165v;pp164Cur[box.dataset.id]=cur;box.querySelectorAll('.pp165-g.need').forEach(x=>x.classList.remove('need'));const m=document.getElementById('pp64-msg');if(m)m.textContent='';pp164Customer();return;}
+  if(b){e.preventDefault();e.stopPropagation();const box=document.getElementById('pp64-order');if(!box)return;const i=Number(b.dataset.pp165l)||0;const cur=(pp164Cur[box.dataset.id]||[]).slice();cur[i]=b.dataset.pp165v;const p0=state.products.find(x=>x.id===box.dataset.id),L0=p0&&pp165Levels(ppSizes(p0));if(L0)for(let j=0;j<L0.n-1;j++){if(j!==i&&cur[j]!==undefined&&!L0.rows.some(r=>cur.every((x,q)=>x===undefined||r[q]===x)))cur[j]=undefined;}pp164Cur[box.dataset.id]=cur;box.querySelectorAll('.pp165-g.need').forEach(x=>x.classList.remove('need'));const m=document.getElementById('pp64-msg');if(m)m.textContent='';pp164Customer();return;}
   b=t.closest('[data-pp164c]');
   if(b){e.preventDefault();e.stopPropagation();const box=document.getElementById('pp64-order');const o=box&&[...box.querySelectorAll('.pp64-chip[data-pp64-size]')].find(c=>c.dataset.pp64Size===b.dataset.pp164c);if(o)o.click();setTimeout(pp164Customer,0);return;}
   b=t.closest('#pp64-order [data-pp64-add],#pp64-order [data-pp64-wa],#pp64-order [data-pp75-send]');
   if(b){const box=document.getElementById('pp64-order');const okMsg=/✓/.test(document.getElementById('pp64-msg')?.textContent||'');if(box&&box.classList.contains('pp164')&&!pp76Sel.size&&!okMsg){const p=state.products.find(x=>x.id===box.dataset.id);const L=p&&pp165Levels(ppSizes(p));const cur=pp164Cur[box.dataset.id]||[];
-      if(L&&cur.length<L.n-1){e.preventDefault();e.stopImmediatePropagation();box.querySelector(`.pp165-g[data-pp165g="${cur.length}"]`)?.classList.add('need');const m=document.getElementById('pp64-msg');if(m){m.style.color='#b00';m.textContent=T('أكمل الاختيار أولاً','Complete your choice first');}return;}}
+      const miss=L?Array.from({length:L.n-1},(_,q)=>q).find(q=>cur[q]===undefined):undefined;if(L&&miss!==undefined){e.preventDefault();e.stopImmediatePropagation();box.querySelector(`.pp165-g[data-pp165g="${miss}"]`)?.classList.add('need');const m=document.getElementById('pp64-msg');if(m){m.style.color='#b00';m.textContent=T('أكمل الاختيار أولاً','Complete your choice first');}return;}}
     setTimeout(pp164Customer,30);setTimeout(pp164Customer,1700);}
 },true);
 
