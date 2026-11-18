@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V155';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V156';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -7627,7 +7627,7 @@ try{(function(){
   +'#pp139ed .pp139-sec{border:1px solid #e6d6b0;border-radius:12px;padding:10px;margin:0 0 12px;background:#fffdf7}#pp139ed h3{margin:0 0 8px;font-size:16px}#pp139ed .r{display:flex;gap:6px;align-items:center;margin:6px 0;flex-wrap:wrap}#pp139ed input[type=text],#pp139ed input[type=tel]{border:1px solid #d9c49a;border-radius:9px;padding:7px;font:inherit;min-width:0}#pp139ed .ic{width:52px;text-align:center}#pp139ed .nm{flex:1}#pp139ed .mv{border:1px solid #d9c49a;background:#fff;border-radius:8px;padding:4px 8px}#pp139ed .cats{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:13px;margin:6px 0}#pp139ed .del{background:#fdecec;border:1px solid #e08080;color:#8a1c1c;border-radius:9px;padding:6px 10px}#pp139ed .hint{font-size:12px;color:#6b5b45;line-height:1.6}#pp139ed .dep{border-top:1px dashed #d9c49a;padding-top:8px;margin-top:8px}';
   document.head.appendChild(st);
   const _dc=drawCatalog;drawCatalog=function(){_dc.apply(this,arguments);try{const v=$('view');if(ppDept&&v&&!pp24HomeMode()){v.insertAdjacentHTML('afterbegin',pp139DeptHead());}
-    if(ppDept&&isOwner()){const nb=v&&v.querySelector('.owner-tools [data-action="edit-new"]');if(nb){nb.removeAttribute('data-action');nb.dataset.pp139='addindept';nb.textContent='＋ إضافة منتجات / سلايدر / صورة';}}footSync();document.querySelectorAll('[data-pp139n]').forEach(b=>{const k=b.dataset.pp139n;b.classList.toggle('selected',k==='home'?(tab==='catalog'&&!ppDept):k==='dept:'+ppDept);});}catch(e){}};
+    if(ppDept&&(isOwner()||pp156CanDept(ppDept))){const nb=v&&v.querySelector('.owner-tools [data-action="edit-new"]');if(nb){nb.removeAttribute('data-action');nb.dataset.pp139='addindept';nb.textContent='＋ إضافة منتجات / سلايدر / صورة';}}footSync();document.querySelectorAll('[data-pp139n]').forEach(b=>{const k=b.dataset.pp139n;b.classList.toggle('selected',k==='home'?(tab==='catalog'&&!ppDept):k==='dept:'+ppDept);});}catch(e){}};
 
   /* V140: WhatsApp numbers — main numbers on the general store, each department shows only its own numbers */
   function waSheet(focus){const ds=JSON.parse(JSON.stringify(pp139Depts()));draftWa=ds;
@@ -7728,7 +7728,7 @@ try{(function(){
     try{
       if(a==='dept'){try{setMenu(false)}catch(_){}ppDept=b.dataset.d||'';cat='';q='';pg=1;pp24ShowAllProducts=false;goto('catalog');return;}
       if(a==='cat'){cat=b.dataset.c||'';pg=1;goto('catalog');return;}
-      if(!isOwner())return;
+      if(!isOwner()&&!(a==='addindept'&&pp156CanDept(ppDept)))return; // V156: staff add inside their own department
       if(a==='addindept'){pp142AddDept=ppDept;ppDept='';cat='';q='';pg=1;pp24ShowAllProducts=false;goto('catalog');setTimeout(()=>{const t=document.createElement('button');t.type='button';t.dataset.action='pp49-add';t.style.display='none';document.body.appendChild(t);t.click();t.remove();},60);return;}
       if(a==='waed'){try{setMenu(false)}catch(_){}waSheet(b.dataset.f||'');return;}
       if(a==='waclr'){const r=b.closest('.r');r&&r.querySelectorAll('input').forEach(i=>i.value='');return;}
@@ -8297,6 +8297,50 @@ document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.targ
 #pp154-pill{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));z-index:9000;width:min(94%,420px);background:linear-gradient(135deg,#141416,#3a3a40 60%,#6b6b73);border:1.5px solid #d9b45b;border-radius:16px;box-shadow:0 8px 24px #0006;padding:8px 8px 8px 12px;display:flex;gap:8px;align-items:center;direction:rtl;color:#f5d27a;font-weight:900;font-size:14.5px;animation:pp155in .35s ease-out}#pp154-pill>span{flex:1}@keyframes pp155in{from{transform:translate(-50%,30px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
 #pp154-pill .go{background:linear-gradient(180deg,#f7d774,#d9a332);color:#1b1b1f;border:0;border-radius:12px;padding:9px 16px;font:inherit;font-weight:900;font-size:14px;cursor:pointer}
 #pp154-pill .x{width:30px;height:30px;flex:none;border-radius:50%;background:#ffffff22;color:#fff;border:0;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;padding:0}`;document.head.appendChild(st);})();
+
+/* ===== V156: staff department — each employee works inside the department(s) the owner gives him ===== */
+function pp156Depts(){try{const d=pp123Staff&&pp123Staff.perms&&pp123Staff.perms.depts;return Array.isArray(d)?d.filter(x=>pp139Dept(x)):[]}catch(_){return []}}
+function pp156CanDept(id){if(!pp123Staff)return false;const d=pp156Depts();return !d.length||d.includes(id);}
+function pp156CanProduct(p){if(!pp123Staff)return true;const d=pp156Depts();if(!d.length)return true;const dp=pp142DeptOf(p);return !!dp&&d.includes(dp.id);}
+function pp156CatsOk(c){const d=pp156Depts();return !d.length||d.some(id=>pp139InDept(id,c));}
+let pp156Went=false;
+function pp156Apply(){const d=pp156Depts();document.body.classList.toggle('pp156-on',!!pp123Staff&&d.length>0);
+  if(!pp123Staff||!d.length)return;
+  if(!pp156Went){pp156Went=true;try{if(!ppDept||!d.includes(ppDept)){ppDept=d[0];cat='';q='';pg=1;pp24ShowAllProducts=false;goto('catalog');}}catch(_){}}
+  pp156Mark();}
+function pp156Mark(){if(!document.body.classList.contains('pp156-on'))return;
+  document.querySelectorAll('.pp35-owner-edit[data-id]').forEach(b=>{const p=state.products.find(x=>x.id===b.dataset.id);const art=b.closest('article')||b.parentElement;if(art)art.classList.toggle('pp156-ro',!!p&&!pp156CanProduct(p));});
+  const v=document.getElementById('view'),d=pp156Depts();
+  if(v&&ppDept&&!document.getElementById('pp156-hi')){const dd=pp139Dept(ppDept);if(dd&&d.includes(ppDept)){const h=v.querySelector('.pp139-head');const el=document.createElement('div');el.id='pp156-hi';el.className='pp156-hi';el.textContent='👷 '+T('أهلا','Hi')+' '+(pp123Staff.name||'')+' — '+T('إنت شغّال بقسم','you work in')+' '+(dd.icon||'')+' '+(lang==='en'?(dd.nameEn||dd.name):dd.name);h?h.after(el):v.prepend(el);
+    const P=pp123Staff.perms||{};if(P.add||P.sliders){const ab=document.createElement('button');ab.type='button';ab.className='pp156-add';ab.dataset.pp139='addindept';ab.textContent='＋ '+T('إضافة منتجات / سلايدر / صورة — بقسم ','Add products / slider / image — in ')+(lang==='en'?(dd.nameEn||dd.name):dd.name);el.after(ab);}}}
+  const f=document.getElementById('product-form');
+  if(f&&!f.dataset.pp156){f.dataset.pp156='1';const sel=f.querySelector('[name="category"]');if(sel){[...sel.options].forEach(o=>{if(o.value&&!pp156CatsOk(o.value)){o.disabled=true;o.hidden=true;}});if(sel.value&&!pp156CatsOk(sel.value)){const ok=[...sel.options].find(o=>o.value&&!o.disabled);if(ok)sel.value=ok.value;}}}}
+try{const _sc156=pp123StaffCheck;pp123StaffCheck=async function(){const r=await _sc156.apply(this,arguments);try{pp156Apply()}catch(_){}return r;};}catch(_){}
+try{new MutationObserver(()=>{try{if(document.body.classList.contains('pp156-on'))pp156Mark();}catch(_){}}).observe(document.body,{childList:true,subtree:true});}catch(_){}
+document.addEventListener('click',e=>{if(!document.body.classList.contains('pp156-on'))return;const b=e.target&&e.target.closest&&e.target.closest('[data-action="edit"][data-id]');if(!b)return;const p=state.products.find(x=>x.id===b.dataset.id);if(p&&!pp156CanProduct(p)){e.preventDefault();e.stopImmediatePropagation();note(T('🔒 هالمنتج مش بقسمك','🔒 This product is not in your department'));}},true);
+/* owner: «🗂 قسم الموظف» on every staff card */
+let pp156Map=null,pp156Busy=false;
+async function pp156Deco(){const o=document.getElementById('pp123');if(!o||pp156Busy)return;const t=o.querySelector('.hd span');if(!t||!/الموظفين/.test(t.textContent)||/طلبات/.test(t.textContent))return;
+  const cards=[...o.querySelectorAll('.card')].filter(c=>c.querySelector('[data-p123="perm"]')&&!c.querySelector('.pp156-dp'));if(!cards.length)return;
+  pp156Busy=true;try{const list=await ppFetch('/rest/v1/app_staff?select=email,depts').then(r=>r.json());pp156Map={};(list||[]).forEach(x=>pp156Map[x.email]=Array.isArray(x.depts)?x.depts:[]);}catch(_){pp156Map=pp156Map||{};}pp156Busy=false;
+  cards.forEach(c=>{if(c.querySelector('.pp156-dp'))return;const E=(c.querySelector('[data-p123="perm"]')||{}).dataset?.e;if(!E)return;const cur=pp156Map[E]||[];c.dataset.pp156=JSON.stringify(cur);
+    const box=document.createElement('div');box.className='pp156-dp';
+    const chip=(id,label)=>`<b data-pp156="d" data-e="${esc(E)}" data-d="${esc(id)}" class="${(id===''?!cur.length:cur.includes(id))?'on':''}">${label}</b>`;
+    box.innerHTML=`<h4>🗂 قسم الموظف</h4><div class="dch">${chip('','🏪 كل المتجر')}${pp139Depts().map(d=>chip(d.id,esc((d.icon||'')+' '+d.name))).join('')}</div><div class="hint">${cur.length?'بيفتح التطبيق عنده <b>دغري على قسمه</b>، وكل إضافة بيعملها (منتجات، سلايدر، صور) بتنحط بقسمه بس. فيك تعلّم أكتر من قسم.':'بيشتغل بكل المتجر.'}</div>`;
+    (c.querySelector('.who')||c.firstChild).after(box);});}
+try{new MutationObserver(()=>{if(MANAGER&&pp150Owner())pp156Deco();}).observe(document.body,{childList:true,subtree:true});}catch(_){}
+document.addEventListener('click',async e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-pp156="d"]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();if(!pp150Owner())return;
+  const c=b.closest('.card'),E=b.dataset.e,id=b.dataset.d;let cur=[];try{cur=JSON.parse(c.dataset.pp156||'[]')}catch(_){}
+  cur=id===''?[]:(cur.includes(id)?cur.filter(x=>x!==id):[...cur,id]);
+  try{await ppFetch('/rest/v1/app_staff?email=eq.'+encodeURIComponent(E),{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({depts:cur})});
+    c.dataset.pp156=JSON.stringify(cur);if(pp156Map)pp156Map[E]=cur;c.querySelectorAll('[data-pp156="d"]').forEach(x=>x.classList.toggle('on',x.dataset.d===''?!cur.length:cur.includes(x.dataset.d)));
+    const h=c.querySelector('.pp156-dp .hint');if(h)h.innerHTML=cur.length?'بيفتح التطبيق عنده <b>دغري على قسمه</b>، وكل إضافة بيعملها (منتجات، سلايدر، صور) بتنحط بقسمه بس. فيك تعلّم أكتر من قسم.':'بيشتغل بكل المتجر.';
+    note('✅ انحفظ قسم الموظف');}catch(err){note('⚠️ '+err.message);}},true);
+(function(){const st=document.createElement('style');st.textContent=`
+.pp156-dp{border:2px solid #d9b45b;border-radius:12px;padding:10px;margin:8px 0;background:#fffaf0}.pp156-dp h4{margin:0 0 6px;font-size:14px}.pp156-dp .hint{font-size:12px;color:#7a6330;line-height:1.7;margin-top:6px}
+.pp156-dp .dch{display:flex;gap:6px;flex-wrap:wrap}.pp156-dp .dch b{flex:1 1 30%;text-align:center;padding:10px 0;border-radius:11px;background:#eee;font-size:13.5px;border:1.5px solid #ddd;cursor:pointer}.pp156-dp .dch b.on{background:linear-gradient(135deg,#141416,#3a3a40 60%,#6b6b73);color:#f5d27a;border-color:#8a8a92}
+.pp156-add{display:block;width:100%;border:2px dashed #e3a400;border-radius:12px;padding:12px;background:#fff8e6;color:#8a5a00;font:inherit;font-weight:900;font-size:14px;margin:0 0 10px;cursor:pointer}.pp156-hi{background:#1e3a5f;color:#fff;border-radius:12px;padding:9px 12px;font-weight:800;font-size:13px;margin:8px 0}
+body.pp156-on article.pp156-ro .pp35-owner-edit,body.pp156-on article.pp156-ro .pp35-owner-edit~button{display:none!important}`;document.head.appendChild(st);})();
 
 ppBoot();
 })();
