@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V171';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V172';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -8529,6 +8529,14 @@ document.addEventListener('input',e=>pp164Fwd(e,'input'),true);document.addEvent
   try{const ro=new ResizeObserver(kick);const watch=()=>document.querySelectorAll('.pp45-product-row,#view').forEach(r=>{if(!r.dataset.pp167){r.dataset.pp167='1';ro.observe(r);}});watch();new MutationObserver(watch).observe(document.body,{childList:true,subtree:true});}catch(_){}
 })();
 
+
+/* ===== V172: customer note boxes — no manual resize/drag; they grow downward automatically as the customer types ===== */
+(function(){
+  const st=document.createElement('style');st.textContent='#pp64-note,#pp64-cartnote{resize:none!important;width:100%!important;max-width:100%!important;min-width:100%!important;overflow:hidden;min-height:64px}';document.head.appendChild(st);
+  const fit=t=>{if(!t||!t.isConnected)return;t.style.width='';t.style.height='auto';t.style.height=Math.max(64,t.scrollHeight+2)+'px';};
+  document.addEventListener('input',e=>{const t=e.target;if(t&&(t.id==='pp64-note'||t.id==='pp64-cartnote'))fit(t);},true);
+  new MutationObserver(()=>{document.querySelectorAll('#pp64-note,#pp64-cartnote').forEach(t=>{if(!t.dataset.pp172){t.dataset.pp172='1';t.removeAttribute('style');fit(t);}});}).observe(document.body,{childList:true,subtree:true});
+})();
 ppBoot();
 })();
 
