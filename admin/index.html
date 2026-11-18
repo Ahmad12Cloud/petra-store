@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V169';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V170';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1510,7 +1510,7 @@ loadCustomerCart();
 
 const T=(ar,en)=>lang==='ar'?ar:en;
 const S=(ar,en)=>lang==='ar'?(clean(ar)||clean(en)):(clean(en)||clean(ar));
-const money=(v,c)=>v==null||!Number.isFinite(Number(v))?T('السعر عند الطلب','Ask for price'):(String(c||'USD').toUpperCase()==='USD'?`${Number(v).toLocaleString('en-US',{maximumFractionDigits:2})}\u00a0$`:`${Number(v).toLocaleString('en-US',{maximumFractionDigits:2})} ${esc(c||'USD')}`); /* V166: 31 $ */
+const money=(v,c)=>v==null||!Number.isFinite(Number(v))?T('السعر عند الطلب','Ask for price'):(String(c||'USD').toUpperCase()==='USD'?`${Number(v).toLocaleString('en-US',{maximumFractionDigits:2})}\u202f$`:`${Number(v).toLocaleString('en-US',{maximumFractionDigits:2})} ${esc(c||'USD')}`); /* V166: 31 $ */
 const safeImg=(s)=>typeof s==='string'&&(/^data:image\/(webp|png|jpeg|gif);base64,[a-z0-9+/=]+$/i.test(s)||PP_IMG_RE.test(s))?s:'';
 const applyAppearance=()=>{const st=state.settings;document.documentElement.dataset.storeTheme=st.storeTheme==='dark'?'dark':'light';document.documentElement.style.setProperty('--pp-card-default',safeColor(st.productCardBg,'#ffffff'));document.documentElement.style.setProperty('--pp-photo-default',safeColor(st.productPhotoBg,'#ffffff'));document.documentElement.style.setProperty('--pp-banner-default',safeColor(st.bannerStageBg,'#fff8ed'));document.documentElement.style.setProperty('--pp-intro-bg',safeColor(st.introBg,'#fffdfa'));document.documentElement.style.setProperty('--pp-intro-text',safeColor(st.introTextColor,'#2d2f33'));document.documentElement.style.setProperty('--pp-page-bg',safeColor(st.pageBg,'#f9f6ef'));document.documentElement.style.setProperty('--pp-banner-text',safeColor(st.bannerTitleColor,'#ffffff'));};
 const cardFg=(hex)=>{const v=safeColor(hex,'#ffffff').slice(1);const r=parseInt(v.slice(0,2),16),g=parseInt(v.slice(2,4),16),b=parseInt(v.slice(4,6),16);return (r*299+g*587+b*114)/1000<145?'#fff9ed':'#29313a';};
