@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V172';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V173';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -5522,10 +5522,10 @@ function pp76Sync(){
   const k=chips.filter(c=>pp76Sel.has(c.dataset.pp64Size)).length;ppSel.size=k?'x':'';
   const sel=chips.filter(c=>pp76Sel.has(c.dataset.pp64Size)).map(c=>c.dataset.pp64Size);
   const c=box.querySelector('#pp76-cnt');
-  if(c){const tot=sel.reduce((a,z)=>a+(pp76Q[z]||1),0);const pp=state.products.find(x=>x.id===box.dataset.id)||{};const money78=ppHasSP(pp)&&k>=1?sel.reduce((a,z)=>a+(ppUnit(pp,z)||0)*(k>1?(pp76Q[z]||1):ppSel.qty),0):null;pp76Set(c,'textContent',(money78!=null?T('المجموع التقريبي: ','Estimated total: ')+money(money78,pp.currency)+(k>1?' — ':''):'')+(k>1?T(tot+' قطعة، '+k+' قياسات',tot+' pcs, '+k+' sizes'):''));}
+  if(c){const tot=sel.reduce((a,z)=>a+(pp76Q[z]||1),0);const pp=state.products.find(x=>x.id===box.dataset.id)||{};const money78=ppHasSP(pp)&&k>=1?sel.reduce((a,z)=>a+(ppUnit(pp,z)||0)*(k>1?(pp76Q[z]||1):ppSel.qty),0):null;pp76Set(c,'textContent',(money78!=null?T('المجموع التقريبي: ','Estimated total: ')+'\u2066'+money(money78,pp.currency)+'\u2069'+(k>1?' — ':''):'')+(k>1?T(tot+' قطعة، '+k+' قياسات',tot+' pcs, '+k+' sizes'):''));}
   const pp78P=state.products.find(x=>x.id===box.dataset.id)||{};const pp78Show=ppHasSP(pp78P)&&ppUnit(pp78P,sel[0])!=null;
   const qs=box.querySelector('#pp76-qs');
-  if(qs){const h=k>1?'<div style="font-weight:800;margin:6px 0 2px">'+T('الكمية لكل قياس','Quantity per size')+'</div>'+sel.map(z=>'<div class="pp76-r"><b class="pp76-s">'+esc(z)+'</b>'+(pp78Show?'<span class="pp78-u">'+esc(pp78fmt(pp78P,ppUnit(pp78P,z)))+'</span>':'')+'<span style="flex:1"></span><button type="button" data-pp76q="'+esc(z)+'|-1">−</button><span class="pp76-q">'+(pp76Q[z]||1)+'</span><button type="button" data-pp76q="'+esc(z)+'|1">＋</button>'+(pp78Show?'<span class="pp78-sub">'+esc(pp78fmt(pp78P,(ppUnit(pp78P,z)||0)*(pp76Q[z]||1)))+'</span>':'')+'</div>').join(''):'';pp76Set(qs,'innerHTML',h);}
+  if(qs){const h=k>1?'<div style="font-weight:800;margin:6px 0 2px">'+T('الكمية لكل قياس','Quantity per size')+'</div>'+sel.map(z=>'<div class="pp76-r"><b class="pp76-s">'+pp173Lbl(z)+'</b>'+(pp78Show?'<span class="pp78-u">'+esc(pp78fmt(pp78P,ppUnit(pp78P,z)))+'</span>':'')+'<span style="flex:1"></span><button type="button" data-pp76q="'+esc(z)+'|-1">−</button><span class="pp76-q">'+(pp76Q[z]||1)+'</span><button type="button" data-pp76q="'+esc(z)+'|1">＋</button>'+(pp78Show?'<span class="pp78-sub">'+esc(pp78fmt(pp78P,(ppUnit(pp78P,z)||0)*(pp76Q[z]||1)))+'</span>':'')+'</div>').join(''):'';pp76Set(qs,'innerHTML',h);}
   const mq=box.querySelector('.pp64-qty');if(mq){const hide=k>1?'none':'';if(mq.style.display!==hide)mq.style.display=hide;}
   const add=box.querySelector('[data-pp64-add]');if(add&&!add.dataset.pp76busy)pp76Set(add,'textContent','🛒 '+T('أضف للسلة','Add to cart')+(k>1?' ('+k+' '+T('قياسات','sizes')+')':''));
 }
@@ -8537,6 +8537,10 @@ document.addEventListener('input',e=>pp164Fwd(e,'input'),true);document.addEvent
   document.addEventListener('input',e=>{const t=e.target;if(t&&(t.id==='pp64-note'||t.id==='pp64-cartnote'))fit(t);},true);
   new MutationObserver(()=>{document.querySelectorAll('#pp64-note,#pp64-cartnote').forEach(t=>{if(!t.dataset.pp172){t.dataset.pp172='1';t.removeAttribute('style');fit(t);}});}).observe(document.body,{childList:true,subtree:true});
 })();
+
+/* ===== V173: quantity-per-size rows on ONE compact line (smaller label, tight − 1 +), Wi-Fi shown as an icon (green = with, grey crossed = without); text stays in WhatsApp/cart ===== */
+function pp173Lbl(z){try{if(typeof pp164Wifi==='function'&&pp164Wifi(z)){const no=pp164No(z),c=no?'#555':'#1f8a3a';const rest=String(z).split('·').slice(1).join('·').trim();return '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="'+c+'" stroke-width="2.6" stroke-linecap="round" style="vertical-align:-3px" aria-label="'+esc(no?T('بدون واي فاي','Without Wi-Fi'):T('مع واي فاي','With Wi-Fi'))+'"><path d="M2 8.5a15 15 0 0 1 20 0"></path><path d="M5 12a10 10 0 0 1 14 0"></path><path d="M8.5 15.5a5 5 0 0 1 7 0"></path><circle cx="12" cy="19" r="1.3" fill="'+c+'"></circle>'+(no?'<path d="M3 3l18 18" stroke="#d01414" stroke-width="3"></path>':'')+'</svg> '+esc(rest);}}catch(_){}return esc(z);}
+(function(){const st=document.createElement('style');st.textContent='.pp76-r{flex-wrap:nowrap!important;gap:4px!important;padding:5px 6px!important;border-radius:12px!important}.pp76-r .pp76-s{flex:1 1 auto;min-width:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11.5px;padding:6px 7px!important;border-radius:8px!important}.pp76-r>span[style*="flex:1"]{display:none}.pp76-r button{width:26px!important;height:26px!important;font-size:16px!important;border-radius:7px!important;padding:0!important;line-height:1}.pp76-r .pp76-q{min-width:16px!important;font-size:14px!important}.pp76-r .pp78-u,.pp76-r .pp78-sub{direction:ltr;unicode-bidi:isolate;white-space:nowrap}.pp76-r .pp78-u{font-size:11px!important}.pp76-r .pp78-sub{min-width:0!important;font-size:13px!important;color:#b85c00}';document.head.appendChild(st);})();
 ppBoot();
 })();
 
