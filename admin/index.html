@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V154';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V155';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -8273,10 +8273,8 @@ function pp154Hide(forever){document.getElementById('pp154-pill')?.remove();if(f
 function pp154Pill(){
   if(MANAGER||pp154Installed()||document.getElementById('pp154-pill'))return;
   try{if(localStorage.getItem('pp154-x')==='1')return;}catch(_){}
-  let label='📲 '+T('نزّل التطبيق','Get the app'),btn=T('تثبيت','Install');
+  let label='📲 '+T('نزّل تطبيق Petra Electric','Get the Petra Electric app'),btn=T('تثبيت','Install');
   if(pp154InApp()&&pp154IsAndroid()){label='📲 '+T('لتنزّل التطبيق','To install the app');btn=T('فتح بـ Chrome','Open in Chrome');}
-  else if(!pp154Prompt&&!pp154IsIOS())return; // Chrome hasn't offered install (yet): no pill
-  else if(!pp154Prompt&&pp154IsIOS()&&pp154InApp())return;
   const el=document.createElement('div');el.id='pp154-pill';el.setAttribute('role','dialog');
   el.innerHTML=`<span>${label}</span><button type="button" class="go" data-pp154="install">${btn}</button><button type="button" class="x" data-pp154="x" aria-label="${T('إغلاق','Close')}">✕</button>`;
   document.body.appendChild(el);}
@@ -8287,18 +8285,18 @@ async function pp154Install(){
   modal(T('📲 نزّل التطبيق','📲 Install the app'),ios?`<div style="line-height:1.9;font-size:15px">${pp154InApp()?T('1. افتح الرابط بـ <b>Safari</b> (⋯ ← فتح في Safari).<br>','1. Open this link in <b>Safari</b>.<br>'):''}${T('اكبس زر <b>المشاركة ⬆️</b> تحت، بعدين <b>«إضافة إلى الشاشة الرئيسية»</b>.','Tap <b>Share ⬆️</b>, then <b>Add to Home Screen</b>.')}</div>`
     :`<div style="line-height:1.9;font-size:15px">${T('من قائمة Chrome <b>⋮</b> فوق، اختار <b>«تثبيت التطبيق»</b> أو <b>«إضافة إلى الشاشة الرئيسية»</b>.','In the Chrome <b>⋮</b> menu choose <b>Install app</b> or <b>Add to Home screen</b>.')}</div>`,
     `<button class="btn" data-action="close-modal">${T('تمام','OK')}</button>`);}
-window.addEventListener('beforeinstallprompt',e=>{if(MANAGER)return;e.preventDefault();pp154Prompt=e;setTimeout(pp154Pill,15000);});
+window.addEventListener('beforeinstallprompt',e=>{if(MANAGER)return;e.preventDefault();pp154Prompt=e;});
 window.addEventListener('appinstalled',()=>{pp154Hide(true);try{render()}catch(_){}});
-if(!MANAGER)setTimeout(()=>{if(pp154IsIOS()||(pp154InApp()&&pp154IsAndroid()))pp154Pill();},15000);
+if(!MANAGER){const t0=Date.now(),go=()=>{if(document.querySelector('#app header')&&!document.querySelector('#pp108:not(.out)')?.offsetParent)setTimeout(pp154Pill,2500);else if(Date.now()-t0<30000)setTimeout(go,400);};setTimeout(go,800);} // V155: shown on the home screen right away
 document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-pp154]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();
   const a=b.dataset.pp154;if(a==='x'){pp154Hide(true);return;}if(a==='install'){try{setMenu(false)}catch(_){}pp154Install();}},true);
 (function(){const st=document.createElement('style');st.textContent=`
 #v12-menu .v12-menu-footer{display:grid!important;grid-template-columns:1fr 1fr;gap:6px!important}
 #v12-menu .v12-menu-footer>button,.pp150-shbtn{background:linear-gradient(135deg,#141416 0%,#3a3a40 55%,#6b6b73 100%)!important;color:#f5d27a!important;border:1px solid #8a8a92!important;font-weight:800!important;font-size:12.5px!important;min-height:36px!important;height:36px;padding:0 8px!important;border-radius:10px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 6px #0003!important;margin:0!important;width:100%}
 .pp150-shbtn{width:auto;display:inline-flex;align-items:center}
-#pp154-pill{position:fixed;right:12px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:9000;background:linear-gradient(135deg,#141416,#3a3a40 60%,#6b6b73);border:1px solid #8a8a92;border-radius:24px;box-shadow:0 6px 18px #0004;padding:5px 6px 5px 10px;display:flex;gap:8px;align-items:center;direction:rtl;color:#f5d27a;font-weight:800;font-size:13px;max-width:calc(100% - 24px)}
-#pp154-pill .go{background:#f5d27a;color:#1b1b1f;border:0;border-radius:18px;padding:6px 12px;font:inherit;font-weight:900;font-size:12.5px;cursor:pointer}
-#pp154-pill .x{width:26px;height:26px;border-radius:50%;background:#ffffff22;color:#fff;border:0;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;padding:0}`;document.head.appendChild(st);})();
+#pp154-pill{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));z-index:9000;width:min(94%,420px);background:linear-gradient(135deg,#141416,#3a3a40 60%,#6b6b73);border:1.5px solid #d9b45b;border-radius:16px;box-shadow:0 8px 24px #0006;padding:8px 8px 8px 12px;display:flex;gap:8px;align-items:center;direction:rtl;color:#f5d27a;font-weight:900;font-size:14.5px;animation:pp155in .35s ease-out}#pp154-pill>span{flex:1}@keyframes pp155in{from{transform:translate(-50%,30px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+#pp154-pill .go{background:linear-gradient(180deg,#f7d774,#d9a332);color:#1b1b1f;border:0;border-radius:12px;padding:9px 16px;font:inherit;font-weight:900;font-size:14px;cursor:pointer}
+#pp154-pill .x{width:30px;height:30px;flex:none;border-radius:50%;background:#ffffff22;color:#fff;border:0;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;padding:0}`;document.head.appendChild(st);})();
 
 ppBoot();
 })();
