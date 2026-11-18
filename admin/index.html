@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V175';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V176';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -4984,11 +4984,11 @@ function ppCartFooterOn(){return tab==='cart'&&cart.length>0;}
 function ppCartFooterSync(){
   const on=ppCartFooterOn();
   document.querySelectorAll('footer .contact-branch').forEach(a=>{
-    const sy=/963/.test(a.getAttribute('href')||'')||a.dataset.pp64b==='SY';a.dataset.pp64b=sy?'SY':'LB';
+    const sy=/963/.test(a.getAttribute('href')||'')||a.dataset.pp64b==='SY';if(a.dataset.pp64b!==(sy?'SY':'LB'))a.dataset.pp64b=sy?'SY':'LB'; /* V176: write only on change (was an endless 40/s update loop) */
     const cta=a.querySelector('.contact-cta');if(!cta)return;
     if(!cta.dataset.orig)cta.dataset.orig=cta.textContent;
-    cta.textContent=on?('📲 '+T('إرسال الطلب — فرعنا في '+(sy?'سوريا':'لبنان'),'Send order — our '+(sy?'Syria':'Lebanon')+' branch')):cta.dataset.orig;
-    a.classList.toggle('pp64-send',on);
+    {const v=on?('📲 '+T('إرسال الطلب — فرعنا في '+(sy?'سوريا':'لبنان'),'Send order — our '+(sy?'Syria':'Lebanon')+' branch')):cta.dataset.orig;if(cta.textContent!==v)cta.textContent=v;}
+    if(a.classList.contains('pp64-send')!==on)a.classList.toggle('pp64-send',on);
   });
 }
 document.addEventListener('click',e=>{
