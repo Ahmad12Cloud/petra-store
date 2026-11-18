@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V166';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V167';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -8489,7 +8489,23 @@ document.addEventListener('input',e=>pp164Fwd(e,'input'),true);document.addEvent
     const N=x=>'<span class="pp102n" dir="ltr">'+f(x)+'<span class="pp166d">$</span></span>',W=x=>'<span class="pp102w">'+x+'</span>';
     if(single)return N(a);const lo=Math.min(a,b),hi=Math.max(a,b);
     return rtl?'<bdi dir="rtl">'+W('من')+' '+N(lo)+' '+W('إلى')+' '+N(hi)+'</bdi>':'<bdi dir="ltr">'+W('From')+' '+N(lo)+' '+W('to')+' '+N(hi)+'</bdi>';};
-  const st=document.createElement('style');st.textContent='article.product{display:flex!important;flex-direction:column!important}article.product .product-price{margin-top:auto!important;padding-top:6px}article.product .product-bottom{margin-top:6px!important}.pp166d{margin-left:.22em}html body .pp102n,html body article.product .pp102n{color:#4a3104!important;font-weight:800!important}html body .pp102w,html body article.product .pp102w{color:#4a3104!important;opacity:1!important;font-weight:700!important}.pp78-pr{color:#5a3c06!important;font-weight:800!important}';document.head.appendChild(st);
+  const st=document.createElement('style');st.textContent='.pp166d{margin-left:.22em}.pp78-pr{color:#5a3c06!important;font-weight:800!important}';document.head.appendChild(st);
+})();
+
+/* ===== V167: price style back under the owner's control (🔠 panel) + orange family; names in the same row get the same height so the price lines line up ===== */
+(function(){
+  try{PP104_COL.o=['#b85c00','#d96c00','#ee7d00','#f59a1b','#f8b04a'];PP104_FAM.o='برتقالي';}catch(_){}
+  const st=document.createElement('style');st.textContent='';document.head.appendChild(st);
+  let t=0;function eq(){t=0;try{const ps=[...document.querySelectorAll('article.product .product-price')].filter(x=>x.offsetParent);ps.forEach(x=>{x.style.marginTop='';});
+    const rows=new Map();ps.forEach(x=>{const a=x.closest('article.product');const top=Math.round(a.getBoundingClientRect().top);const k=top+'|'+(a.parentElement?a.parentElement.className:'');(rows.get(k)||rows.set(k,[]).get(k)).push([x,x.getBoundingClientRect().top-top]);});
+    rows.forEach(list=>{if(list.length<2)return;const m=Math.max(...list.map(v=>v[1]));list.forEach(([x,o])=>{const d=m-o;if(d>1){const cur=parseFloat(getComputedStyle(x).marginTop)||0;x.style.setProperty('margin-top',(cur+d)+'px','important');}});});}catch(_){}}
+  const kick=()=>{if(!t)t=setTimeout(eq,60);};
+  new MutationObserver(m=>{if(m.some(x=>x.type==='childList'&&[...x.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('article.product')||n.querySelector?.('article.product')))))kick();}).observe(document.body,{childList:true,subtree:true});
+  window.addEventListener('resize',kick);window.addEventListener('load',kick);setTimeout(kick,800);setTimeout(kick,2500);
+  try{document.fonts&&document.fonts.ready.then(kick);document.fonts&&document.fonts.addEventListener('loadingdone',kick);}catch(_){}
+  document.addEventListener('load',e=>{if(e.target&&e.target.tagName==='IMG')kick();},true);
+  let n=0;const iv=setInterval(()=>{kick();if(++n>12)clearInterval(iv);},1000);
+  try{const ro=new ResizeObserver(kick);const watch=()=>document.querySelectorAll('.pp45-product-row,#view').forEach(r=>{if(!r.dataset.pp167){r.dataset.pp167='1';ro.observe(r);}});watch();new MutationObserver(watch).observe(document.body,{childList:true,subtree:true});}catch(_){}
 })();
 
 ppBoot();
