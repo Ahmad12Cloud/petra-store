@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V158';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V159';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -8377,6 +8377,11 @@ document.addEventListener('click',async e=>{const b=e.target&&e.target.closest&&
   }catch(err){try{w&&w.close()}catch(_){}note('⚠️ ما انحفظت كلمة السر: '+err.message);}
   b.disabled=false;},true);
 (function(){const st=document.createElement('style');st.textContent='.pp158-shr{border:2px solid #25d366;border-radius:12px;padding:10px;margin:10px 0;background:#effcf4;direction:rtl}.pp158-shr h4{margin:0 0 6px;font-size:14px;color:#146c34}.pp158-shr input{width:100%;box-sizing:border-box;border:1.5px solid #8fd9a8;border-radius:10px;padding:10px;font-size:16px;text-align:center;letter-spacing:1px;font-weight:800;margin:4px 0}.pp158-shr .gen{background:none;border:0;color:#146c34;font:inherit;font-size:12.5px;font-weight:800;padding:2px 0;cursor:pointer}.pp158-shr .wa{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:12px;padding:12px;background:#25d366;color:#fff;font:inherit;font-weight:900;font-size:15px;margin-top:6px;cursor:pointer}.pp158-shr small{display:block;font-size:11.5px;color:#2d6a43;line-height:1.6;margin-top:6px}';document.head.appendChild(st);})();
+
+/* ===== V159: iPhone (notch / Dynamic Island) — keep the top bar below the status bar in the installed app ===== */
+(function(){const st=document.createElement('style');st.textContent='html body #modal,html body #pp123,html body #pp49-sheet{padding-top:env(safe-area-inset-top,0px)}';document.head.appendChild(st);
+  const fix=()=>{const h=document.querySelector('header.v12-header');if(h&&!h.dataset.pp159){h.dataset.pp159='1';h.style.setProperty('border-top','env(safe-area-inset-top,0px) solid transparent','important');h.style.setProperty('background-clip','border-box','important');}};
+  try{new MutationObserver(fix).observe(document.documentElement,{childList:true,subtree:true});}catch(_){}fix();})();
 
 ppBoot();
 })();
