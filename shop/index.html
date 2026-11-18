@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V157';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V158';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -4542,10 +4542,10 @@ async function ppPush(){
 function ownerGate(){
   if(!MANAGER)return;pp43LoginOriginY=window.scrollY;
   if(ownerUnlocked){preview=false;goto('theme');return;}
-  modal(T('دخول المالك','Owner login'),`<div class="pp-dev-login"><label>${T('البريد الإلكتروني','Email')}<input type="email" id="pp-dev-email" autocomplete="username" inputmode="email" placeholder="you@example.com"></label><label>${T('كلمة المرور','Password')}<input type="password" id="pp-dev-pass" autocomplete="current-password"></label><small>${T('الدخول عبر حساب آمن على السيرفر. التعديلات تنحفظ أونلاين وتظهر للزبائن.','Secure server login. Changes are saved online.')}</small><button class="btn gold" type="button" data-action="dev-unlock">${T('دخول','Log in')}</button></div>`,`<button type="button" class="btn" data-action="close-modal">${T('إلغاء','Cancel')}</button>`);
+  modal(T('دخول المالك','Owner login'),`<div class="pp-dev-login"><label>${T('رقم الواتساب أو الإيميل','WhatsApp number or email')}<input type="text" id="pp-dev-email" autocomplete="username" dir="ltr" placeholder="+961 70 123 456"></label><label>${T('كلمة المرور','Password')}<input type="password" id="pp-dev-pass" autocomplete="current-password"></label><small>${T('الدخول عبر حساب آمن على السيرفر. التعديلات تنحفظ أونلاين وتظهر للزبائن.','Secure server login. Changes are saved online.')}</small><button class="btn gold" type="button" data-action="dev-unlock">${T('دخول','Log in')}</button></div>`,`<button type="button" class="btn" data-action="close-modal">${T('إلغاء','Cancel')}</button>`);
 }
 async function ownerAuthorize(){
-  const email=($('pp-dev-email')?.value||'').trim(),pass=$('pp-dev-pass')?.value||'';
+  const email=pp158Mail(($('pp-dev-email')?.value||'').trim()),pass=$('pp-dev-pass')?.value||''; // V158: staff log in with their WhatsApp number
   if(!email||!pass){note(T('اكتب الإيميل وكلمة المرور','Enter email and password'));return;}
   try{
     const j=await ppAuth('password',{email,password:pass});
@@ -7456,12 +7456,12 @@ body.pp123-no-delete [data-action="pp85-delete"]{display:none!important}`;docume
   async function drawStaff(){
     let list=[];try{list=await J('/rest/v1/app_staff?select=*&order=created_at.asc')||[]}catch(e){sheet('👥 الموظفين','<div class="em">تعذّر تحميل الموظفين: '+esc(e.message)+'</div>');return;}
     const cards=list.map(s=>{const P=s.perms||{};const stt=!s.active?'<span class="chip off">⏸ موقوف</span>':s.accepted_at?'<span class="chip">✓ قبِل الدعوة</span>':'<span class="chip wait">⏳ بانتظار قبول الدعوة</span>';
-      return '<div class="card"><div class="who"><div>'+esc(s.name||'—')+'<small>'+esc(s.email)+'</small></div>'+stt+'</div>'+
+      return '<div class="card"><div class="who"><div>'+esc(s.name||'—')+'<small dir="ltr">'+esc(pp158Show(s.email))+'</small></div>'+stt+'</div>'+
       PP123_PERMS.map(([k,n])=>'<div class="pm">'+n+'<button type="button" class="tg'+(P[k]?' on':'')+'" data-p123="perm" data-e="'+esc(s.email)+'" data-k="'+k+'" aria-label="'+n+'"></button></div>').join('')+
-      '<div class="row"><button type="button" class="b w" data-p123="invite" data-e="'+esc(s.email)+'">📧 إرسال الدعوة</button><button type="button" class="b w" data-p123="pw" data-e="'+esc(s.email)+'">🔑 كلمة سر مؤقتة</button></div>'+
+      pp158Box(s)+
       '<div class="row"><button type="button" class="b w" data-p123="active" data-e="'+esc(s.email)+'" data-v="'+(s.active?'0':'1')+'">'+(s.active?'⏸ إيقاف مؤقت':'▶ تفعيل')+'</button><button type="button" class="b r" data-p123="remove" data-e="'+esc(s.email)+'">🗑 إزالة الموظف</button></div></div>';}).join('');
     sheet('👥 الموظفين',
-      '<div class="card"><b style="font-size:13.5px">＋ أضف موظف</b><input data-p123in="name" placeholder="اسم الموظف (لتعرف مين هو)"><input data-p123in="email" type="email" dir="ltr" placeholder="إيميل الموظف"><button type="button" class="b" data-p123="add" style="width:100%">📧 أضف وأرسل الدعوة</button><div style="font-size:11.5px;color:#7a6330;margin-top:6px;line-height:1.6">بيوصله إيميل فيه رابط، بيفتحه فبيفوت عالتطبيق وبيختار كلمة سر. إذا ما وصله الإيميل، اعطيه «🔑 كلمة سر مؤقتة» وبيفوت من «دخول المطوّر».</div></div>'+
+      '<div class="card"><b style="font-size:13.5px">＋ أضف موظف</b><input data-p123in="name" placeholder="اسم الموظف (لتعرف مين هو)"><input data-p123in="email" type="tel" dir="ltr" inputmode="tel" placeholder="رقم واتسابه مع رمز البلد  +961…"><button type="button" class="b" data-p123="add" style="width:100%">＋ أضف الموظف</button><div style="font-size:11.5px;color:#7a6330;margin-top:6px;line-height:1.6">رقم الواتساب مع رمز البلد (لبنان +961، سوريا +963). هوّي اسم الدخول تبعه. بعدها من بطاقته: «📤 مشاركة للموظف».</div></div>'+
       (cards||'<div class="em">ما في موظفين لسا</div>')+
       '<div class="lock">🔒 ممنوع دايماً على الموظف: لوحة المطوّر، تنزيل الملف والنسخ، إعدادات المتجر والفروع والواتساب، الشريط العلوي، ظهور المنتجات للزبائن، والموظفين. وكل تعديل بيعمله بيوصلك بـ«📥 طلبات الموظفين» وما بينتشر إلا بموافقتك.</div>');
   }
@@ -7523,11 +7523,10 @@ body.pp123-no-delete [data-action="pp85-delete"]{display:none!important}`;docume
       if(!owner())return;
       if(a==='staff'){try{setMenu(false)}catch(_){}await drawStaff();return;}
       if(a==='reqs'){try{setMenu(false)}catch(_){}await drawReqs();return;}
-      if(a==='add'){const name=(document.querySelector('[data-p123in="name"]')?.value||'').trim(),email=(document.querySelector('[data-p123in="email"]')?.value||'').trim().toLowerCase();
-        if(!name){note('اكتب اسم الموظف');return;}if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){note('اكتب إيميل صحيح');return;}
+      if(a==='add'){const name=(document.querySelector('[data-p123in="name"]')?.value||'').trim(),email=pp158Mail((document.querySelector('[data-p123in="email"]')?.value||'').trim());
+        if(!name){note('اكتب اسم الموظف');return;}if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){note('اكتب رقم واتساب صحيح مع رمز البلد');return;}
         b.disabled=true;await J('/rest/v1/app_staff',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({email,name,perms:PP123_DEFAULT,active:true})});
-        let sent='';try{const j=await fn({action:'invite',email});sent=j.sent;}catch(err){note('انضاف الموظف، بس الإيميل ما انبعت: '+err.message+' — استعمل «🔑 كلمة سر مؤقتة»');await drawStaff();return;}
-        note('✅ انضاف '+name+' وانبعتتله الدعوة على '+email);await drawStaff();return;}
+        note('✅ انضاف '+name+' — اختارله قسمه وابعتله من «📤 مشاركة للموظف»');await drawStaff();return;}
       if(a==='perm'){const on=!b.classList.contains('on');const cardPerms={};b.closest('.card').querySelectorAll('[data-p123="perm"]').forEach(x=>cardPerms[x.dataset.k]=x===b?on:x.classList.contains('on'));
         b.classList.toggle('on',on);await J('/rest/v1/app_staff?email=eq.'+encodeURIComponent(E),{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({perms:cardPerms})});note('✅ انحفظت الصلاحية');return;}
       if(a==='invite'){b.disabled=true;const j=await fn({action:'invite',email:E});note('📧 انبعتت الدعوة '+(j.sent==='magic_link'?'(رابط دخول)':'')+' على '+E);b.disabled=false;return;}
@@ -8271,9 +8270,9 @@ const pp154Installed=()=>pp150Mode()==='app';
 function pp154ChromeUrl(){return 'intent://'+location.host+location.pathname+location.search+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(location.href)+';end';}
 function pp154Hide(forever){document.getElementById('pp154-pill')?.remove();if(forever){try{localStorage.setItem('pp154-x','1')}catch(_){}}}
 function pp154Pill(){
-  if(MANAGER||pp154Installed()||document.getElementById('pp154-pill'))return;
+  if((MANAGER&&ownerUnlocked)||pp154Installed()||document.getElementById('pp154-pill'))return;
   try{if(localStorage.getItem('pp154-x')==='1')return;}catch(_){}
-  let label='📲 '+T('نزّل تطبيق Petra Electric','Get the Petra Electric app'),btn=T('تثبيت','Install');
+  let label='📲 '+(MANAGER?T('نزّل تطبيق Petra Admin','Get the Petra Admin app'):T('نزّل تطبيق Petra Electric','Get the Petra Electric app')),btn=T('تثبيت','Install');
   if(pp154InApp()&&pp154IsAndroid()){label='📲 '+T('لتنزّل التطبيق','To install the app');btn=T('فتح بـ Chrome','Open in Chrome');}
   const el=document.createElement('div');el.id='pp154-pill';el.setAttribute('role','dialog');
   el.innerHTML=`<span>${label}</span><button type="button" class="go" data-pp154="install">${btn}</button><button type="button" class="x" data-pp154="x" aria-label="${T('إغلاق','Close')}">✕</button>`;
@@ -8285,9 +8284,9 @@ async function pp154Install(){
   modal(T('📲 نزّل التطبيق','📲 Install the app'),ios?`<div style="line-height:1.9;font-size:15px">${pp154InApp()?T('1. افتح الرابط بـ <b>Safari</b> (⋯ ← فتح في Safari).<br>','1. Open this link in <b>Safari</b>.<br>'):''}${T('اكبس زر <b>المشاركة ⬆️</b> تحت، بعدين <b>«إضافة إلى الشاشة الرئيسية»</b>.','Tap <b>Share ⬆️</b>, then <b>Add to Home Screen</b>.')}</div>`
     :`<div style="line-height:1.9;font-size:15px">${T('من قائمة Chrome <b>⋮</b> فوق، اختار <b>«تثبيت التطبيق»</b> أو <b>«إضافة إلى الشاشة الرئيسية»</b>.','In the Chrome <b>⋮</b> menu choose <b>Install app</b> or <b>Add to Home screen</b>.')}</div>`,
     `<button class="btn" data-action="close-modal">${T('تمام','OK')}</button>`);}
-window.addEventListener('beforeinstallprompt',e=>{if(MANAGER)return;e.preventDefault();pp154Prompt=e;});
+window.addEventListener('beforeinstallprompt',e=>{if(MANAGER&&ownerUnlocked)return;e.preventDefault();pp154Prompt=e;});
 window.addEventListener('appinstalled',()=>{pp154Hide(true);try{render()}catch(_){}});
-if(!MANAGER){const t0=Date.now(),go=()=>{if(document.querySelector('#app header')&&!document.querySelector('#pp108:not(.out)')?.offsetParent)setTimeout(pp154Pill,2500);else if(Date.now()-t0<30000)setTimeout(go,400);};setTimeout(go,800);} // V155: shown on the home screen right away
+{const t0=Date.now(),go=()=>{if(document.querySelector('#app header')&&!document.querySelector('#pp108:not(.out)')?.offsetParent)setTimeout(pp154Pill,2500);else if(Date.now()-t0<30000)setTimeout(go,400);};setTimeout(go,800);} // V155: shown on the home screen right away
 document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-pp154]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();
   const a=b.dataset.pp154;if(a==='x'){pp154Hide(true);return;}if(a==='install'){try{setMenu(false)}catch(_){}pp154Install();}},true);
 (function(){const st=document.createElement('style');st.textContent=`
@@ -8350,6 +8349,34 @@ try{const _c157=changed;changed=async function(){try{pp157Apply()}catch(_){}retu
 function pp157DeptSecs(){try{if(!ppDept)return '';const list=(state.settings.homeSections||[]).filter(s=>s&&s.dept===ppDept&&s.visible!==false);if(!list.length)return '';
   return '<div class="pp157-dsecs">'+list.map(s=>{const html=pp24SecHtml(s);if(!visibleAdmin()&&['products','new'].includes(s.type)&&/class="empty"/.test(html))return '';return html;}).join('')+'</div>';}catch(e){return '';}}
 (function(){const st=document.createElement('style');st.textContent='.pp157-tag{background:#1e3a5f;color:#fff;border-radius:10px 10px 0 0;padding:5px 10px;font-weight:800;font-size:12.5px;display:inline-block;margin-top:8px}.pp157-dsecs{margin:0 0 12px}';document.head.appendChild(st);})();
+
+/* ===== V158: staff log in with their WhatsApp number; owner shares the app + password over WhatsApp (no e-mail invites) ===== */
+const PP158_DOM='@staff.petrapower.store';
+function pp158Mail(v){v=String(v||'').trim();if(v.includes('@'))return v.toLowerCase();const d=v.replace(/\D/g,'').replace(/^00/,'');return d.length>=8?d+PP158_DOM:v.toLowerCase();}
+function pp158Digits(email){const e=String(email||'');return e.endsWith(PP158_DOM)?e.slice(0,-PP158_DOM.length):'';}
+function pp158Show(email){const d=pp158Digits(email);return d?'+'+d:String(email||'');}
+function pp158Pw(){const a='ABCDEFGHJKLMNPQRSTUVWXYZ';return 'Petra-'+a[Math.floor(Math.random()*a.length)]+String(Math.floor(1000+Math.random()*9000));}
+function pp158Box(s){const n=esc(s.name||'الموظف');return '<div class="pp158-shr"><h4>📤 مشاركة للموظف عالواتساب</h4><div>كلمة السر تبعه (إنت بتختارها):</div><input data-pp158in="pw" data-e="'+esc(s.email)+'" dir="ltr" value="'+pp158Pw()+'"><button type="button" class="gen" data-pp158="gen">🎲 اقترح كلمة سر غيرها</button>'+(pp158Digits(s.email)?'':'<input data-pp158in="ph" dir="ltr" inputmode="tel" placeholder="رقم واتسابه مع رمز البلد (+961…)">')+'<button type="button" class="wa" data-pp158="send" data-e="'+esc(s.email)+'" data-n="'+n+'">💬 احفظ وابعت لـ'+n+' عالواتساب</button><small>بيفتح واتساب دغري على رقمه والرسالة جاهزة (الرابط، رقمه، كلمة السر وقسمه)، بس بتكبس إرسال.</small></div>';}
+document.addEventListener('click',async e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-pp158]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();
+  const box=b.closest('.pp158-shr');if(!box)return;const inp=box.querySelector('[data-pp158in="pw"]');
+  if(b.dataset.pp158==='gen'){inp.value=pp158Pw();return;}
+  if(b.dataset.pp158!=='send')return;
+  const E=b.dataset.e,pw=(inp.value||'').trim(),name=b.dataset.n||'';let digits=pp158Digits(E);
+  if(!digits){digits=((box.querySelector('[data-pp158in="ph"]')||{}).value||'').replace(/\D/g,'').replace(/^00/,'');}
+  if(pw.length<8){note('كلمة السر لازم تكون 8 أحرف أو أكتر');return;}
+  const w=window.open('about:blank','_blank');b.disabled=true;
+  try{await ppEnsureToken();await ppFetch('/functions/v1/staff-admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'set_password',email:E,password:pw})});
+    let depts=[];try{const r=await ppFetch('/rest/v1/app_staff?select=depts&email=eq.'+encodeURIComponent(E)).then(r=>r.json());depts=(r&&r[0]&&r[0].depts)||[];}catch(_){}
+    const dn=depts.map(id=>{const d=pp139Dept(id);return d?((d.icon||'')+' '+d.name):'';}).filter(Boolean).join(' + ')||'🏪 كل المتجر';
+    const link=location.origin+location.pathname.replace(/\/shop\/?.*$/,'/admin/').replace(/index\.html$/,'');
+    const login=digits?'+'+digits:E;
+    const text='أهلا '+name+' 👋\nهيدا تطبيق الموظفين تبع Petra Power Energy:\n'+link+'\n\n1️⃣ افتح الرابط ونزّل التطبيق\n2️⃣ اكبس ⋮ ← «دخول المطوّر»\n📱 رقمك (اسم الدخول): '+login+'\n🔑 كلمة السر: '+pw+'\n🗂 قسمك: '+dn+'\n\nكل شي بتزيده بيوصلني لوافق عليه قبل ما ينزل عالمتجر.';
+    const url='https://wa.me/'+(digits||'')+'?text='+encodeURIComponent(text);
+    if(w)w.location.href=url;else location.href=url;
+    note('✅ انحفظت كلمة السر — كمّل الإرسال بالواتساب');
+  }catch(err){try{w&&w.close()}catch(_){}note('⚠️ ما انحفظت كلمة السر: '+err.message);}
+  b.disabled=false;},true);
+(function(){const st=document.createElement('style');st.textContent='.pp158-shr{border:2px solid #25d366;border-radius:12px;padding:10px;margin:10px 0;background:#effcf4;direction:rtl}.pp158-shr h4{margin:0 0 6px;font-size:14px;color:#146c34}.pp158-shr input{width:100%;box-sizing:border-box;border:1.5px solid #8fd9a8;border-radius:10px;padding:10px;font-size:16px;text-align:center;letter-spacing:1px;font-weight:800;margin:4px 0}.pp158-shr .gen{background:none;border:0;color:#146c34;font:inherit;font-size:12.5px;font-weight:800;padding:2px 0;cursor:pointer}.pp158-shr .wa{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:12px;padding:12px;background:#25d366;color:#fff;font:inherit;font-weight:900;font-size:15px;margin-top:6px;cursor:pointer}.pp158-shr small{display:block;font-size:11.5px;color:#2d6a43;line-height:1.6;margin-top:6px}';document.head.appendChild(st);})();
 
 ppBoot();
 })();
