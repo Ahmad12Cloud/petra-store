@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V149';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V150';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1936,7 +1936,7 @@ function pp24Action(a,el){const rows=state.settings.homeSections;if(a==='pp24-sa
 const pageHtml=()=>`<header class="header v12-header" style="--pp-live-header-bg:${safeColor(state.settings.headerBg||'#fffefa','#fffefa')};--pp28-hbg:${safeColor(state.settings.headerBg||'#fffefa','#fffefa')};--pp28-hfg:${safeColor(state.settings.headerFg||'#35261d','#35261d')};--pp28-iconbg:${safeColor(state.settings.headerIconBg||'#fff8ef','#fff8ef')};--pp28-shiftx:${Math.max(-85,Math.min(85,Number(state.settings.headerShiftX)||0))}px;--pp28-shifty:${Math.max(-26,Math.min(26,Number(state.settings.headerShiftY)||0))}px">
 <div class="container v12-headbar"><button type="button" class="brand v12-brand" data-pp29-item="brand" data-action="pp24-home" aria-label="${T('الصفحة الرئيسية','Home page')}"><img class="brand-icon" id="logo-img" alt="Petra Power Energy" src="${safeImg(state.settings.logo)||PETRA_GOLD_LOGO}"><div class="brandname pp30-brand-lines">${pp30BrandMarkup()}</div></button>
 ${pp83WordHtml()}<div class="v12-top-actions">${ppChipHtml()}<button type="button" class="v12-icon" data-pp29-item="search" data-action="open-search" aria-label="${T('بحث بالكتابة','Text search')}" title="${T('بحث','Search')}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></button><button type="button" class="v12-icon" data-pp29-item="cart" data-action="cart" aria-label="${T('الطلب','Cart')}" title="${T('الطلب','Cart')}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h2.7l2.3 12h11.5l2.4-9H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg><span id="cart-count" class="v12-cartbadge">0</span></button><button type="button" class="v12-icon" data-pp29-item="menu" data-action="toggle-menu" id="v12-menu-toggle" aria-expanded="false" aria-label="${T('القائمة والتصنيفات','Menu and categories')}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></button></div></div>
-${ppTagHtml()}<div id="v12-menu" class="v12-menu hide" role="navigation" aria-label="${T('التصنيفات والقائمة','Categories and menu')}"><div class="v12-menu-head"><strong>${T('التصنيفات','Categories')}</strong><button class="v12-menu-dismiss" data-action="close-menu" type="button">✕</button></div><div class="v12-menu-list"><button type="button" data-action="pp24-home">⌂ ${T('الرئيسية','Home')}</button><button type="button" data-action="menu-all">${T('جميع المنتجات','All products')}</button><button type="button" data-action="pp26-favorites">♡ ${T('المفضلة','Favorites')}</button>${allCategories().map(c=>`<button type="button" data-action="menu-category" data-category="${esc(c)}">${esc(ppCatLabel(c))}</button>`).join('')}</div><div class="v12-menu-footer"><button type="button" data-action="lang">🌐 ${lang==='ar'?'English':'العربية'}</button><button type="button" data-action="menu-new">${T('وصل حديثاً','New arrivals')}</button></div>${MANAGER?(!ownerUnlocked?`<div class="pp-dev-access"><button type="button" data-action="dev-login">🛠️ ${T('مصمّم المتجر — دخول المطوّر','Store builder — developer login')}</button></div>`:preview?`<div class="pp-dev-access"><button type="button" data-action="preview-exit">↩ ${T('العودة لوضع المطوّر','Back to developer')}</button></div>`:`<div class="v12-owner-menu"><div class="v12-owner-menu-title">🔒 ${T('لوحة المطوّر','Developer tools')} <span class="pp47-build" lang="en" dir="ltr">PetraPower · ${PETRA_APP_VERSION}</span></div>${(()=>{const L=state.products.filter(p=>!p.demoOnly),a=L.filter(p=>p.active).length;return `<div class="pp137-count" style="display:flex;flex-wrap:wrap;gap:6px 14px;margin:4px 0 8px;padding:7px 10px;border-radius:10px;background:#3c2b16;border:1px solid #b79049;color:#ffe4aa;font-weight:800;font-size:13px"><span>📦 ${T('عدد المنتجات في المتجر:','Products in store:')} <b>${L.length}</b></span><span>👁 ${T('ظاهرة:','Shown:')} <b>${a}</b></span><span>🙈 ${T('مخفية:','Hidden:')} <b>${L.length-a}</b></span></div>`})()}<button type="button" data-pp139="waed">💬 أرقام الواتساب (الأساسية والأقسام)</button><button type="button" data-action="pp49-open">✏️ تعديل واجهة الكتالوج — الأقلام مباشرة</button><button type="button" data-action="pp49-add">＋ إضافة منتجات / سلايدر / صورة / وصف</button><button type="button" data-pp139="edit">🧭 الشريط السفلي والأقسام</button><button type="button" data-action="pp-live-enter">⚙️ المحرّر المتقدم السابق</button><button type="button" data-tab="theme">🏪 ${T('تصميم الواجهة الرئيسية','Homepage theme editor')}</button><button type="button" data-tab="designer">⚙️ ${T('محرّر المربعات القديم (متقدم)','Advanced legacy block editor')}</button><button type="button" data-action="pp35-grid">▦ حجم وعدد مربعات المنتجات</button><button type="button" data-action="edit-new">＋ ${T('إضافة منتج','Add product')}</button><button type="button" data-tab="admin">✏️ ${T('إدارة وتعديل المنتجات','Manage products')}</button><button type="button" data-tab="banners">🖼️ ${T('صور الواجهة والسلايدر','Store banners')}</button><button type="button" data-tab="settings">🎨 ${T('المظهر والخلفيات والإعدادات','Appearance & settings')}</button><button type="button" data-tab="export">📤 ${T('النسخ والتصدير','Export & backup')}</button><button type="button" data-action="preview-customer">👁️ ${T('معاينة الزبون','Customer preview')}</button><button type="button" data-action="import-full-owner">📥 ${T('نقل نسخة المالك السابقة','Transfer owner file')}</button><button type="button" data-action="save-local-settings" class="v12-owner-save pp38-save-local">💾 ${T('حفظ الإعدادات — بدون تنزيل','Save settings on this device')}</button><button type="button" data-action="save-current-file" class="v12-owner-save">📥 ${T('حفظ نسخة كاملة — تنزيل','Download owner copy')}</button><button type="button" data-action="dev-logout">🔒 ${T('قفل أدوات المطوّر','Lock developer tools')}</button></div>`):''}</div></header>
+${ppTagHtml()}<div id="v12-menu" class="v12-menu hide" role="navigation" aria-label="${T('التصنيفات والقائمة','Categories and menu')}"><div class="v12-menu-head"><strong>${T('التصنيفات','Categories')}</strong><button class="v12-menu-dismiss" data-action="close-menu" type="button">✕</button></div><div class="v12-menu-list"><button type="button" data-action="pp24-home">⌂ ${T('الرئيسية','Home')}</button><button type="button" data-action="menu-all">${T('جميع المنتجات','All products')}</button><button type="button" data-action="pp26-favorites">♡ ${T('المفضلة','Favorites')}</button>${allCategories().map(c=>`<button type="button" data-action="menu-category" data-category="${esc(c)}">${esc(ppCatLabel(c))}</button>`).join('')}</div><div class="v12-menu-footer"><button type="button" data-pp150="share">📤 ${T('شارك المتجر','Share the store')}</button><button type="button" data-action="lang">🌐 ${lang==='ar'?'English':'العربية'}</button><button type="button" data-action="menu-new">${T('وصل حديثاً','New arrivals')}</button></div>${MANAGER?(!ownerUnlocked?`<div class="pp-dev-access"><button type="button" data-action="dev-login">🛠️ ${T('مصمّم المتجر — دخول المطوّر','Store builder — developer login')}</button></div>`:preview?`<div class="pp-dev-access"><button type="button" data-action="preview-exit">↩ ${T('العودة لوضع المطوّر','Back to developer')}</button></div>`:`<div class="v12-owner-menu"><div class="v12-owner-menu-title">🔒 ${T('لوحة المطوّر','Developer tools')} <span class="pp47-build" lang="en" dir="ltr">PetraPower · ${PETRA_APP_VERSION}</span></div>${(()=>{const L=state.products.filter(p=>!p.demoOnly),a=L.filter(p=>p.active).length;return `<div class="pp137-count" style="display:flex;flex-wrap:wrap;gap:6px 14px;margin:4px 0 8px;padding:7px 10px;border-radius:10px;background:#3c2b16;border:1px solid #b79049;color:#ffe4aa;font-weight:800;font-size:13px"><span>📦 ${T('عدد المنتجات في المتجر:','Products in store:')} <b>${L.length}</b></span><span>👁 ${T('ظاهرة:','Shown:')} <b>${a}</b></span><span>🙈 ${T('مخفية:','Hidden:')} <b>${L.length-a}</b></span></div>`})()}<button type="button" data-pp139="waed">💬 أرقام الواتساب (الأساسية والأقسام)</button>${(typeof pp123Staff!=='undefined'&&pp123Staff)?'':'<button type="button" data-pp150="stats">📊 إحصائيات الزبائن</button><button type="button" data-pp150="trash">🗑️ الصور المحذوفة</button>'}<button type="button" data-action="pp49-open">✏️ تعديل واجهة الكتالوج — الأقلام مباشرة</button><button type="button" data-action="pp49-add">＋ إضافة منتجات / سلايدر / صورة / وصف</button><button type="button" data-pp139="edit">🧭 الشريط السفلي والأقسام</button><button type="button" data-action="pp-live-enter">⚙️ المحرّر المتقدم السابق</button><button type="button" data-tab="theme">🏪 ${T('تصميم الواجهة الرئيسية','Homepage theme editor')}</button><button type="button" data-tab="designer">⚙️ ${T('محرّر المربعات القديم (متقدم)','Advanced legacy block editor')}</button><button type="button" data-action="pp35-grid">▦ حجم وعدد مربعات المنتجات</button><button type="button" data-action="edit-new">＋ ${T('إضافة منتج','Add product')}</button><button type="button" data-tab="admin">✏️ ${T('إدارة وتعديل المنتجات','Manage products')}</button><button type="button" data-tab="banners">🖼️ ${T('صور الواجهة والسلايدر','Store banners')}</button><button type="button" data-tab="settings">🎨 ${T('المظهر والخلفيات والإعدادات','Appearance & settings')}</button><button type="button" data-tab="export">📤 ${T('النسخ والتصدير','Export & backup')}</button><button type="button" data-action="preview-customer">👁️ ${T('معاينة الزبون','Customer preview')}</button><button type="button" data-action="import-full-owner">📥 ${T('نقل نسخة المالك السابقة','Transfer owner file')}</button><button type="button" data-action="save-local-settings" class="v12-owner-save pp38-save-local">💾 ${T('حفظ الإعدادات — بدون تنزيل','Save settings on this device')}</button><button type="button" data-action="save-current-file" class="v12-owner-save">📥 ${T('حفظ نسخة كاملة — تنزيل','Download owner copy')}</button><button type="button" data-action="dev-logout">🔒 ${T('قفل أدوات المطوّر','Lock developer tools')}</button></div>`):''}</div></header>
 ${renderHomeSections()}
 <div class="v12-customer-nav pp26-nav ${state.settings.bottomNavVisible===false?'pp43-hide-customer-nav':''}">${pp139NavHtml()}</div>
 <div id="v12-search" class="v12-search-overlay hide" role="dialog" aria-modal="true" aria-label="${T('بحث المنتجات','Product search')}"><div class="v12-search-box"><div class="v12-search-top"><button type="button" class="v12-back" data-action="close-search" aria-label="${T('رجوع','Back')}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5 19 19M19 5 5 19"/></svg></button><input id="v12-search-input" type="search" enterkeyhint="search" inputmode="search" autocomplete="off" placeholder="${T('ابحث عن منتج أو موديل…','Search products or models…')}" value="${esc(assistantQuery)}"><button type="button" id="pp87-mic" class="v12-go pp87-mic" data-action="pp87-mic" hidden aria-label="${T('بحث صوتي','Voice search')}">🎤</button><button type="button" class="v12-go" data-action="search-go"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></button></div><div id="v12-search-hints" class="v12-search-hints"></div><p class="v12-search-tip">${T('اكتب اسم المنتج أو الموديل أو الأمبير؛ النتائج من الكتالوج فقط.','Type product, model or current. Results only from catalog.')}</p></div></div>
@@ -4324,7 +4324,7 @@ async function ppCleanOrphans(removedIds,changedRows,rows,sdata){
   const failed=[];
   for(let i=0;i<orphans.length;i+=50){
     const chunk=orphans.slice(i,i+50);
-    try{await ppFetch('/storage/v1/object/'+PP_BUCKET,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({prefixes:chunk.flatMap(u=>[u.slice(PP_PUB.length),u.slice(PP_PUB.length)+'.t.webp'])})});}
+    try{failed.push(...await pp150TrashUrls(chunk));} // V150: kept in trash/ for the owner's chosen days
     catch(e){failed.push(...chunk);}
   }
   if(failed.length)ppLS.set(PP_ORPH_KEY,JSON.stringify(failed));else ppLS.del(PP_ORPH_KEY);
@@ -8052,6 +8052,214 @@ try{(function(){
   new MutationObserver(inject).observe(document.body,{childList:true,subtree:true});
   window.pp130={pick,run,ensureVecs,tokensFrom,ocrMatch,_dbg:()=>({vecs:vecMap&&vecMap.size,BASE})};
 })();}catch(e){try{console.error('V130',e)}catch(_){}}
+/* ===== V150: anonymous customer stats · customer sharing · deleted-photo trash (owner) ===== */
+const PP150_DEV_KEY='pp150-dev',pp150Q=new URLSearchParams(location.search);
+const pp150Owner=()=>{try{return visibleAdmin()&&!pp123Staff}catch(_){return false}};
+function pp150Dev(){let d='';try{d=localStorage.getItem(PP150_DEV_KEY)||''}catch(_){}
+  if(!/^[a-z0-9]{10,40}$/.test(d)){d=((globalThis.crypto&&crypto.randomUUID)?crypto.randomUUID().replace(/-/g,''):(Math.random().toString(36).slice(2)+Date.now().toString(36)+Math.random().toString(36).slice(2))).slice(0,32);try{localStorage.setItem(PP150_DEV_KEY,d)}catch(_){}}
+  return d;}
+function pp150Mode(){try{if(matchMedia('(display-mode: standalone)').matches||navigator.standalone)return 'app'}catch(_){}
+  const ua=navigator.userAgent||'';if(/FBAN|FBAV|FB_IAB|FBIOS/i.test(ua))return 'fb';if(/Instagram/i.test(ua))return 'ig';if(/WhatsApp/i.test(ua))return 'wa';if(/TikTok|musical_ly|Bytedance/i.test(ua))return 'tiktok';return 'browser';}
+function pp150Log(kind,o){
+  if(MANAGER)return; // the owner/staff app never counts as a customer
+  try{const b={dev:pp150Dev(),kind,mode:pp150Mode(),...(o||{})};
+    for(const k of Object.keys(b)){if(b[k]==null||b[k]==='')delete b[k];else b[k]=String(b[k]).slice(0,k==='pid'?64:k==='dev'?40:k==='src'?24:12);}
+    fetch(PP_SB_URL+'/rest/v1/pp_ev',{method:'POST',keepalive:true,headers:{apikey:PP_SB_KEY,Authorization:'Bearer '+PP_SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(b)}).catch(()=>{});
+  }catch(_){}}
+const pp150Src=()=>String(pp150Q.get('src')||'').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,24);
+const pp150Ref=()=>pp150Q.get('ref')==='s'?'s':'';
+// one visit per device every 30 minutes (keeps the table small); src/ref travel with it
+(function(){if(MANAGER)return;let last=0;try{last=Number(localStorage.getItem('pp150-lv')||0)}catch(_){}
+  const fresh=pp150Src()||pp150Ref();
+  if(fresh||Date.now()-last>30*60*1000){try{localStorage.setItem('pp150-lv',String(Date.now()))}catch(_){}pp150Log('visit',{src:pp150Src(),ref:pp150Ref()});}
+  try{if(pp150Mode()==='app'&&!localStorage.getItem('pp150-inst')){localStorage.setItem('pp150-inst','1');pp150Log('install');}}catch(_){}
+  window.addEventListener('appinstalled',()=>{try{if(!localStorage.getItem('pp150-inst')){localStorage.setItem('pp150-inst','1');pp150Log('install');}}catch(_){}});
+})();
+// product views
+try{const _d150=detail;detail=function(p){const r=_d150.apply(this,arguments);try{if(p&&p.id){pp150Log('view',{pid:p.id});pp150DetailExtras(p);}}catch(_){}return r;};}catch(_){}
+// WhatsApp orders (the «send order» rows); contact-only links are not counted
+let pp150LastOrder=0;
+document.addEventListener('click',e=>{if(MANAGER)return;const el=e.target&&e.target.closest&&e.target.closest('[data-pp141-ph],.pp75-row,a[href*="wa.me/"][href*="text="]');if(!el)return;
+  if(Date.now()-pp150LastOrder<2500)return;pp150LastOrder=Date.now();
+  let dept='';try{const box=document.getElementById('pp64-order');const p=box&&state.products.find(x=>x.id===box.dataset.id);const d=p?pp142DeptOf(p):(ppDept?pp139Dept(ppDept):null);dept=(el.dataset&&el.dataset.pp141G)||(d&&d.id)||'';}catch(_){}
+  pp150Log('order',{dept:dept||'main'});},true);
+
+/* ---------- sharing ---------- */
+function pp150Base(){let path=location.pathname.replace(/\/admin\/(index\.html)?$/,'/shop/');if(/\/admin\//.test(path))path=path.replace('/admin/','/shop/');return location.origin+path.replace(/index\.html$/,'');}
+function pp150Link(scope,p,dId){const u=new URL(pp150Base());u.searchParams.set('ref','s');
+  if(scope==='product'&&p)u.searchParams.set('p',p.productCode||p.id);if(scope==='dept'&&dId)u.searchParams.set('d',dId);return u.toString();}
+function pp150Tagline(){const t=state.settings.pp150ShareText;return (typeof t==='string'&&t.trim())?t.trim():'كهرباء · طاقة شمسية · بطاريات وانفرترات · مكيفات';}
+let pp150Sh=null;
+function pp150Share(pid){const p=pid?state.products.find(x=>x.id===pid):null;pp150Sh={p,scope:p?'product':'catalog',dept:''};pp150DrawShare();}
+function pp150DrawShare(){document.getElementById('pp150-sh')?.remove();const st=pp150Sh,p=st.p;
+  const ds=pp139Depts();const dn=d=>esc((lang==='en'?(d.nameEn||d.name):d.name)||'');
+  const title=st.scope==='product'&&p?S(p.nameAr,p.nameEn):st.scope==='dept'?(T('قسم ','')+((pp139Dept(st.dept)||{}).name||'')):'Petra Power Energy';
+  const link=pp150Link(st.scope,p,st.dept);
+  const chips=(p?`<b data-pp150="scope" data-s="product" class="${st.scope==='product'?'on':''}">${T('هالمنتج','This product')}</b>`:'')+`<b data-pp150="scope" data-s="catalog" class="${st.scope==='catalog'?'on':''}">${T('الكتالوج كلّه','Whole catalog')}</b>`+ds.map(d=>`<b data-pp150="scope" data-s="dept" data-d="${esc(d.id)}" class="${st.scope==='dept'&&st.dept===d.id?'on':''}">${esc(d.icon||'')} ${dn(d)}</b>`).join('');
+  const el=document.createElement('div');el.id='pp150-sh';el.setAttribute('role','dialog');
+  el.innerHTML=`<div class="pp150-dim" data-pp150="shclose"></div><div class="pp150-sheet"><div class="pp150-grab"></div><div class="pp150-sh-t">📤 ${T('شارك مع صحابك','Share with friends')}</div><div class="pp150-sh-s">${T('ابعت الكتالوج أو منتج أو قسم لأي حدا','Send the catalog, a product or a department')}</div>
+   <div class="pp150-which">${chips}</div>
+   <div class="pp150-pv"><div class="bn"><img src="${PETRA_GOLD_LOGO}" alt=""><span>Petra Power Energy</span></div><div class="tx"><b>${esc(title)}</b>${esc(pp150Tagline())}<span dir="ltr">${esc(link.replace(/^https?:\/\//,''))}</span></div></div>
+   <div class="pp150-opts"><button type="button" data-pp150="go" data-ch="wa"><i style="background:#25d366;color:#fff">${WA_ICON}</i>${T('واتساب','WhatsApp')}</button><button type="button" data-pp150="go" data-ch="copy"><i style="background:#eef2ff">🔗</i>${T('نسخ الرابط','Copy link')}</button><button type="button" data-pp150="go" data-ch="fb"><i style="background:#1877f2;color:#fff;font-weight:900;font-family:Arial">f</i>${T('فيسبوك','Facebook')}</button><button type="button" data-pp150="go" data-ch="more"><i style="background:#f1f1f3">⋯</i>${T('غيرها','More')}</button></div></div>`;
+  document.body.appendChild(el);}
+async function pp150Go(ch){const st=pp150Sh;if(!st)return;const p=st.p,link=pp150Link(st.scope,p,st.dept);
+  const title=st.scope==='product'&&p?S(p.nameAr,p.nameEn):'Petra Power Energy';const text=title+'\n'+pp150Tagline()+'\n'+link;
+  const log=c=>pp150Log('share',{ch:c,scope:st.scope,pid:st.scope==='product'&&p?p.id:'',dept:st.scope==='dept'?st.dept:''});
+  if(ch==='wa'){log('wa');window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener,noreferrer');}
+  else if(ch==='fb'){log('fb');window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(link),'_blank','noopener,noreferrer');}
+  else if(ch==='more'&&navigator.share){try{await navigator.share({title,text:title+'\n'+pp150Tagline(),url:link});log('other');}catch(_){return;}}
+  else{try{await navigator.clipboard.writeText(link);}catch(_){try{prompt(T('انسخ الرابط','Copy the link'),link)}catch(__){}}log('copy');note(T('✅ تم نسخ الرابط','✅ Link copied'));}
+  document.getElementById('pp150-sh')?.remove();}
+let pp150Counts=null,pp150CountsAt=0;
+async function pp150ShareCounts(){if(!pp150Owner())return null;if(pp150Counts&&Date.now()-pp150CountsAt<60000)return pp150Counts;
+  try{pp150Counts=await ppFetch('/rest/v1/rpc/pp_share_counts',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(r=>r.json())||{};pp150CountsAt=Date.now();}catch(_){pp150Counts=pp150Counts||{};}return pp150Counts;}
+function pp150DetailExtras(p){document.getElementById('pp150-dsh')?.remove();const box=document.querySelector('#modal .detail-layout');if(!box)return;
+  const w=document.createElement('div');w.id='pp150-dsh';w.className='pp150-dsh';w.innerHTML=`<button type="button" class="pp150-shbtn" data-pp150="share" data-pid="${esc(p.id)}">📤 ${T('شارك المنتج','Share product')}</button>${pp150Owner()?'<span class="pp150-cnt" title="للمالك فقط">📤 …</span>':''}`;
+  const col=box.children[1]||box,hs=col.querySelectorAll(':scope>h2'),anchor=hs[hs.length-1];anchor?anchor.after(w):col.prepend(w);
+  if(pp150Owner())pp150ShareCounts().then(c=>{const s=w.querySelector('.pp150-cnt');if(s)s.textContent='📤 '+T('انشارك','Shared')+' '+((c&&c[p.id])||0)+' '+T('مرة','times');});}
+// share count next to the owner's ✎ product form
+try{new MutationObserver(()=>{const f=document.getElementById('product-form');if(!f||!pp150Owner()||f.querySelector('.pp150-fcnt')||!editId)return;const id=editId;
+  const s=document.createElement('div');s.className='pp150-fcnt';s.textContent='📤 …';f.prepend(s);
+  pp150ShareCounts().then(c=>{s.textContent='📤 '+T('هالمنتج انشارك','Shared')+' '+((c&&c[id])||0)+' '+T('مرة (بتشوفها إنت بس)','times (owner only)');});}).observe(document.body,{childList:true,subtree:true});}catch(_){}
+// deep links: ?p=CODE opens the product, ?d=dept opens the department
+(function(){const pc=pp150Q.get('p'),dq=pp150Q.get('d');if(!pc&&!dq)return;const t0=Date.now();
+  const tick=()=>{try{const ready=ppRemoteLoaded&&state&&Array.isArray(state.products)&&state.products.length&&document.querySelector('#app header');
+    if(ready){if(dq&&pp139Dept(dq)){ppDept=dq;cat='';q='';pg=1;pp24ShowAllProducts=false;goto('catalog');}
+      if(pc){const p=state.products.find(x=>x.productCode===pc||x.code===pc||x.id===pc);if(p&&(p.active!==false||MANAGER))setTimeout(()=>detail(p),dq?900:600);}return;}}catch(_){}
+    if(Date.now()-t0<25000)setTimeout(tick,300);};setTimeout(tick,600);})();
+
+/* ---------- stats (owner) ---------- */
+let pp150Days=7;
+const PP150_MODES={browser:['🌐','من المتصفح','#5d6d7e'],app:['📲','من التطبيق المنزّل','#d9b45b'],fb:['📘','جوّا فيسبوك','#3b5998'],ig:['📸','جوّا إنستغرام','#c13584'],wa:['💬','جوّا واتساب','#25d366'],tiktok:['🎵','جوّا تيك توك','#111']};
+const PP150_SRC={fb:'إعلان فيسبوك',wa:'واتساب',ig:'إنستغرام',tiktok:'تيك توك','':'مباشر / بدون رمز','↪share':'من مشاركة زبون'};
+const PP150_CH={wa:['✆ واتساب','#25d366'],copy:['🔗 نسخ الرابط','#5d6d7e'],fb:['f فيسبوك','#1877f2'],other:['⋯ غيرها','#c9c9cf']};
+function pp150Pname(id){const p=state.products.find(x=>x.id===id);return p?{n:S(p.nameAr,p.nameEn),c:p.productCode||'',img:(p.images||[])[0]}:{n:T('منتج ممسوح','Deleted product'),c:'',img:''};}
+function pp150Bars(rows,total){const max=Math.max(1,...rows.map(r=>r.n));return rows.map(r=>`<div class="pp150-line"><span class="nm">${r.label}</span><span class="tr"><i style="width:${Math.max(3,Math.round(r.n/max*100))}%;background:${r.color||'#f39c12'}"></i></span><span class="v">${total?Math.round(r.n/total*100)+'%':r.n}</span></div>`).join('');}
+async function pp150Stats(){if(!pp150Owner()){note('للمالك فقط');return;}
+  modal('📊 إحصائيات الزبائن','<div id="pp150-st"><div class="pp150-ld">⏳ عم جيب الأرقام…</div></div>',`<button type="button" class="btn" data-action="close-modal">${T('إغلاق','Close')}</button>`);
+  let d;try{d=await ppFetch('/rest/v1/rpc/pp_stats',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({p_days:pp150Days})}).then(r=>r.json());}
+  catch(e){const b=document.getElementById('pp150-st');if(b)b.innerHTML='<div class="pp150-ld">⚠️ ما قدرت جيب الإحصائيات: '+esc(e.message)+'</div>';return;}
+  const box=document.getElementById('pp150-st');if(!box)return;
+  const chips=[[1,'اليوم'],[7,'7 أيام'],[30,'30 يوم'],[0,'من البداية']].map(([v,l])=>`<b data-pp150="days" data-v="${v}" class="${pp150Days===v?'on':''}">${l}</b>`).join('');
+  const dev=d.devices||0,prev=d.prev_devices,growth=(prev&&prev>0)?Math.round((dev-prev)/prev*100):null;
+  const daily=(d.daily||[]),dmax=Math.max(1,...daily.map(x=>x.n));const wd=['أحد','إثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
+  const bars=daily.map((x,i)=>{const dt=new Date(x.d+'T12:00:00');const lab=i===daily.length-1?'اليوم':(daily.length>7?String(dt.getDate()):wd[dt.getDay()]);return `<div class="${i===daily.length-1?'today':''}"><em>${x.n}</em><i style="height:${Math.max(2,Math.round(x.n/dmax*92))}%"></i><span>${lab}</span></div>`;}).join('');
+  const modes=Object.entries(d.modes||{}).map(([k,n])=>{const m=PP150_MODES[k]||['•',k,'#999'];return {label:m[0]+' '+m[1],n,color:m[2]};}).sort((a,b)=>b.n-a.n);const msum=modes.reduce((a,b)=>a+b.n,0);
+  const srcs=(d.sources||[]).map(x=>({label:(PP150_SRC[x.s]||x.s)+(x.s&&x.s!=='↪share'?` <span class="pp150-tag">${esc(x.s)}</span>`:''),n:x.n,color:x.s===''?'#c9c9cf':x.s==='↪share'?'#d9b45b':'#f39c12'}));
+  const views=(d.top_views||[]).map(x=>{const p=pp150Pname(x.pid);return `<div class="pp150-prod">${p.img&&safeImg(p.img)?`<img src="${safeImg(pp149Thumb(p.img))}" data-full="${safeImg(p.img)}" onerror="pp149Fallback(this)" alt="">`:'<span class="ph">📦</span>'}<div class="t">${esc(p.n)}<small>${esc(p.c)}</small></div><div class="c">${x.n}<small>فتحة</small></div></div>`;}).join('')||'<div class="pp150-empty">لسا ما في</div>';
+  const ds=pp139Depts();const ord=d.orders||{};const ordCells=ds.map(x=>`<div><b>${ord[x.id]||0}</b><span>${esc(x.icon||'')} ${esc(x.name)}</span></div>`).join('')+(ord.main?`<div><b>${ord.main}</b><span>🏪 عام</span></div>`:'')+`<div class="g"><b>${dev?Math.round((d.order_devs||0)/dev*100):0}%</b><span>من الزبائن طلبوا</span></div>`;
+  const ch=Object.entries(d.share_ch||{}).map(([k,n])=>({label:(PP150_CH[k]||['⋯ '+k])[0],n,color:(PP150_CH[k]||[0,'#c9c9cf'])[1]})).sort((a,b)=>b.n-a.n);
+  const stop=(d.share_top||[]).map(x=>{let name,img='',code='';if(x.scope==='product'){const p=pp150Pname(x.pid);name=p.n;img=p.img;code=p.c;}else if(x.scope==='dept'){const dd=pp139Dept(x.dept);name=(dd?(dd.icon||'')+' قسم '+dd.name:'قسم');}else name='الكتالوج كلّه';
+    return `<div class="pp150-prod">${img&&safeImg(img)?`<img src="${safeImg(pp149Thumb(img))}" data-full="${safeImg(img)}" onerror="pp149Fallback(this)" alt="">`:`<span class="ph pe"><img src="${PETRA_GOLD_LOGO}" alt=""></span>`}<div class="t">${esc(name)}<small>${esc(code)}</small></div><div class="c">${x.n}<small>مرة</small></div></div>`;});
+  box.innerHTML=`<div class="pp150-chips">${chips}</div>
+   <div class="pp150-kpis"><div class="k gold"><div class="t">👥 زبائن (أجهزة)</div><div class="n">${dev}</div>${growth!=null?`<div class="d">${growth>=0?'▲':'▼'} ${Math.abs(growth)}% عن الفترة اللي قبلها</div>`:''}</div>
+    <div class="k"><div class="t">📲 نزّلوا التطبيق</div><div class="n">${d.installs||0}</div><div class="d">${T('من البداية:','All time:')} ${d.installs_all||0}</div></div>
+    <div class="k"><div class="t">🆕 زبائن جدد</div><div class="n">${d.new_devices||0}</div></div><div class="k"><div class="t">🔁 رجعوا فتحوا</div><div class="n">${Math.max(0,dev-(d.new_devices||0))}</div></div></div>
+   <div class="pp150-card"><div class="h">📅 الزبائن كل يوم <small>آخر ${daily.length} يوم</small></div><div class="pp150-bars">${bars}</div></div>
+   <div class="pp150-card"><div class="h">📱 كيف عم يفتحوا المتجر</div>${modes.length?pp150Bars(modes,msum):'<div class="pp150-empty">لسا ما في</div>'}</div>
+   <div class="pp150-card"><div class="h">📣 من وين إجوا <small>الزبائن الجدد</small></div>${srcs.length?pp150Bars(srcs,0):'<div class="pp150-empty">لسا ما في</div>'}<div class="pp150-note">ضيف الرمز آخر الرابط بالإعلان، مثال: <span class="pp150-tag" dir="ltr">…/shop/?src=fb</span> — وفيك تخترع رموزك (src=tiktok أو src=jamal).</div></div>
+   <div class="pp150-card"><div class="h">📤 المشاركة <small>${pp150Days===0?'من البداية':pp150Days===1?'اليوم':'آخر '+pp150Days+' يوم'}</small></div>
+    <div class="pp150-kp2"><div class="g"><b>${d.shares||0}</b><span>مرة انشارك المتجر</span></div><div><b>${d.share_new||0}</b><span>زبون جديد إجا من مشاركة</span></div></div>
+    <div class="pp150-note" style="margin:0 0 6px">🔢 من أول يوم: انشارك المتجر <b>${d.shares_all||0}</b> مرة.</div>${ch.length?pp150Bars(ch,0):''}</div>
+   <div class="pp150-card"><div class="h">🔥 أكتر شي انشارك</div>${stop.length?stop.slice(0,5).join('')+(stop.length>5?`<details class="pp150-more"><summary>عرض الكل (${stop.length})</summary>${stop.slice(5).join('')}</details>`:''):'<div class="pp150-empty">لسا ما في</div>'}<div class="pp150-note">«إجا من مشاركة» = فتح رابط بعتو زبون تاني. منعرف كم زبون جابت المشاركات، بس ما منعرف مين شارك.</div></div>
+   <div class="pp150-card"><div class="h">🔥 أكتر المنتجات اللي انفتحت</div>${views}</div>
+   <div class="pp150-card"><div class="h">💬 طلبات واتساب انبعتت</div><div class="pp150-wa">${ordCells}</div><div class="pp150-note">بتنحسب لما الزبون يكبس على رقم «إرسال الطلب». ما منعرف إذا كمّل الرسالة بالواتساب.</div></div>
+   <div class="pp150-note" style="text-align:center">🔒 ما بينحفظ أي اسم أو رقم للزبون — بس رقم عشوائي للجهاز. جهازك (تطبيق المالك) ما بينحسب.</div>`;}
+
+/* ---------- deleted photos (owner): orphans go to trash/ for N days instead of being deleted ---------- */
+const pp150TrashDays=()=>{const n=Math.round(Number(state.settings.pp150TrashDays));return Number.isFinite(n)&&n>=1&&n<=30?n:7;};
+async function pp150Move(src,dst){return ppFetch('/storage/v1/object/move',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bucketId:PP_BUCKET,sourceKey:src,destinationKey:dst})});}
+const pp150Gone=e=>/not.?found|404|NoSuchKey/i.test(String(e&&e.message||''));
+async function pp150TrashUrls(urls){const failed=[];const ts=Date.now();
+  for(const u of urls){const path=u.slice(PP_PUB.length),dst='trash/'+ts+'__'+path.replace(/\//g,'~~');
+    try{await pp150Move(path,dst);}catch(e){if(!pp150Gone(e)){failed.push(u);continue;}}
+    try{await pp150Move(path+'.t.webp',dst+'.t.webp');}catch(_){}}
+  return failed;}
+async function pp150List(){const out=[];for(let off=0;off<20000;off+=1000){const r=await ppFetch('/storage/v1/object/list/'+PP_BUCKET,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prefix:'trash',limit:1000,offset:off,sortBy:{column:'name',order:'desc'}})}).then(r=>r.json());
+  if(!Array.isArray(r))break;out.push(...r.filter(x=>x&&x.name&&x.id!==null));if(r.length<1000)break;}return out;}
+function pp150Parse(name){const m=/^(\d{10,})__(.+)$/.exec(name);if(!m)return null;const path=m[2].replace(/~~/g,'/');const pid=(/^products\/([^/]+)\//.exec(path)||[])[1]||'';return {name,ts:Number(m[1]),path,pid};}
+async function pp150Purge(force){if(!pp150Owner()||!ppSession)return;let last=0;try{last=Number(localStorage.getItem('pp150-purge')||0)}catch(_){}
+  if(!force&&Date.now()-last<6*3600*1000)return;try{localStorage.setItem('pp150-purge',String(Date.now()))}catch(_){}
+  try{await ppEnsureToken();const lim=pp150TrashDays()*86400000,list=await pp150List();
+    const old=list.map(x=>x.name).filter(n=>{const p=pp150Parse(n.replace(/\.t\.webp$/,''));return p&&Date.now()-p.ts>lim;});
+    for(let i=0;i<old.length;i+=50)await ppFetch('/storage/v1/object/'+PP_BUCKET,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({prefixes:old.slice(i,i+50).map(n=>'trash/'+n)})});
+  }catch(e){try{console.warn('V150 purge',e)}catch(_){}}}
+let pp150Items=[],pp150Names={};
+async function pp150Trash(){if(!pp150Owner()){note('للمالك فقط');return;}
+  modal('🗑️ الصور المحذوفة','<div id="pp150-tr"><div class="pp150-ld">⏳ عم جيب الصور…</div></div>',`<button type="button" class="btn" data-action="close-modal">${T('إغلاق','Close')}</button>`);
+  try{await ppEnsureToken();await pp150Purge(true);const list=await pp150List();const names=new Set(list.map(x=>x.name));
+    pp150Items=list.map(x=>x.name).filter(n=>!/\.t\.webp$/.test(n)).map(pp150Parse).filter(Boolean).map(it=>({...it,thumb:names.has(it.name+'.t.webp')}));
+    const missing=[...new Set(pp150Items.map(i=>i.pid).filter(id=>id&&!state.products.some(p=>p.id===id)))];
+    pp150Names={};if(missing.length){try{pp150Names=await ppFetch('/rest/v1/rpc/pp_snapshot_names',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({p_pids:missing})}).then(r=>r.json())||{}}catch(_){}}
+  }catch(e){const b=document.getElementById('pp150-tr');if(b)b.innerHTML='<div class="pp150-ld">⚠️ ما قدرت جيب الصور المحذوفة: '+esc(e.message)+'</div>';return;}
+  pp150DrawTrash();}
+function pp150DrawTrash(){const box=document.getElementById('pp150-tr');if(!box)return;const days=pp150TrashDays(),fmt=ts=>{try{return new Date(ts).toLocaleDateString('ar-u-nu-latn',{day:'numeric',month:'long'})}catch(_){return ''}};
+  const rows=pp150Items.map((it,i)=>{const p=state.products.find(x=>x.id===it.pid),sn=pp150Names[it.pid];const name=p?S(p.nameAr,p.nameEn):sn?(lang==='en'?(sn.name_en||sn.name_ar):sn.name_ar):T('صورة','Photo');const code=p?(p.productCode||''):sn?(sn.code||''):'';
+    const left=days-(Date.now()-it.ts)/86400000,pct=Math.max(3,Math.min(100,Math.round(left/days*100)));const leftTxt=left<1?'باقي أقل من يوم':left<2?'باقي يوم':left<3?'باقي يومين':'باقي '+Math.floor(left)+' أيام';
+    const src=PP_PUB+'trash/'+encodeURIComponent(it.name)+(it.thumb?'.t.webp':'');
+    return `<div class="pp150-item"><img src="${esc(src)}" alt="" loading="lazy" data-pp150="zoom" data-i="${i}"><div class="b"><div class="t">${esc(name)}</div><div class="code">${p?esc(code):'منتج ممسوح'+(code?' · '+esc(code):'')} · انحذفت ${fmt(it.ts)}</div><div class="bar"><i style="width:${pct}%"></i></div><div class="left ${left<1?'r':''}">${leftTxt}</div>
+     <div class="acts"><span data-pp150="restore" data-i="${i}">${p?'↩️ رجّعها للمنتج':'↩️ رجّع المنتج مع صورته'}</span><span class="g" data-pp150="zoom" data-i="${i}">🔍 كبّر</span><span class="x" data-pp150="del" data-i="${i}">✕ امسح هلق</span></div></div></div>`;}).join('');
+  box.innerHTML=`<div class="pp150-card"><div class="h">⏳ مدة الاحتفاظ بالصور المحذوفة</div><div class="pp150-row"><div class="pp150-step"><button type="button" data-pp150="tdays" data-v="${days-1}">−</button><span>${days}</span><button type="button" data-pp150="tdays" data-v="${days+1}">+</button></div><b>يوم</b></div>
+    <div class="pp150-chips">${[1,7,14,30].map(v=>`<b data-pp150="tdays" data-v="${v}" class="${days===v?'on':''}">${v}</b>`).join('')}</div><div class="pp150-note">أي صورة بتنمسح من منتج (أو بتمسح المنتج كله) بتجي لهون وبتضل ${days} ${days===1?'يوم':days<11?'أيام':'يوم'}، بعدها بتنمسح نهائياً لحالها. من يوم لـ 30 يوم.</div></div>
+   <div class="pp150-card"><div class="h">🗑️ الصور المحذوفة (${pp150Items.length})</div>${rows||'<div class="pp150-empty">ما في صور محذوفة</div>'}</div>`;}
+async function pp150Restore(i){const it=pp150Items[i];if(!it)return;try{await ppEnsureToken();
+  let p=state.products.find(x=>x.id===it.pid);const group=p?[it]:pp150Items.filter(x=>x.pid&&x.pid===it.pid);
+  for(const g of group){try{await pp150Move('trash/'+g.name,g.path);}catch(e){if(!pp150Gone(e))throw e;}if(g.thumb){try{await pp150Move('trash/'+g.name+'.t.webp',g.path+'.t.webp');}catch(_){}}}
+  if(p){const u=PP_PUB+it.path;if(!(p.images||[]).includes(u))p.images=[...(p.images||[]),u];note('✅ رجعت الصورة لـ '+S(p.nameAr,p.nameEn));}
+  else if(it.pid){const row=await ppFetch('/rest/v1/rpc/pp_snapshot_product',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({p_pid:it.pid})}).then(r=>r.json());
+    if(row&&row.id){p=ppRowToProduct(row);p.images=(p.images||[]).filter(Boolean);group.forEach(g=>{const u=PP_PUB+g.path;if(!p.images.includes(u))p.images.push(u);});state.products.push(p);note('✅ رجع المنتج «'+S(p.nameAr,p.nameEn)+'» مع صوره');}
+    else note('↩️ رجعت الصورة، بس المنتج مش موجود بالنسخ الاحتياطية');}
+  const wasProduct=!!it.pid&&group.length&&!state.products.some(x=>x.id===it.pid&&x!==p);pp150Items=pp150Items.filter(x=>!group.includes(x));try{await changed()}catch(_){}
+  if(group.length>1||!document.getElementById('pp150-tr')){try{render()}catch(_){}setTimeout(pp150Trash,200);}else pp150DrawTrash();
+ }catch(e){try{pp97Err('رجوع الصورة',e.message)}catch(_){note('⚠️ '+e.message)}}}
+async function pp150DelNow(i){const it=pp150Items[i];if(!it)return;if(!confirm('تمسح هالصورة نهائياً؟ ما بترجع.'))return;
+  try{await ppEnsureToken();await ppFetch('/storage/v1/object/'+PP_BUCKET,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({prefixes:['trash/'+it.name,'trash/'+it.name+'.t.webp']})});pp150Items.splice(i,1);pp150DrawTrash();}catch(e){note('⚠️ '+e.message)}}
+function pp150Zoom(i){const it=pp150Items[i];if(!it)return;const z=document.createElement('div');z.className='pp150-zoom';z.innerHTML=`<img src="${esc(PP_PUB+'trash/'+encodeURIComponent(it.name))}" alt="">`;z.addEventListener('click',()=>z.remove());document.body.appendChild(z);}
+if(MANAGER)setTimeout(()=>{try{pp150Purge(false)}catch(_){}},9000);
+
+/* ---------- clicks ---------- */
+document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-pp150]');if(!b)return;const a=b.dataset.pp150;
+  e.preventDefault();e.stopImmediatePropagation();
+  try{
+    if(a==='share'){try{setMenu(false)}catch(_){}pp150Share(b.dataset.pid||'');return;}
+    if(a==='shclose'){document.getElementById('pp150-sh')?.remove();return;}
+    if(a==='scope'){if(!pp150Sh)return;pp150Sh.scope=b.dataset.s;pp150Sh.dept=b.dataset.d||'';pp150DrawShare();return;}
+    if(a==='go'){pp150Go(b.dataset.ch);return;}
+    if(a==='stats'){try{setMenu(false)}catch(_){}pp150Stats();return;}
+    if(a==='days'){pp150Days=Number(b.dataset.v)||0;pp150Stats();return;}
+    if(a==='trash'){try{setMenu(false)}catch(_){}pp150Trash();return;}
+    if(a==='tdays'){if(!pp150Owner())return;const v=Math.min(30,Math.max(1,Math.round(Number(b.dataset.v)||7)));state.settings.pp150TrashDays=v;pp150DrawTrash();try{changed()}catch(_){}return;}
+    if(a==='restore'){pp150Restore(Number(b.dataset.i));return;}
+    if(a==='del'){pp150DelNow(Number(b.dataset.i));return;}
+    if(a==='zoom'){pp150Zoom(Number(b.dataset.i));return;}
+  }catch(err){note('⚠️ '+err.message)}},true);
+(function(){const st=document.createElement('style');st.textContent=`
+#pp150-sh{position:fixed;inset:0;z-index:100000}#pp150-sh .pp150-dim{position:absolute;inset:0;background:#0008}
+#pp150-sh .pp150-sheet{position:absolute;left:0;right:0;bottom:0;max-width:640px;margin:0 auto;background:#fff;color:#1b1b1f;border-radius:22px 22px 0 0;padding:14px 16px 22px;direction:rtl;max-height:92vh;overflow:auto}
+.pp150-grab{width:44px;height:5px;background:#ddd;border-radius:4px;margin:0 auto 10px}.pp150-sh-t{font-weight:900;font-size:17px;text-align:center}.pp150-sh-s{font-size:12.5px;color:#6b6b73;text-align:center;margin:4px 0 12px}
+.pp150-which{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.pp150-which b{flex:1 1 auto;text-align:center;padding:8px 10px;border-radius:20px;background:#eee;font-size:13px;cursor:pointer}.pp150-which b.on{background:#1b1b1f;color:#d9b45b}
+.pp150-pv{border:1px solid #eee;border-radius:14px;overflow:hidden;margin-bottom:14px;background:#fafafa}.pp150-pv .bn{height:84px;background:linear-gradient(135deg,#1b1b1f,#3a3326);display:flex;align-items:center;justify-content:center;gap:10px;color:#d9b45b;font-weight:900;font-size:16px}.pp150-pv .bn img{height:62px;width:auto}
+.pp150-pv .tx{padding:8px 10px;font-size:12px;line-height:1.55}.pp150-pv .tx b{display:block;font-size:13px}.pp150-pv .tx span{color:#2471a3;display:block;text-align:right;word-break:break-all}
+.pp150-opts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}.pp150-opts button{border:0;background:none;font:inherit;font-size:12px;font-weight:700;color:#1b1b1f;cursor:pointer}.pp150-opts i{display:flex;width:54px;height:54px;margin:0 auto 6px;border-radius:16px;align-items:center;justify-content:center;font-style:normal;font-size:24px}.pp150-opts i svg{width:30px;height:30px}
+.pp150-dsh{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0}.pp150-shbtn{border:1.5px solid #d9b45b;color:#8a5a00;background:#fff7e6;border-radius:10px;padding:7px 12px;font:inherit;font-weight:800;font-size:13px;cursor:pointer}.pp150-cnt,.pp150-fcnt{font-size:12.5px;font-weight:800;color:#8a5a00;background:#fff3cd;border-radius:9px;padding:5px 9px}.pp150-fcnt{display:inline-block;margin:0 0 8px}
+#pp150-st,#pp150-tr{direction:rtl;color:#1b1b1f}.pp150-ld,.pp150-empty{padding:14px;text-align:center;color:#6b6b73;font-size:13px}
+.pp150-chips{display:flex;gap:6px;margin:0 0 12px}.pp150-chips b{flex:1;text-align:center;padding:8px 0;border-radius:20px;background:#e6e6ea;font-size:13px;cursor:pointer}.pp150-chips b.on{background:#1b1b1f;color:#d9b45b}
+.pp150-kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.pp150-kpis .k{background:#f6f6f8;border-radius:14px;padding:12px}.pp150-kpis .n{font-size:28px;font-weight:900;line-height:1.1}.pp150-kpis .t{font-size:12.5px;color:#55555c;font-weight:700}.pp150-kpis .d{font-size:11.5px;color:#1e8449;font-weight:700;margin-top:3px}.pp150-kpis .k.gold{background:linear-gradient(135deg,#1b1b1f,#2c2a25);color:#fff}.pp150-kpis .k.gold .t{color:#d9b45b}.pp150-kpis .k.gold .d{color:#f5d27a}
+.pp150-card{background:#fff;border:1px solid #eee;border-radius:14px;padding:12px;margin-bottom:12px}.pp150-card .h{font-weight:800;font-size:15px;margin-bottom:10px;display:flex;gap:6px;align-items:center}.pp150-card .h small{margin-inline-start:auto;font-size:11px;color:#8a8a92;font-weight:600}
+.pp150-bars{display:flex;align-items:flex-end;gap:4px;height:110px}.pp150-bars div{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;min-width:0}.pp150-bars i{display:block;width:100%;border-radius:5px 5px 2px 2px;background:#e8c77a}.pp150-bars div.today i{background:#f39c12}.pp150-bars span{font-size:9.5px;color:#8a8a92}.pp150-bars em{font-style:normal;font-size:10px;font-weight:800;color:#55555c}
+.pp150-line{display:flex;align-items:center;gap:8px;margin:8px 0}.pp150-line .nm{width:130px;font-size:13px;font-weight:700}.pp150-line .tr{flex:1;height:10px;background:#f0f0f2;border-radius:6px;overflow:hidden}.pp150-line .tr i{display:block;height:100%;border-radius:6px}.pp150-line .v{width:44px;text-align:left;font-size:12.5px;font-weight:800}
+.pp150-tag{display:inline-block;font-size:11px;background:#fff7e6;color:#b07d10;border:1px solid #f0d9a4;border-radius:8px;padding:0 6px;direction:ltr}
+.pp150-note{font-size:11.5px;color:#6b6b73;line-height:1.6;margin-top:6px}
+.pp150-prod{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid #eee}.pp150-prod:first-of-type{border-top:0}.pp150-prod img,.pp150-prod .ph{width:46px;height:46px;border-radius:8px;object-fit:cover;flex:none;display:flex;align-items:center;justify-content:center;background:#f5f5f7}.pp150-prod .ph.pe{background:#1b1b1f}.pp150-prod .ph.pe img{width:38px;height:38px;object-fit:contain}.pp150-prod .t{flex:1;font-size:13px;font-weight:700;line-height:1.35}.pp150-prod .t small{display:block;color:#b07d10;font-size:11px}.pp150-prod .c{font-weight:900;font-size:15px;text-align:center}.pp150-prod .c small{display:block;font-size:10px;color:#8a8a92;font-weight:600}
+.pp150-more summary{cursor:pointer;font-weight:800;color:#8a5a00;padding:6px 0}
+.pp150-kp2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}.pp150-kp2 div{border-radius:12px;padding:10px;background:#f6f6f8}.pp150-kp2 b{display:block;font-size:26px;font-weight:900}.pp150-kp2 span{font-size:12px;font-weight:700;color:#55555c}.pp150-kp2 div.g{background:linear-gradient(135deg,#1b1b1f,#2c2a25)}.pp150-kp2 div.g b{color:#fff}.pp150-kp2 div.g span{color:#d9b45b}
+.pp150-wa{display:flex;gap:8px;flex-wrap:wrap}.pp150-wa div{flex:1 1 30%;border-radius:12px;padding:10px;background:#eafaf0;text-align:center}.pp150-wa b{display:block;font-size:22px;color:#1e8449}.pp150-wa span{font-size:12px;font-weight:700;color:#2d6a43}.pp150-wa div.g{background:#f3f3f5}.pp150-wa div.g b{color:#1b1b1f}.pp150-wa div.g span{color:#55555c}
+.pp150-row{display:flex;align-items:center;gap:10px}.pp150-step{display:flex;align-items:center;border:2px solid #d9b45b;border-radius:12px;overflow:hidden}.pp150-step button{width:42px;height:40px;border:0;background:#fff7e6;font-size:22px;font-weight:800;color:#b07d10;cursor:pointer}.pp150-step span{width:56px;text-align:center;font-size:20px;font-weight:800}
+.pp150-item{display:flex;gap:10px;padding:10px 0;border-top:1px solid #eee}.pp150-item:first-of-type{border-top:0}.pp150-item img{width:82px;height:82px;border-radius:10px;object-fit:cover;background:#f5f5f7;border:1px solid #eee;flex:none;cursor:zoom-in}.pp150-item .b{flex:1;min-width:0}.pp150-item .t{font-weight:700;font-size:13.5px;line-height:1.4}.pp150-item .code{font-size:11.5px;color:#b07d10;font-weight:700}
+.pp150-item .bar{height:6px;background:#eee;border-radius:4px;margin:6px 0 4px;overflow:hidden}.pp150-item .bar i{display:block;height:100%;background:linear-gradient(90deg,#f39c12,#d9b45b)}.pp150-item .left{font-size:12px;color:#6b6b73}.pp150-item .left.r{color:#d35400;font-weight:700}
+.pp150-item .acts{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}.pp150-item .acts span{font-size:12px;padding:6px 9px;border-radius:9px;background:#1b1b1f;color:#fff;font-weight:700;cursor:pointer}.pp150-item .acts span.g{background:#fff7e6;color:#b07d10;border:1px solid #f0d9a4}.pp150-item .acts span.x{background:#fff;color:#c0392b;border:1px solid #f1c4bf}
+.pp150-zoom{position:fixed;inset:0;z-index:100001;background:#000d;display:flex;align-items:center;justify-content:center;padding:14px}.pp150-zoom img{max-width:100%;max-height:100%;border-radius:12px;background:#fff}`;document.head.appendChild(st);})();
+
 ppBoot();
 })();
 
