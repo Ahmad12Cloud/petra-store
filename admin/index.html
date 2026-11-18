@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V163';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V164';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -8407,6 +8407,61 @@ function pp162Sync(){try{const pk=pp162Key();document.querySelectorAll('.pp26-na
   try{const obs=new MutationObserver(()=>{pp162Sync();window.pp163Fit&&window.pp163Fit();});const hook=()=>{const m=document.getElementById('v12-menu');if(m&&!m.dataset.pp162){m.dataset.pp162='1';obs.observe(m,{attributes:true,attributeFilter:['class']});}};
     new MutationObserver(hook).observe(document.body||document.documentElement,{childList:true,subtree:true});hook();}catch(_){}
 })();
+
+/* ===== V164: two-option products (e.g. «مع واي فاي / بدون واي فاي»): sizes written as "النوع · الأمبير" show as two big boxes + the amps of the chosen box, each with its own price ===== */
+var pp164Cur={};
+function pp164Split(z){const i=String(z).indexOf(' · ');return i>0?[String(z).slice(0,i).trim(),String(z).slice(i+3).trim()]:null;}
+function pp164Info(list){if(!list||list.length<2)return null;const pre=[],amps=[];for(const z of list){const s=pp164Split(z);if(!s||!s[0]||!s[1])return null;if(!pre.includes(s[0]))pre.push(s[0]);if(!amps.includes(s[1]))amps.push(s[1]);}return pre.length>=2&&pre.length<=4?{pre,amps}:null;}
+function pp164Wifi(t){return /واي ?فاي|wi-?fi/i.test(t);}
+function pp164No(t){return /بدون|بلا|without|no /i.test(t);}
+function pp164Icon(t){if(!pp164Wifi(t))return '';const x=pp164No(t)?'<path d="M3 3l18 18" stroke="#d01414" stroke-width="2.6"/>':'';return '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M2 8.5a15 15 0 0 1 20 0"/><path d="M5 12a10 10 0 0 1 14 0"/><path d="M8.5 15.5a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1.3" fill="currentColor"/>'+x+'</svg>';}
+function pp164Name(t){if(lang!=='en'||!pp164Wifi(t))return t;return pp164No(t)?'Without Wi-Fi':'With Wi-Fi';}
+function pp164Sub(t){if(!pp164Wifi(t))return '';return pp164No(t)?T('إعادة تشغيل تلقائي','Auto reclosing'):T('تحكم من الموبايل','Phone control');}
+(function(){const st=document.createElement('style');st.textContent='#pp64-order.pp164 .pp64-chips:not(.pp164-chips){display:none!important}.pp164-v{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:2px 0 12px}.pp164-v button{border:2px solid #d8c28d;background:#fffdf7;border-radius:14px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:3px;font:inherit;font-weight:800;color:#30261e;cursor:pointer}.pp164-v button small{font-weight:700;color:#7a5410;font-size:12px}.pp164-v button.on{border-color:#e8a317;background:linear-gradient(#fff3cf,#ffe39a);box-shadow:0 0 0 3px #f5c24a55}.pp164-v button.on svg{color:#1f7a3a}.pp164-v.need{outline:2px solid #d33;border-radius:14px}.pp164-t{width:100%;border-collapse:separate;border-spacing:0 5px;margin-top:6px}.pp164-t th{font-size:12px;color:#7a5410;font-weight:800;text-align:center;padding:0 2px}.pp164-t td{text-align:center}.pp164-t td b{display:inline-block;background:#f4c04e;border-radius:9px;padding:5px 9px;min-width:40px;direction:ltr}.pp164-t input{width:84px;padding:7px;border:1.5px solid #d9c797;border-radius:9px;text-align:center;font:inherit;font-weight:700;background:#fffdf7}.pp164-own .pp78-row{display:none!important}';document.head.appendChild(st);})();
+function pp164Customer(){
+  const box=document.getElementById('pp64-order');if(!box)return;const p=state.products.find(x=>x.id===box.dataset.id);if(!p)return;
+  const info=pp164Info(ppSizes(p));if(!info){box.classList.remove('pp164');return;}
+  const orig=box.querySelector('.pp64-chips:not(.pp164-chips)');if(!orig)return;
+  box.classList.add('pp164');
+  if(!pp164Cur[p.id]||!info.pre.includes(pp164Cur[p.id]))pp164Cur[p.id]='';
+  const cur=pp164Cur[p.id];
+  let v=box.querySelector('.pp164-v');
+  if(!v){const lab=document.createElement('div');lab.className='pp64-l pp164-l';lab.innerHTML=T('النوع','Type')+' <b class="pp64-req">*</b>';
+    v=document.createElement('div');v.className='pp164-v';
+    const first=box.querySelector('.pp64-l')||orig;first.insertAdjacentElement('beforebegin',lab);lab.insertAdjacentElement('afterend',v);}
+  const vh=info.pre.map(t=>`<button type="button" data-pp164v="${esc(t)}" class="${cur===t?'on':''}">${pp164Icon(t)}<span>${esc(pp164Name(t))}</span>${pp164Sub(t)?`<small>${esc(pp164Sub(t))}</small>`:''}</button>`).join('');
+  if(v.dataset.h!==vh){v.dataset.h=vh;v.innerHTML=vh;}
+  let mc=box.querySelector('.pp164-chips');
+  if(!mc){mc=document.createElement('div');mc.className='pp64-chips pp164-chips';orig.insertAdjacentElement('afterend',mc);}
+  const sizeLab=box.querySelector('.pp64-l:not(.pp164-l)');if(sizeLab)sizeLab.style.display=cur?'':'none';
+  const ch=cur?info.amps.filter(a=>ppSizes(p).includes(cur+' · '+a)).map(a=>{const z=cur+' · '+a,u=ppUnit(p,z);return `<button type="button" class="pp64-chip${pp76Sel.has(z)?' on':''}" data-pp164c="${esc(z)}">${esc(a)}${ppHasSP(p)&&u!=null?`<small class="pp78-pr">${esc(pp78fmt(p,u))}</small>`:''}</button>`;}).join(''):'';
+  if(mc.dataset.h!==ch){mc.dataset.h=ch;mc.innerHTML=ch;}
+  mc.style.display=cur?'':'none';
+}
+new MutationObserver(()=>{try{pp164Customer()}catch(e){}}).observe(document.body,{childList:true,subtree:true});
+window.addEventListener('click',e=>{const t=e.target;if(!t||!t.closest)return;
+  let b=t.closest('[data-pp164v]');
+  if(b){e.preventDefault();e.stopPropagation();const box=document.getElementById('pp64-order');if(!box)return;pp164Cur[box.dataset.id]=b.dataset.pp164v;box.querySelector('.pp164-v')?.classList.remove('need');const m=document.getElementById('pp64-msg');if(m)m.textContent='';pp164Customer();return;}
+  b=t.closest('[data-pp164c]');
+  if(b){e.preventDefault();e.stopPropagation();const box=document.getElementById('pp64-order');const o=box&&[...box.querySelectorAll('.pp64-chip[data-pp64-size]')].find(c=>c.dataset.pp64Size===b.dataset.pp164c);if(o)o.click();setTimeout(pp164Customer,0);return;}
+  b=t.closest('#pp64-order [data-pp64-add],#pp64-order [data-pp64-wa],#pp64-order [data-pp75-send]');
+  if(b){const box=document.getElementById('pp64-order');if(box&&box.classList.contains('pp164')&&!pp164Cur[box.dataset.id]&&!pp76Sel.size){e.preventDefault();e.stopImmediatePropagation();box.querySelector('.pp164-v')?.classList.add('need');const m=document.getElementById('pp64-msg');if(m){m.style.color='#b00';m.textContent=T('اختر النوع أولاً','Choose the type first');}return;}
+    setTimeout(pp164Customer,30);setTimeout(pp164Customer,1700);}
+},true);
+/* owner: price table with one column per option (mirrors the existing per-size price inputs, so saving works as before) */
+function pp164OwnerBox(bx){
+  const rows=[...bx.querySelectorAll('.pp78-row')];const keys=rows.map(r=>r.querySelector('b')?.textContent||'');
+  const info=pp164Info(keys);let t=bx.querySelector('.pp164-t');
+  if(!info){bx.classList.remove('pp164-own');t?.remove();return;}
+  const k=keys.join('|');if(t&&t.dataset.k===k)return;t?.remove();
+  bx.classList.add('pp164-own');const inp=z=>rows[keys.indexOf(z)]?.querySelector('input');
+  t=document.createElement('table');t.className='pp164-t';t.dataset.k=k;
+  t.innerHTML='<tr><th>'+T('الأمبير','Size')+'</th>'+info.pre.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr>'+info.amps.map(a=>'<tr><td><b>'+esc(a)+'</b></td>'+info.pre.map(x=>{const z=x+' · '+a,i=inp(z);return '<td>'+(i?'<input type="number" step="any" min="0" inputmode="decimal" data-pp164p="'+esc(z)+'" placeholder="'+esc(i.placeholder||'')+'" value="'+esc(i.value||'')+'">':'—')+'</td>';}).join('')+'</tr>').join('');
+  bx.appendChild(t);}
+function pp164Owner(){document.querySelectorAll('.pp78-own').forEach(bx=>{try{pp164OwnerBox(bx)}catch(_){}});}
+new MutationObserver(()=>{pp164Owner()}).observe(document.body,{childList:true,subtree:true});
+const pp164Fwd=(e,ev)=>{const i=e.target.closest&&e.target.closest('[data-pp164p]');if(!i)return;const bx=i.closest('.pp78-own');const o=bx&&[...bx.querySelectorAll('.pp78-row input')].find(x=>(x.dataset.pp78p||x.dataset.pp78f)===i.dataset.pp164p);if(!o)return;o.value=i.value;if(ev==='input'&&o.dataset.pp78f!==undefined)o.dispatchEvent(new Event('input',{bubbles:true}));if(ev==='change'&&o.dataset.pp78p!==undefined)o.dispatchEvent(new Event('change',{bubbles:true}));};
+document.addEventListener('input',e=>pp164Fwd(e,'input'),true);document.addEventListener('change',e=>pp164Fwd(e,'change'),true);
 
 ppBoot();
 })();
