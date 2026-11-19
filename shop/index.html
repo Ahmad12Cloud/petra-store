@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V177';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V178';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -8552,6 +8552,9 @@ function pp173Lbl(z){try{if(typeof pp164Wifi==='function'&&pp164Wifi(z)){const n
 function pp177Short(p){const c=p&&String(p.productCode||p.code||'');return /^[A-Za-z0-9_-]{2,40}$/.test(c)?'https://petrapowergroup.github.io/p/'+c:'';}
 function pp177Link(p,im){const u=pp177Short(p);return u?'\n🔗 '+T('رابط المنتج: ','Product link: ')+u:(im?'\n🔗 '+T('الصورة: ','Photo: ')+im:'');}
 try{const _l=pp150Link;pp150Link=function(scope,p,dId){if(scope==='product'&&p){const u=pp177Short(p);if(u)return u+'?ref=s';}return _l(scope,p,dId);};}catch(_){}
+
+/* ===== V178: laptop/desktop header — full width, bigger brand (right) and icons (left), bigger rotating text; scales with screen width. Phones unchanged. ===== */
+(function(){const st=document.createElement('style');st.textContent='@media (min-width:900px){html body #app header .v12-headbar{max-width:none!important;width:calc(100% - 64px)!important;margin-inline:auto!important}html body #app header .brand-icon{width:clamp(56px,4.2vw,76px)!important;height:clamp(56px,4.2vw,76px)!important;max-height:none!important}html body #app header .pp30-brand-lines .pp30-brand-line:first-child{font-size:clamp(24px,1.85vw,34px)!important;line-height:1.15!important}html body #app header .pp30-brand-lines .pp30-brand-line:last-child{font-size:clamp(14px,1.05vw,19px)!important;letter-spacing:.32em!important}html body #app header .v12-top-actions{gap:clamp(10px,.8vw,16px)!important}html body #app header .v12-top-actions .v12-icon{width:clamp(42px,3vw,54px)!important;height:clamp(42px,3vw,54px)!important}html body #app header .v12-top-actions .v12-icon svg{width:clamp(22px,1.55vw,28px)!important;height:clamp(22px,1.55vw,28px)!important}html body #app header .pp117-lines .m{font-size:clamp(21px,1.6vw,30px)!important;line-height:1.45!important}}';document.head.appendChild(st);})();
 ppBoot();
 })();
 
