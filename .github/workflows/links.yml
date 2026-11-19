@@ -1,0 +1,21 @@
+name: build product links
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/build.py
+        env:
+          # public anon key (same one the store uses; read-only, active products only)
+          SB_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFra3NodXZ2Z2pxa2F0dGJ4dnZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQzMDMzMjIsImV4cCI6MjEwOTg3OTMyMn0.mRU2COguUl0VVsxjG-oZjZnBxOhFyAmXfHe79D6ZA7s
+      - run: |
+          git config user.name "petra-links-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A p
+          git diff --cached --quiet || (git commit -m "update product links" && git push)
