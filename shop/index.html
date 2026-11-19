@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V178';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V179';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -8549,7 +8549,7 @@ function pp173Lbl(z){try{if(typeof pp164Wifi==='function'&&pp164Wifi(z)){const n
 })();
 
 /* ===== V177: short branded product links — petrapowergroup.github.io/p/<CODE> (WhatsApp order message + product share) ===== */
-function pp177Short(p){const c=p&&String(p.productCode||p.code||'');return /^[A-Za-z0-9_-]{2,40}$/.test(c)?'https://petrapowergroup.github.io/p/'+c:'';}
+function pp177Short(p){const c=p&&String(p.productCode||p.code||'');return /^[A-Za-z0-9_-]{2,40}$/.test(c)?'https://petrapowerstore.com/p/'+c:'';}
 function pp177Link(p,im){const u=pp177Short(p);return u?'\n🔗 '+T('رابط المنتج: ','Product link: ')+u:(im?'\n🔗 '+T('الصورة: ','Photo: ')+im:'');}
 try{const _l=pp150Link;pp150Link=function(scope,p,dId){if(scope==='product'&&p){const u=pp177Short(p);if(u)return u+'?ref=s';}return _l(scope,p,dId);};}catch(_){}
 
