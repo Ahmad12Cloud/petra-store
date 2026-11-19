@@ -1465,7 +1465,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V176';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V177';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -4908,7 +4908,7 @@ function addCart(id,size,qty){
 function ppItemLine(p,qty,size,i){
   const up0=ppUnit(p,size);const price=up0==null?T('السعر عند الطلب','Price on request'):(up0+' '+(p.currency||'USD'));
   const im=(Array.isArray(p.images)?p.images:[]).find(x=>typeof x==='string'&&/^https:\/\//.test(x));
-  return (i+1)+'. '+(p.nameAr||p.nameEn)+' ['+(p.productCode||p.sku)+']'+(size?' — '+ppSizeLabel(p)+': '+size:'')+' × '+qty+' — '+price+(im?'\n🖼 '+T('الصورة: ','Photo: ')+im:'');
+  return (i+1)+'. '+(p.nameAr||p.nameEn)+' ['+(p.productCode||p.sku)+']'+(size?' — '+ppSizeLabel(p)+': '+size:'')+' × '+qty+' — '+price+pp177Link(p,im);
 }
 function ppOrderTextFor(lines,note){
   if(!lines.length)return'';
@@ -5502,7 +5502,7 @@ function ppOrderTextFor(lines,note){
     if(g.items.length===1){return ppItemLine(g.p,g.items[0].qty,g.items[0].size,n++);}
     const p=g.p;const im=(Array.isArray(p.images)?p.images:[]).find(x=>typeof x==='string'&&/^https:\/\//.test(x));
     n++;
-    return n+'. '+(p.nameAr||p.nameEn)+' ['+(p.productCode||p.sku)+']'+(im?'\n🖼 '+T('الصورة: ','Photo: ')+im:'')+'\n'+g.items.map(l=>{const u=ppUnit(p,l.size);return '   • '+(l.size?ppSizeLabel(p)+': '+l.size+' × ':'× ')+l.qty+' — '+(u==null?T('السعر عند الطلب','Price on request'):u+' '+(p.currency||'USD'));}).join('\n');
+    return n+'. '+(p.nameAr||p.nameEn)+' ['+(p.productCode||p.sku)+']'+pp177Link(p,im)+'\n'+g.items.map(l=>{const u=ppUnit(p,l.size);return '   • '+(l.size?ppSizeLabel(p)+': '+l.size+' × ':'× ')+l.qty+' — '+(u==null?T('السعر عند الطلب','Price on request'):u+' '+(p.currency||'USD'));}).join('\n');
   }).join('\n\n');
   return T('مرحباً Petra Power، أريد الاستفسار عن المنتجات التالية:','Hello Petra Power, please quote the following products:')+'\n\n'+(note&&note.trim()?'📝 '+T('ملاحظتي: ','My note: ')+note.trim()+'\n\n':'')+body+ppTotalLine(lines)+'\n\n'+T('يرجى تأكيد التوافر والأسعار، وشكراً.','Please confirm availability and prices. Thank you.');
 }
@@ -8547,6 +8547,11 @@ function pp173Lbl(z){try{if(typeof pp164Wifi==='function'&&pp164Wifi(z)){const n
   const fix=()=>{document.querySelectorAll('#detail-photo img[data-full]').forEach(i=>{const f=i.dataset.full;if(!f||i.dataset.pp174===f||i.getAttribute('src')===f)return;i.dataset.pp174=f;const L=new Image();L.decoding='async';L.onload=()=>{if(i.dataset.pp174===f&&i.isConnected)i.src=f;};L.src=f;});};
   new MutationObserver(fix).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['src','data-full']});
 })();
+
+/* ===== V177: short branded product links — petrapowergroup.github.io/p/<CODE> (WhatsApp order message + product share) ===== */
+function pp177Short(p){const c=p&&String(p.productCode||p.code||'');return /^[A-Za-z0-9_-]{2,40}$/.test(c)?'https://petrapowergroup.github.io/p/'+c:'';}
+function pp177Link(p,im){const u=pp177Short(p);return u?'\n🔗 '+T('رابط المنتج: ','Product link: ')+u:(im?'\n🔗 '+T('الصورة: ','Photo: ')+im:'');}
+try{const _l=pp150Link;pp150Link=function(scope,p,dId){if(scope==='product'&&p){const u=pp177Short(p);if(u)return u+'?ref=s';}return _l(scope,p,dId);};}catch(_){}
 ppBoot();
 })();
 
