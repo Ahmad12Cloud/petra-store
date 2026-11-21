@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" data-store-theme="light" data-edition="manager" data-demo="false" style="--pp-card-default: #ffffff; --pp-photo-default: #ffffff; --pp-banner-default: #fff8ed; --pp-intro-bg: #fffdfa; --pp-intro-text: #2d2f33; --pp-page-bg: #f9f6ef; --pp-banner-text: #ffffff; --pp29-page-bg: #f9f6ef; --pp29-card-bg: #ffffff; --pp29-photo-bg: #ffffff;"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1b1b1f"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petra Admin"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="color-scheme" content="light">
-<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V213">
+<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V214">
 <style>
 .pp-sy{display:inline-block;width:1.4em;height:.93em;vertical-align:-.12em;background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDdhM2QiLz48cmVjdCB5PSIxMy4zMyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDAiLz48ZyBmaWxsPSIjY2UxMTI2Ij48cGF0aCBpZD0icyIgZD0iTTAtMS45bC41NiAxLjcyaDEuODFsLTEuNDYgMS4wNi41NiAxLjcyTDAgMS41NGwtMS40NyAxLjA2LjU2LTEuNzItMS40Ni0xLjA2aDEuODF6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4IDEwKSIvPjx1c2UgaHJlZj0iI3MiIHg9IjciLz48dXNlIGhyZWY9IiNzIiB4PSIxNCIvPjwvZz48L3N2Zz4=) center/100% 100% no-repeat;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-style:normal}
 :root{--navy:#14213d;--navy2:#1d3150;--gold:#c9a14a;--goldsoft:#fcf3de;--paper:#f8f7f3;--line:#e3dfd7;--ink:#1a2b44;--mute:#667487;--warn:#a43c36;--white:#fff;--green:#136c48}
@@ -1466,7 +1466,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V213';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V214';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -7676,12 +7676,12 @@ try{(function(){
     const nm=d?esc(lang==='en'?(d.nameEn||d.name):d.name):'';
     const card=w=>{const m=String(w.name||'').match(/^\s*((?:[\u{1F1E6}-\u{1F1FF}]{2})|\p{Extended_Pictographic}\uFE0F?)\s*/u);const flag=m?m[1]:(d.icon||'💬');const name=m?String(w.name).slice(m[0].length):String(w.name||T('واتساب','WhatsApp'));
       return `<a class="contact-branch" href="https://wa.me/${String(w.phone).replace(/[^0-9]/g,'')}" target="_blank" rel="noopener noreferrer"><span class="flag">${pp211Fl(esc(flag))}</span><span class="contact-details"><b>${esc(name)}</b><small dir="ltr">${esc(w.phone)}</small><span class="contact-cta">${T('تواصل عبر واتساب','Chat on WhatsApp')}</span></span><span class="wa-circle" title="WhatsApp">${WA_ICON}</span></a>`;};
-    box.innerHTML=(list.length?`<div class="contact-title pp144-title">${esc(d.icon||'')} ${T('تواصل مع قسم','Contact')} ${nm}</div><div class="contact-strip pp144-strip">${list.map(card).join('')}</div>`:'')+(isOwner()?`<button type="button" class="pp140-own" data-pp139="waed" data-f="${d?'pp140-d-'+esc(d.id):'pp140-main'}">${d?'＋ أضف / عدّل أرقام واتساب قسم '+nm:'✏️ تعديل الرقمين الأساسيين'}</button>`:'');}
+    box.innerHTML=(list.length?`<div class="contact-title pp144-title">${esc(d.icon||'')} ${T('تواصل مع قسم','Contact')} ${nm}</div><div class="contact-strip pp144-strip">${list.map(card).join('')}</div>`:'')+(isOwner()&&d&&!d.rest?`<button type="button" class="pp140-own" data-pp210open="1">☎️ أرقام التواصل</button>`:isOwner()?`<button type="button" class="pp140-own" data-pp139="waed" data-f="${d?'pp140-d-'+esc(d.id):'pp140-main'}">${d?'＋ أضف / عدّل أرقام واتساب قسم '+nm:'✏️ تعديل الرقمين الأساسيين'}</button>`:'');}
   /* V141: orders and product WhatsApp go to the department of the product (by its category) */
   function deptOf(p){const ds=pp139Depts(),c=p&&p.category;return ds.find(d=>(d.cats||[]).includes(c))||ds.find(d=>d.rest)||null;}
-  function waOf(d){return d?(d.wa||[]).filter(w=>String(w.phone||'').replace(/[^0-9]/g,'').length>=6):[];}
+  function waOf(d){return d?(d.rest?(d.wa||[]):pp210List().filter(c=>c.where&&c.where[d.id])).filter(w=>String(w.phone||'').replace(/[^0-9]/g,'').length>=6):[];}
   const dn=d=>esc(lang==='en'?(d.nameEn||d.name):d.name);
-  function rowsHtml(list,g){return list.map(w=>`<a role="button" class="pp75-row" data-pp141-ph="${esc(w.phone)}" data-pp141-g="${esc(g)}"><span>${esc(w.name||'')}</span><span class="ph" dir="ltr">${esc(w.phone)}</span><span class="w">${WA_ICON}</span></a>`).join('');}
+  function rowsHtml(list,g){return list.map(w=>`<a role="button" class="pp75-row" data-pp141-ph="${esc(w.phone)}" data-pp141-g="${esc(g)}"><span>${pp211Fl(esc(w.name||''))}</span><span class="ph" dir="ltr">${esc(w.phone)}</span><span class="w">${WA_ICON}</span></a>`).join('');}
   function branchList(){try{return ppBranches().filter(b=>b.visible!==false).map(b=>({name:b.name,phone:ppBranchPhone(b)})).filter(w=>String(w.phone||'').replace(/[^0-9]/g,'').length>=6)}catch(e){return[{name:T('سوريا – دمشق / القزاز','Syria'),phone:state.settings.phoneSY},{name:T('لبنان – بيروت','Lebanon'),phone:state.settings.phoneLB}]}}
   function fixProduct(){const box=document.getElementById('pp64-order');if(!box||box.dataset.pp141===box.dataset.id)return;const p=state.products.find(x=>x.id===box.dataset.id);if(!p)return;
     const d=deptOf(p),list=waOf(d);const wrap=box.querySelector('.pp75-wrap');if(!wrap&&list.length)return;box.dataset.pp141=box.dataset.id;
