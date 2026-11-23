@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" data-store-theme="light" data-edition="customer" data-demo="false" style="--pp-card-default: #ffffff; --pp-photo-default: #ffffff; --pp-banner-default: #fff8ed; --pp-intro-bg: #fffdfa; --pp-intro-text: #2d2f33; --pp-page-bg: #f9f6ef; --pp-banner-text: #ffffff; --pp29-page-bg: #f9f6ef; --pp29-card-bg: #ffffff; --pp29-photo-bg: #ffffff;"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14213d"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petra Electric"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="color-scheme" content="light">
-<title>Petra Power Energy</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V219">
+<title>Petra Power Energy</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V220">
 <style>
 .pp-sy{display:inline-block;width:1.4em;height:.93em;vertical-align:-.12em;background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDdhM2QiLz48cmVjdCB5PSIxMy4zMyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDAiLz48ZyBmaWxsPSIjY2UxMTI2Ij48cGF0aCBpZD0icyIgZD0iTTAtMS45bC41NiAxLjcyaDEuODFsLTEuNDYgMS4wNi41NiAxLjcyTDAgMS41NGwtMS40NyAxLjA2LjU2LTEuNzItMS40Ni0xLjA2aDEuODF6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4IDEwKSIvPjx1c2UgaHJlZj0iI3MiIHg9IjciLz48dXNlIGhyZWY9IiNzIiB4PSIxNCIvPjwvZz48L3N2Zz4=) center/100% 100% no-repeat;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-style:normal}
 :root{--navy:#14213d;--navy2:#1d3150;--gold:#c9a14a;--goldsoft:#fcf3de;--paper:#f8f7f3;--line:#e3dfd7;--ink:#1a2b44;--mute:#667487;--warn:#a43c36;--white:#fff;--green:#136c48}
@@ -1466,7 +1466,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V219';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V220';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1792,6 +1792,8 @@ function pp219Units(str){
   s=s.replace(/(\d+)\.(\d+)/g,'$1d$2');
   return s;
 }
+function pp219Skel(w){return w.length<5||/[0-9a-z]/.test(w)?'':w[0]+w.slice(1).replace(/[اويىه]/g,'');}
+const PP219_SK=(()=>{const m=new Map();for(const [ph,tok] of PP219_PH){if(ph.includes(' '))continue;const k=pp219Skel(ph);if(k.length>=4&&!m.has(k))m.set(k,tok);}return m;})();
 const PP219_PRE=['','ال','وال','بال','لل','ب','و','ل','فال','وب'];
 function pp219Eat(t,out){for(const [ph,tok] of PP219_PH){for(const pre of PP219_PRE){const k=' '+pre+ph+' ';while(t.includes(k)){t=t.replace(k,' ');if(!out.includes(tok))out.push(tok);}}}return t;}
 function pp219Tags(text){
@@ -1802,7 +1804,7 @@ function pp219Tags(text){
 /* query -> canonical words: synonyms become zz-tokens, units become 32a/500v/4mm2, filler words dropped */
 function pp219Q(userText){
   const toks=[];const t=pp219Eat(' '+pp219N(pp219Units(userText))+' ',toks);
-  const rest=t.split(' ').filter(w=>w&&!PP219_STOP.has(w)).map(w=>(/^(ال|وال|بال)[\u0621-\u064A]{3,}$/.test(w)?w.replace(/^(وال|بال|ال)/,''):w));
+  const rest=t.split(' ').filter(w=>w&&!PP219_STOP.has(w)).filter(w=>{const k=PP219_SK.get(pp219Skel(w.replace(/^(وال|بال|ال)(?=.{4})/,'')));if(k){if(!toks.includes(k))toks.push(k);return false;}return true;}).map(w=>(/^(ال|وال|بال)[\u0621-\u064A]{3,}$/.test(w)?w.replace(/^(وال|بال|ال)/,''):w));
   const unit=toks.includes('zzferr')||toks.includes('zzcable')?'mm2':(['zzbrk','zzcont','zzats','zzfuse','zziso','zzphoto','zzvp','zzwifi','zzrecl','zzrcd'].some(t=>toks.includes(t))?'a':'');
   const rest2=unit?rest.map(w=>/^\d+(?:d\d+)?$/.test(w)?w+unit:w):rest;
   return [...toks,...rest2].join(' ');
@@ -1814,7 +1816,8 @@ function pp219Prod(p){
   const aka=(String(p.descriptionAr||'').match(/يعرف ايضا باسم[^\n]*|يُعرف أيضاً باسم[^\n]*/)||[''])[0];
   const tags=pp219Tags([p.nameAr,p.nameEn,p.category,p.model,aka].join(' '));
   const L=pp219Units(raw).toLowerCase(),num=x=>parseFloat(String(x).replace('d','.'));
-  const spec={a:[],v:[],mm2:[],w:[],ah:[],ra:[],rv:[],rmm2:[]};
+  const spec={a:[],v:[],mm2:[],w:[],ah:[],ra:[],rv:[],rmm2:[],sz:{}};
+  {const SZ=/(\d+(?:d\d+)?)(a|v|mm2|w|ah)(?![a-z0-9])/g;const zs=pp219Units((Array.isArray(p.sizes)?p.sizes.join(' '):'')).toLowerCase();let q;while((q=SZ.exec(zs))){(spec.sz[q[2]]=spec.sz[q[2]]||[]).push(num(q[1]));}}
   const R=/(\d+(?:d\d+)?)(a|v|mm2|w|ah)(?![a-z0-9])/g;let m;while((m=R.exec(L)))spec[m[2]].push(num(m[1]));
   const rr=(u,re)=>{let k;while((k=re.exec(L)))spec['r'+u].push([num(k[1]),num(k[2])]);};
   const raw2=String(raw).toLowerCase().replace(/(\d)\s*[٫,]\s*(\d)/g,'$1.$2').replace(/²/g,'2');
@@ -1831,6 +1834,7 @@ function pp219UnitHit(p,word){
   const m=/^(\d+(?:d\d+)?)(a|v|mm2|w|ah)$/.exec(word);if(!m)return null;
   const x=parseFloat(m[1].replace('d','.')),u=m[2],s=pp219Prod(p).spec,eq=(a,b)=>Math.abs(a-b)<1e-6;
   if(u==='v'){if(s.v.some(v=>v>=x*0.95&&v<=x*2))return true;return s.rv.some(([lo,hi])=>x>=lo&&x<=hi);}
+  if(s.sz[u]&&s.sz[u].length)return s.sz[u].some(v=>eq(v,x));
   if(s[u].some(v=>eq(v,x)))return true;
   if(s['r'+u]&&s['r'+u].some(([lo,hi])=>x>=lo&&x<=hi))return true;
   return false;
