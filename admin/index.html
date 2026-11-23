@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" data-store-theme="light" data-edition="manager" data-demo="false" style="--pp-card-default: #ffffff; --pp-photo-default: #ffffff; --pp-banner-default: #fff8ed; --pp-intro-bg: #fffdfa; --pp-intro-text: #2d2f33; --pp-page-bg: #f9f6ef; --pp-banner-text: #ffffff; --pp29-page-bg: #f9f6ef; --pp29-card-bg: #ffffff; --pp29-photo-bg: #ffffff;"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1b1b1f"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petra Admin"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="color-scheme" content="light">
-<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V216">
+<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V217">
 <style>
 .pp-sy{display:inline-block;width:1.4em;height:.93em;vertical-align:-.12em;background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDdhM2QiLz48cmVjdCB5PSIxMy4zMyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDAiLz48ZyBmaWxsPSIjY2UxMTI2Ij48cGF0aCBpZD0icyIgZD0iTTAtMS45bC41NiAxLjcyaDEuODFsLTEuNDYgMS4wNi41NiAxLjcyTDAgMS41NGwtMS40NyAxLjA2LjU2LTEuNzItMS40Ni0xLjA2aDEuODF6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4IDEwKSIvPjx1c2UgaHJlZj0iI3MiIHg9IjciLz48dXNlIGhyZWY9IiNzIiB4PSIxNCIvPjwvZz48L3N2Zz4=) center/100% 100% no-repeat;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-style:normal}
 :root{--navy:#14213d;--navy2:#1d3150;--gold:#c9a14a;--goldsoft:#fcf3de;--paper:#f8f7f3;--line:#e3dfd7;--ink:#1a2b44;--mute:#667487;--warn:#a43c36;--white:#fff;--green:#136c48}
@@ -1466,7 +1466,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V216';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V217';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2350,7 +2350,7 @@ async function saveProduct(){
  pp35:pp35Collect(fd),relatedIds:[...formRelatedIds].filter(id=>id!==editId),active:fd.has('active'),visibility};
  if(old)state.products[state.products.indexOf(old)]=p;else{p.active=false;state.products.unshift(p);if(!pp49PendingProduct)pp121Place(p);} /* V125: new products start hidden until the owner taps «ظاهر» */
  if(mode==='auto'){state.settings.pp49ActivePrefix=prefix;state.settings.pp49Sequences=state.settings.pp49Sequences||{};const m=productCode.slice(prefix.length).match(/^\d+$/);if(m)state.settings.pp49Sequences[prefix]=Math.max(Number(state.settings.pp49Sequences[prefix])||0,Number(m[0]));}
- if(pp49PendingProduct){const target=state.settings.homeSections.find(s=>s.id===pp49PendingProduct.sectionId);if(target){if(pp49PendingProduct.kind==='product'){target.productIds=Array.isArray(target.productIds)?target.productIds:[];if(!target.productIds.includes(p.id))target.productIds.push(p.id);}else if(target.type==='showcase'){const j=pp49PendingProduct.index;target.pp49SlideMeta=Array.isArray(target.pp49SlideMeta)?target.pp49SlideMeta:[];target.pp49SlideMeta[j]={...(target.pp49SlideMeta[j]||{}),productId:p.id};target.pp46Slides=Array.isArray(target.pp46Slides)?target.pp46Slides:[];target.pp46Slides[j]=target.pp46Slides[j]||safeImg(p.images?.[0])||'';}}pp49PendingProduct=null;}
+ if(pp49PendingProduct){const target=state.settings.homeSections.find(s=>s.id===pp49PendingProduct.sectionId);if(target){if(pp49PendingProduct.kind==='product'){target.productIds=Array.isArray(target.productIds)?target.productIds:[];if(!(target.type==='products'&&pp217Append(p.id,pp217Grp(target)))&&!target.productIds.includes(p.id))target.productIds.push(p.id);} /* V217: new products always join the end */else if(target.type==='showcase'){const j=pp49PendingProduct.index;target.pp49SlideMeta=Array.isArray(target.pp49SlideMeta)?target.pp49SlideMeta:[];target.pp49SlideMeta[j]={...(target.pp49SlideMeta[j]||{}),productId:p.id};target.pp46Slides=Array.isArray(target.pp46Slides)?target.pp46Slides:[];target.pp46Slides[j]=target.pp46Slides[j]||safeImg(p.images?.[0])||'';}}pp49PendingProduct=null;}
  if(p.category&&!state.settings.categories.includes(p.category))state.settings.categories.push(p.category);
  const persisted=await changed();closeModal();render();if(pp49EditMode&&pp49SheetSection&&state.settings.homeSections.some(s=>s.id===pp49SheetSection))pp49OpenBlock(pp49SheetSection);
  note(persisted?'✓ تم حفظ المنتج — جاري رفعه للسيرفر وسيظهر للزبائن':'تمت إضافة المنتج لكن الحفظ المحلي فشل؛ سيُحاول التطبيق رفعه للسيرفر');
@@ -4730,7 +4730,7 @@ document.addEventListener('click',async e=>{
   if(!confirm('حذف نهائي للمنتج «'+(p.nameAr||p.nameEn||p.sku)+'»؟ لا يمكن التراجع.'))return;
   state.products=state.products.filter(x=>x.id!==p.id);
   state.products.forEach(x=>{if(Array.isArray(x.relatedIds))x.relatedIds=x.relatedIds.filter(i=>i!==p.id);});
-  (state.settings.homeSections||[]).forEach(s=>{if(Array.isArray(s.productIds))s.productIds=s.productIds.filter(i=>i!==p.id);});
+  pp217Unhome(p.id); /* V217 */
   await changed();drawAdmin();note('✓ تم حذف المنتج');
 },true);
 
@@ -4843,7 +4843,7 @@ document.addEventListener('click',async e=>{
   if(!confirm('حذف نهائي للمنتج «'+(p.nameAr||p.nameEn||p.sku)+'»؟ سيُحذف من الكتالوج ومن كل الأسطر مع صورته. لا يمكن التراجع.'))return;
   state.products=state.products.filter(x=>x.id!==p.id);
   state.products.forEach(x=>{if(Array.isArray(x.relatedIds))x.relatedIds=x.relatedIds.filter(i=>i!==p.id);});
-  (state.settings.homeSections||[]).forEach(s=>{if(Array.isArray(s.productIds))s.productIds=s.productIds.map(i=>i===p.id?null:i);});
+  pp217Unhome(p.id); /* V217: no empty hole left in the middle */
   await changed();
   try{pp49RefreshSheet();}catch(_){}
   note('✓ تم حذف المنتج نهائياً');
@@ -5902,7 +5902,7 @@ document.addEventListener('click',async e=>{
   if(!confirm('حذف نهائي للمنتج «'+(p.nameAr||p.nameEn||p.sku)+'» كاملاً مع صوره من السيرفر؟ لا يمكن التراجع.'))return;
   state.products=state.products.filter(x=>x.id!==p.id);
   state.products.forEach(x=>{if(Array.isArray(x.relatedIds))x.relatedIds=x.relatedIds.filter(i=>i!==p.id);});
-  (state.settings.homeSections||[]).forEach(s=>{if(Array.isArray(s.productIds))s.productIds=s.productIds.filter(i=>i!==p.id);});
+  pp217Unhome(p.id); /* V217 */
   try{document.getElementById('modal')?.classList.add('hide')}catch(_){}
   await changed();try{drawAdmin()}catch(_){}try{render()}catch(_){}note('✓ تم حذف المنتج');
 },true);
@@ -7156,9 +7156,47 @@ body.pp117-open{padding-bottom:60vh}`;document.head.appendChild(st);
 })();}catch(e){try{console.error('V117',e)}catch(_){}}
 
 /* V121: owner sees hidden products (marked) and switches them shown/hidden from the product page; new products join the end of the 2-per-row product flow */
+/* V217: home product rows never keep a gap after a delete, and a new product always joins the END of its page (main page or its department) */
+function pp217Grp(s){return (s&&s.dept)||'';}
+function pp217Real(id){return !!id&&state.products.some(p=>p.id===id);}
+function pp217Flow(g){return (state.settings.homeSections||[]).filter(s=>s&&s.type==='products'&&s.visible!==false&&s.pp49Manual&&!s.category&&pp217Grp(s)===g&&Array.isArray(s.productIds));}
+function pp217Filled(s){return (Array.isArray(s.productIds)?s.productIds:[]).filter(pp217Real).length;}
+function pp217Cap(s){const f=pp217Filled(s),c=Math.max(1,Number(s.pp49Cols)||2);return Number(s.pp122Slots)>0?Math.max(Number(s.pp122Slots),f):Math.ceil(f/c)*c;}
+function pp217Unhome(pid){
+  try{
+    const secs=state.settings.homeSections||[];const done=new Set();
+    for(const h of secs.filter(s=>s&&Array.isArray(s.productIds)&&s.productIds.includes(pid))){
+      const g=pp217Grp(h);const flow=pp217Flow(g);
+      if(!flow.includes(h)||done.has(g))continue;done.add(g);
+      const alive=id=>id!==pid&&pp217Real(id);
+      const caps=flow.map(s=>s.productIds.filter(id=>id===pid||alive(id)).length);
+      const seq=[];flow.forEach(s=>s.productIds.forEach(id=>{if(alive(id)&&!seq.includes(id))seq.push(id);}));
+      let k=0;flow.forEach((s,i)=>{s.productIds=seq.slice(k,k+caps[i]);k+=caps[i];});
+    }
+    secs.forEach(s=>{if(s&&Array.isArray(s.productIds)&&s.productIds.includes(pid))s.productIds=s.productIds.filter(i=>i!==pid);});
+  }catch(e){try{console.error('V217 unhome',e)}catch(_){}
+    (state.settings.homeSections||[]).forEach(s=>{if(Array.isArray(s.productIds))s.productIds=s.productIds.filter(i=>i!==pid);});}
+}
+function pp217Append(pid,g){
+  try{
+    const secs=state.settings.homeSections||[];
+    if(secs.some(s=>s&&Array.isArray(s.productIds)&&s.productIds.includes(pid)))return true;
+    const flow=pp217Flow(g||'');let li=-1;flow.forEach((s,i)=>{if(pp217Filled(s))li=i;});
+    if(li<0){const t=flow[0];if(!t)return false;t.productIds=t.productIds.filter(pp217Real);t.productIds.push(pid);t.count=Math.max(Number(t.count)||0,t.productIds.length);return true;}
+    const L=flow[li];
+    const put=s=>{s.productIds=s.productIds.filter(pp217Real);s.productIds.push(pid);s.count=Math.max(Number(s.count)||0,s.productIds.length);};
+    if(pp217Filled(L)<pp217Cap(L)){put(L);return true;}
+    const nx=flow[li+1];if(nx){put(nx);return true;}
+    const row=Object.assign(pp24Seed('products'),{title:'',pp49Manual:true,productIds:[],count:2,pp122Slots:2,pp122Added:true,pp49Cols:2,columns:2,customColumns:2,pp45RowPattern:'2',showAll:true});
+    if(g)row.dept=g;
+    secs.splice(secs.indexOf(L)+1,0,row);put(row);return true;
+  }catch(e){try{console.error('V217 append',e)}catch(_){}return false;}
+}
 function pp121Place(p){
   try{
     const secs=state.settings.homeSections||[];if(!p||secs.some(s=>Array.isArray(s.productIds)&&s.productIds.includes(p.id)))return;
+    let g='';try{g=(typeof ppDept!=='undefined'&&ppDept)||'';}catch(_){}
+    if(pp217Append(p.id,g))return;
     const real=id=>state.products.some(x=>x.id===id);
     let tgt=null;for(const s of secs)if(s&&s.type==='products'&&s.visible!==false&&s.pp49Manual&&Array.isArray(s.productIds)&&s.productIds.some(real))tgt=s;
     if(!tgt)return;
@@ -7385,7 +7423,7 @@ async function pp123Apply(ch){
   else if(ch.kind==='product_edit'){const cur=state.products.find(x=>x.id===ch.target_id);if(!cur)throw Error('المنتج مش موجود (يمكن انحذف)');
     const a=ppRowToProduct(P.before),b=ppRowToProduct(P.row);
     for(const k of new Set([...Object.keys(a),...Object.keys(b)])){if(k==='id'||k==='active')continue;if(JSON.stringify(a[k]??null)!==JSON.stringify(b[k]??null))cur[k]=b[k]===undefined?undefined:JSON.parse(JSON.stringify(b[k]));}}
-  else if(ch.kind==='product_delete'){state.products=state.products.filter(x=>x.id!==ch.target_id);}
+  else if(ch.kind==='product_delete'){state.products=state.products.filter(x=>x.id!==ch.target_id);pp217Unhome(ch.target_id);}
   else if(ch.kind==='settings'){const set=P.set||{};if(Array.isArray(set.homeSections))state.settings.homeSections=set.homeSections;}
   await changed();
 }
