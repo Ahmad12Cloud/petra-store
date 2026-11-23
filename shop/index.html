@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" data-store-theme="light" data-edition="customer" data-demo="false" style="--pp-card-default: #ffffff; --pp-photo-default: #ffffff; --pp-banner-default: #fff8ed; --pp-intro-bg: #fffdfa; --pp-intro-text: #2d2f33; --pp-page-bg: #f9f6ef; --pp-banner-text: #ffffff; --pp29-page-bg: #f9f6ef; --pp29-card-bg: #ffffff; --pp29-photo-bg: #ffffff;"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14213d"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petra Electric"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="color-scheme" content="light">
-<title>Petra Power Energy</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V225">
+<title>Petra Power Energy</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V226">
 <style>
 .pp-sy{display:inline-block;width:1.4em;height:.93em;vertical-align:-.12em;background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDdhM2QiLz48cmVjdCB5PSIxMy4zMyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDAiLz48ZyBmaWxsPSIjY2UxMTI2Ij48cGF0aCBpZD0icyIgZD0iTTAtMS45bC41NiAxLjcyaDEuODFsLTEuNDYgMS4wNi41NiAxLjcyTDAgMS41NGwtMS40NyAxLjA2LjU2LTEuNzItMS40Ni0xLjA2aDEuODF6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4IDEwKSIvPjx1c2UgaHJlZj0iI3MiIHg9IjciLz48dXNlIGhyZWY9IiNzIiB4PSIxNCIvPjwvZz48L3N2Zz4=) center/100% 100% no-repeat;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-style:normal}
 :root{--navy:#14213d;--navy2:#1d3150;--gold:#c9a14a;--goldsoft:#fcf3de;--paper:#f8f7f3;--line:#e3dfd7;--ink:#1a2b44;--mute:#667487;--warn:#a43c36;--white:#fff;--green:#136c48}
@@ -1466,7 +1466,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V225';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V226';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -2338,7 +2338,7 @@ function productCardBase(p){
  const price=!pp44Flag(p,'showPrice')?'':p.price==null?`<span class="muted">${T('السعر عند الطلب','Ask for price')}</span>`:`<strong class="product-price">${pp99Price(p)}</strong>`;
  const w=st.cardW?`${st.cardW}px`:'100%',h=st.cardH?`${st.cardH}px`:'auto';
  const css=`--pp-card-bg:${safeColor(p.cardBg,safeColor(state.settings.productCardBg,'#ffffff'))};--pp-photo-bg:${safeColor(p.photoBg,safeColor(state.settings.productPhotoBg,'#ffffff'))};--pp-card-text:${cardFg(safeColor(p.cardBg,safeColor(state.settings.productCardBg,'#ffffff')))};--pp35-card-w:${w};--pp35-card-h:${h};--pp35-card-ratio:${st.ratioW}/${st.ratioH};--pp35-photo-h:${st.imageH?st.imageH+'px':'auto'};--pp35-photo-w:${st.imageW}%;--pp35-photo-ratio:${st.ratioW}/${st.ratioH};--pp35-photo-fit:${st.fit};--pp35-title-size:${st.titleSize}px;--pp35-title-weight:${st.titleWeight};--pp35-title-color:${st.titleColor};--pp35-desc-size:${st.descSize}px;--pp35-desc-weight:${st.descWeight};--pp35-desc-color:${st.descColor};--pp35-desc-stretch:${st.descStretch}%;--pp35-desc-spacing:${st.descSpacing}px;--pp35-desc-width:${st.descWidth}%;--pp35-desc-bg:${st.customDescBg?st.descBg:'transparent'};--pp35-align:${st.align};--pp35-radius:${st.radius}px;--pp35-price-color:${st.priceColor}`;
- return `<article class="product pp26-card pp35-card ${side?'pp35-layout-side':'pp35-layout-stack'}" role="button" tabindex="0" data-action="details" data-id="${esc(p.id)}" style="${css}"><div class="photo">${photo(p)}<button type="button" class="pp26-fav" data-action="pp26-fav" data-id="${esc(p.id)}" aria-pressed="${pp26Favs.has(p.id)}" aria-label="${T('المفضلة','Favorites')}">${pp26Favs.has(p.id)?'♥':'♡'}</button>${p.demoOnly?`<span class="pp26-demo-tag">تجريبي</span>`:''}${visibleAdmin()?`<button class="pp35-owner-edit" data-action="edit" data-id="${esc(p.id)}" type="button" title="تصميم البطاقة">✎</button>${pp94Btn(p)}`:''}</div><div class="product-body"><div class="muted">${esc(p.category||'')}</div><h3 class="product-title">${esc(S(p.nameAr,p.nameEn))}</h3>${false&&short?`<p class="pp35-description">${esc(short)}</p>`:''}<div class="product-meta" dir="ltr">${esc([p.brand,p.model].filter(Boolean).join(' • '))}</div><div>${price}</div>${p.stock===0?`<div class="product-meta lowstock">${T('غير متوفر حالياً','Currently unavailable')}</div>`:''}</div><div class="product-bottom"><button class="btn" data-action="details" data-id="${esc(p.id)}">${T('التفاصيل','Details')}</button><button class="btn dark" data-action="add-cart" data-id="${esc(p.id)}">🛒 <span class="pp35-cart-label">${T('أضف إلى السلة','Add to cart')}</span></button></div>${visibleAdmin()?`<div class="owner-card-tools"><button type="button" class="btn gold" data-action="edit" data-id="${esc(p.id)}">✏️ ${T('تعديل المنتج','Edit product')}</button><button type="button" class="btn" data-action="edit-images" data-id="${esc(p.id)}">📷 ${T('إضافة / تعديل الصور','Edit photos')}</button></div>`:''}</article>`;
+ return `<article class="product pp26-card pp35-card ${side?'pp35-layout-side':'pp35-layout-stack'}" role="button" tabindex="0" data-action="details" data-id="${esc(p.id)}" style="${css}"><div class="photo">${photo(p)}<button type="button" class="pp26-fav" data-action="pp26-fav" data-id="${esc(p.id)}" aria-pressed="${pp26Favs.has(p.id)}" aria-label="${T('المفضلة','Favorites')}">${pp26Favs.has(p.id)?'♥':'♡'}</button>${p.demoOnly?`<span class="pp26-demo-tag">تجريبي</span>`:''}${visibleAdmin()?`<button class="pp35-owner-edit" data-action="edit" data-id="${esc(p.id)}" type="button" title="تصميم البطاقة">✎</button>${pp94Btn(p)}`:''}</div><div class="product-body"><div class="muted">${esc(p.category||'')}</div><h3 class="product-title">${esc(S(p.nameAr,p.nameEn))}</h3>${false&&short?`<p class="pp35-description">${esc(short)}</p>`:''}${(p.visibility&&p.visibility.showBrandModel)?`<div class="product-meta" dir="ltr">${esc([p.brand,p.model].filter(Boolean).join(' • '))}</div>`:''}<div>${price}</div>${p.stock===0?`<div class="product-meta lowstock">${T('غير متوفر حالياً','Currently unavailable')}</div>`:''}</div><div class="product-bottom"><button class="btn" data-action="details" data-id="${esc(p.id)}">${T('التفاصيل','Details')}</button><button class="btn dark" data-action="add-cart" data-id="${esc(p.id)}">🛒 <span class="pp35-cart-label">${T('أضف إلى السلة','Add to cart')}</span></button></div>${visibleAdmin()?`<div class="owner-card-tools"><button type="button" class="btn gold" data-action="edit" data-id="${esc(p.id)}">✏️ ${T('تعديل المنتج','Edit product')}</button><button type="button" class="btn" data-action="edit-images" data-id="${esc(p.id)}">📷 ${T('إضافة / تعديل الصور','Edit photos')}</button></div>`:''}</article>`;
 }
 
 const isNewProduct=p=>ppIsNew(p);
@@ -5367,7 +5367,7 @@ const pp68Rows=t=>String(t||'').split(/\n/).map(l=>l.trim()).filter(Boolean).map
 const pp68SpecLine=p=>(p.specLine&&String(p.specLine).trim())||pp68Rows(p.specTable).slice(0,3).map(r=>r[1]).join(' · ');
 function productCard(p){
   const h=ppNewBadge(p,productCardBase(p));
-  const chips=[p.brand,p.model].filter(Boolean),spec=pp68SpecLine(p);
+  const chips=(p.visibility&&p.visibility.showBrandModel)?[p.brand,p.model].filter(Boolean):[],spec=pp68SpecLine(p); /* V226: brand/model chips only when «إظهار الماركة والموديل» is ticked */
   const block=(chips.length?`<div class="pp68-meta" dir="ltr">${chips.map(c=>`<span class="pp68-chip">${esc(c)}</span>`).join('')}</div>`:'')+(spec?`<div class="pp68-spec">${esc(spec)}</div>`:'');
   let out=h.replace(/<div class="product-meta" dir="ltr">[^<]*<\/div>/,block);
   if(p.stock===0){out=out.replace('<div class="photo">','<div class="photo"><span class="pp72-out">'+T('غير متوفر حالياً','Out of stock')+'</span>');out=out.replace(/(<span class="pp35-cart-label">)[^<]*(<\/span>)/,'$1'+T('غير متوفر','Unavailable')+'$2');}
@@ -8975,6 +8975,13 @@ html[data-edition="customer"] img{-webkit-touch-callout:none;-webkit-user-drag:n
 .pp78-own .pp78-row input,.pp78-row input{width:100%!important;box-sizing:border-box;height:40px;text-align:center}
 .pp164-t td b{min-width:118px!important;box-sizing:border-box;white-space:nowrap}
 .pp164-t input{width:140px!important;box-sizing:border-box}
+
+/* V226: every card in a row ends on the same line — names may take 2 or 3 lines, but price and cart button always line up */
+.pp45-product-row{align-items:stretch}
+article.product.pp35-layout-stack{display:flex!important;flex-direction:column}
+article.product.pp35-layout-stack>.product-body{flex:1 1 auto;display:flex;flex-direction:column}
+article.product.pp35-layout-stack>.product-body>.product-title{flex:1 0 auto}
+article.product.pp35-layout-stack>.product-bottom{margin-top:auto}
 </style>
 <script id="pp148-noimgsave-js">(function(){if(document.documentElement.dataset.edition!=='customer')return;
 const isImg=t=>t&&(t.tagName==='IMG'||(t.closest&&t.closest('picture')));
