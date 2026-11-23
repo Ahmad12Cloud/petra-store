@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" data-store-theme="light" data-edition="manager" data-demo="false" style="--pp-card-default: #ffffff; --pp-photo-default: #ffffff; --pp-banner-default: #fff8ed; --pp-intro-bg: #fffdfa; --pp-intro-text: #2d2f33; --pp-page-bg: #f9f6ef; --pp-banner-text: #ffffff; --pp29-page-bg: #f9f6ef; --pp29-card-bg: #ffffff; --pp29-photo-bg: #ffffff;"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1b1b1f"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petra Admin"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="color-scheme" content="light">
-<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V218">
+<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V219">
 <style>
 .pp-sy{display:inline-block;width:1.4em;height:.93em;vertical-align:-.12em;background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDdhM2QiLz48cmVjdCB5PSIxMy4zMyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDAiLz48ZyBmaWxsPSIjY2UxMTI2Ij48cGF0aCBpZD0icyIgZD0iTTAtMS45bC41NiAxLjcyaDEuODFsLTEuNDYgMS4wNi41NiAxLjcyTDAgMS41NGwtMS40NyAxLjA2LjU2LTEuNzItMS40Ni0xLjA2aDEuODF6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4IDEwKSIvPjx1c2UgaHJlZj0iI3MiIHg9IjciLz48dXNlIGhyZWY9IiNzIiB4PSIxNCIvPjwvZz48L3N2Zz4=) center/100% 100% no-repeat;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-style:normal}
 :root{--navy:#14213d;--navy2:#1d3150;--gold:#c9a14a;--goldsoft:#fcf3de;--paper:#f8f7f3;--line:#e3dfd7;--ink:#1a2b44;--mute:#667487;--warn:#a43c36;--white:#fff;--green:#136c48}
@@ -1466,7 +1466,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V218';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V219';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1714,12 +1714,140 @@ function ppBindBuilderDrag(){
 }
 
 const normalizeSearch=(s)=>pp87Pre(clean(s)).toLowerCase().normalize('NFKC').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[\u064B-\u065F\u0670]/g,'').replace(/[^\p{L}\p{N}]+/gu,' ');
+/* ===== V219: Lebanese + Syrian + engineering vocabulary, spoken/typed units (V, A, mm², W, Ah) ===== */
+const PP219_GROUPS={
+ zzbrk:['قاطع','قواطع','قاطعه','قطاعه','قاطع كهربا','قاطع كهربائي','قاطع حمايه','قواطع حمايه','ديجونكتور','ديجنكتور','دجنكتور','دجونكتور','ديجونكتير','ديجنكتير','دجنكتير','ديجونتير','ديجنتير','دجنتير','دجونتير','ديجونتر','ديجنتر','دجنتر','ديسجونكتور','ديزجونكتور','disjoncteur','disjoncteurs','breaker','breakers','circuit breaker','سيركت بريكر','سيركيت بريكر','بريكر','بريكرات','مفتاح اوتوماتيك','مفاتيح اوتوماتيك','مفتاح اتوماتيك','كتاوت','كات اوت','cb'],
+ zzmcb:['mcb','ام سي بي','امسيبي','ام سيبي','ميني بريكر','قاطع صغير','قواطع صغيره','قاطع مودولار','miniature circuit breaker'],
+ zzmccb:['mccb','ام سي سي بي','امسيسيبي','قاطع صناعي','قواطع صناعيه','قاطع علبه مقولبه','علبه مقولبه','مقولب','قاطع كبير','قاطع تجاري','قاطع بلوك','moulded case','molded case'],
+ zzrcd:['rcd','rccb','rcbo','elcb','تفاضلي','قاطع تفاضلي','ديفرانسيال','ديفرنسيال','دفرنسيال','ديفيرانسيال','ديفرانسيل','differential','قاطع تسريب','تسريب ارضي','حمايه تسريب','قاطع ارضي','earth leakage','residual current'],
+ zzdc:['dc','دي سي','ديسي','دى سى','تيار مستمر','مستمر','direct current'],
+ zzac:['ac','اي سي','ايه سي','ايسي','تيار متناوب','متناوب','alternating current'],
+ zzsolar:['solar','سولار','سولر','صولار','سولاري','طاقه شمسيه','الطاقه الشمسيه','شمسي','شمسيه','الواح شمسيه','pv','بي في','فوتوفولتيك','كهروضوئي','photovoltaic'],
+ zzcont:['contactor','contactors','كونتاكتور','كونتاكتورات','كونتكتور','كونتاكتر','كنتاكتور','كنتكتور','كنتكتر','كونتكتر','كونتاكت','كونتكت','كونتاكتير','كونتاكتيره','متمم','متممات','مفتاح مغناطيسي','ملامس','ملامسات','contacteur','كونتاكتور مودولار','modular contactor'],
+ zzrelay:['relay','relays','ريليه','ريليات','ريلي','ريلاي','ريليه','رلي','رليه','مرحل','مرحلات','relais','ريليه حمايه'],
+ zzphase:['حمايه فاز','حمايه فازات','حمايه الفازات','ريليه فاز','ريليه فازات','فيز ريليه','فاز ريليه','فقدان فاز','فقد فاز','تسلسل فازات','تسلسل الفازات','ترتيب الفازات','عكس فاز','عكس الفازات','phase failure','phase sequence','phase loss','phase monitoring','phase relay','مراقبه فازات','دوران الموتور','اتجاه الدوران'],
+ zzvp:['حمايه فولت','حمايه فولتاج','حمايه الفولتاج','حمايه جهد','ساعه حمايه','ساعات حمايه','حامي جهد','حامي فولت','حامي فولتاج','واقي جهد','واقي فولت','فولت بروتكتور','فولتاج بروتكتور','voltage protector','over voltage','under voltage','اوفر فولت','اوفر فولتاج','اندر فولت','اندر فولتاج','فولت عالي','فولت واطي','ارتفاع فولت','هبوط فولت'],
+ zzfuse:['fuse','fuses','فيوز','فيوزات','فيوزه','فيوزي','فيوس','صمام','صمامات','مصهر','مصهرات','منصهر','قاعده فيوز','قواعد فيوز','بورد فيوز','حامل فيوز','حامله فيوز','بيت فيوز','كرتوش','كرتوشه','كارتوش','cartouche','fuse holder','fuse base','gpv'],
+ zziso:['isolator','isolators','disconnector','isolator switch','ايزوليتر','ايزولاتور','ايزولتر','ازوليتر','ازولاتور','ايزوليشن','مفتاح عزل','مفاتيح عزل','عازل','قاطع عزل','سكينه','سكاكين','سكين','قاطع سكينه','سويتش dc','سكسيونور','سيكسيونور','sectionneur','ديسكونكتور','ديسكونيكتور','switch disconnector','load break'],
+ zzats:['ats','مفتاح تحويل','مفاتيح تحويل','تحويله','تحويلات','قلاب','قلابه','قلابات','شانج اوفر','شينج اوفر','تشينج اوفر','changeover','change over','transfer switch','سويتش تحويل','انفرسور','انفيرسور','inverseur','تحويل تلقائي','تحويل اوتوماتيك','نقل تلقائي'],
+ zzgen:['موتير','موتور كهربا','مولده','مولدات','مولد','جنريتور','جنراتور','جنرتور','generator','اشتراك','دوله','كهربا الدوله','الدوله'],
+ zzphoto:['photocell','photo cell','فوتوسيل','فوتو سيل','فوتوسل','فوتوسيلي','حساس ضوء','حساس ضوئي','حساس الضوء','حساس ليلي','حساس ليل نهار','خليه ضوئيه','مفتاح شفق','twilight switch','light sensor','عين الكترونيه','عين ضوئيه'],
+ zzwifi:['wifi','wi fi','واي فاي','وايفاي','وايرلس','wireless','سمارت','smart','ذكي','ذكيه','تحكم عن بعد','عن بعد','تطبيق','tuya','توياه','تويا','smart life','سمارت لايف'],
+ zzrecl:['اعاده تشغيل','اعاده تشغيل تلقائي','اعاده وصل','ريكلوزر','recloser','auto reclosing','reclosing','رجوع تلقائي','يرجع لحالو','يرجع لحاله','بيرجع لحالو','يرجع وحده'],
+ zzmeter:['افوميتر','افو','avo','ملتيميتر','مالتيميتر','مولتيميتر','ملتي ميتر','multimeter','كلامب','كلامب ميتر','clamp meter','كماشه قياس','كلبس','امبيرميتر','امبير ميتر','فولتميتر','فولت ميتر','جهاز قياس','اجهزه قياس','جهاز فحص','اجهزه فحص','فاحص','تستر','تيستر','tester','ميزان كهربا','ساعه فحص','ساعه قياس','عداد فحص'],
+ zzscrew:['مفك فحص','مفك كهربا','مفك كهرباء','مفك','قلم فحص','قلم كهربا','قلم تيست','مفك تست','مفك تيستر','voltage tester','ncv','test pen'],
+ zzferr:['ferrule','ferrules','فيرول','فيرولات','كبسه','كبسات','كبسه سلك','كبسات اسلاك','كبسه ابره','طرف سلك','اطراف اسلاك','اطراف سلك','طرف انبوبي','cord end','كوس','كوسه','كوسات','كوس انبوبي','ترمنال','تيرمنال','تيرمينال','terminal','لاغ','لوغ','cable lug'],
+ zzcable:['cable','cables','wire','wires','كابل','كابلات','كبل','كبلات','سلك','اسلاك','شريط','شريط كهربا','شرايط','كابل سولار','solar cable'],
+ zzbox:['طبلون','طبلونات','تابلو','تابلوه','تابلوهات','لوحه توزيع','لوحه كهربا','لوحه','لوحات','علبه قواطع','علبه ديجنتير','علبه ديجونتير','علبه كهربا','علب كهربا','بوكس','صندوق توزيع','enclosure','distribution box','panel box'],
+ zzinv:['inverter','inverters','انفرتر','انفرترات','انفيرتر','انفرتير','انفرتور','انفرتيرات','عاكس','محول طاقه','ups','يو بي اس','hybrid inverter','هايبرد'],
+ zzbat:['battery','batteries','بطاريه','بطاريات','مدخره','مدخرات','ليثيوم','lithium','lifepo4','ليثيوم ايون','جل','gel','بطاريه جل','بطاريه اسيد','اسيد'],
+ zzpv:['panel','panels','لوح','الواح','بانل','بانيل','بانلات','لوح شمسي','خليه شمسيه','خلايا شمسيه','module','موديول'],
+ zzchg:['منظم شحن','منظم','ريجولاتور','رغولاتور','ريغولاتور','regulator','كنترولر','controller','شاحن سولار','charge controller','mppt','pwm'],
+ zzspd:['spd','مانعه صواعق','مانع صواعق','موانع صواعق','حمايه صواعق','حمايه من الصواعق','صاعقه','صواعق','سرج','surge','surge protector','ارستر','arrester','lightning'],
+ zztimer:['timer','تايمر','تايمرات','ساعه توقيت','ساعات توقيت','مؤقت','موقت','مؤقتات','ساعه زمنيه','ساعه برمجه','minuterie','مينوتري'],
+ zzsock:['بريز','بريزه','بريزات','مأخذ','ماخذ','فيش','فيشه','فيشات','socket','plug','prise','انتربتور','انتربيتور','انتربتير','interrupteur','مفتاح ضو','مفتاح ضوء','مفتاح انارة','سويتش','switch'],
+ zztwin:['دبل','دوبل','مزدوج','مزدوجه','twin','double','لسلكين','سلكين','2 سلك','زوجي'],
+ zzauto:['اوتوماتيك','اتوماتيك','اوتوماتيكي','اتوماتيكي','تلقائي','تلقائيه','اوتو','auto','automatic','automatique'],
+ zz3ph:['3 فاز','3فاز','ثلاث فاز','ثلاثه فاز','تري فاز','ثري فاز','تريفاز','ثلاثي الطور','ثلاثي فاز','3 phase','three phase','3phase','تري فيز','تريفيز','380'],
+ zz1ph:['سنجل فاز','سينجل فاز','مونو فاز','مونوفاز','مونو فيز','فاز واحد','1 فاز','احادي الطور','single phase','monophase','220 فولت','230 فولت'],
+};
+const PP219_IMPLY={zzdc:['zzsolar'],zzmccb:['zzbrk'],zzmcb:['zzbrk'],zzrcd:['zzbrk'],zzrecl:['zzbrk'],zzats:['zzgen'],zzscrew:['zzmeter']};
+const PP219_STOP=new Set(['بدي','بدنا','بدك','بدو','اريد','نريد','ابغى','ابغي','بغيت','عايز','عاوز','محتاج','محتاجين','لازمني','بلزمني','بيلزمني','بدي ياه','ابحث','بحث','فتش','دور','بدور','عم','عن','على','عندي','عندكم','عندكن','عندك','عندو','عنده','في','فيه','فيي','فيني','هل','يوجد','موجود','متوفر','متوفره','عطيني','اعطيني','جيب','جيبلي','شوي','من','شو','ايش','شنو','وين','بديك','بشوف','شراء','اشتري','ممكن','لو','سمحت','بليز','ريت','يا','تبع','تبعت','تبعيت','حق','حقو','مال','يلي','اللي','الي','هيك','شي','بكم','بقديش','قديش','قداش','كم','سعر','اسعار','السعر','ثمن','منيح','افضل','احسن','نوع','انواع','لعندي','و','او','مع','انا','نحنا','please','want','need','show','me','a','the','an','for','do','you','have','i','looking','price','some']);
+function pp219N(s){return String(s==null?'':s).toLowerCase().normalize('NFKC').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[ً-ٰٟـ]/g,'').replace(/[^\p{L}\p{N}]+/gu,' ').trim();}
+const PP219_PH=(()=>{const a=[];for(const [tok,list] of Object.entries(PP219_GROUPS))for(const ph of list){const n=pp219N(ph);if(n)a.push([n,tok]);}a.sort((x,y)=>y[0].length-x[0].length);return a;})();
+const PP219_NUM=(()=>{const o={};const add=(v,...ws)=>ws.forEach(w=>o[w]=v);
+ add(1,'واحد','واحده','وحده');add(2,'اثنين','اثنان','اتنين','تنين','ثنين','ثنتين');add(3,'ثلاثه','ثلاث','تلاته','تلات','تلت');add(4,'اربعه','اربع');add(5,'خمسه','خمس');add(6,'سته','ست','ستة');add(7,'سبعه','سبع');add(8,'ثمانيه','ثمان','تمانيه','تمنه','تماني','ثماني');add(9,'تسعه','تسع');add(10,'عشره','عشر','عشرة');
+ add(11,'احدعش','احدعشر','حدعش','احدعشر');add(12,'اثنعش','اتنعش','اطنعش','اثنعشر','اثنا عشر');add(13,'ثلطعش','تلطعش','تلتعش','ثلاثطعش','ثلاثه عشر');add(14,'اربعطعش','اربعتعش','اربعه عشر');add(15,'خمسطعش','خمستعش','خمسه عشر');add(16,'ستعش','سطعش','ستطعش','سته عشر','ستاشر');add(17,'سبعطعش','سبعتعش','سبعه عشر');add(18,'ثمنطعش','تمنطعش','تمنتعش','ثمانيه عشر');add(19,'تسعطعش','تسعتعش','تسعه عشر');
+ add(20,'عشرين');add(30,'ثلاثين','تلاتين','تلتين');add(40,'اربعين');add(50,'خمسين');add(60,'ستين');add(70,'سبعين');add(80,'ثمانين','تمانين');add(90,'تسعين');
+ add(100,'ميه','مئه','مايه','ميت','مية','مئة');add(200,'ميتين','مئتين','مئتان','ميتان');add(300,'ثلاثمية','تلتمية','ثلثمية','ثلاثمئه','ثلاثمائه','تلاتمية');add(400,'اربعمية','اربعمئه','اربعمائه','ربعمية');add(500,'خمسمية','خمسمئه','خمسمائه','خمسميه');add(600,'ستمية','ستمئه','ستمائه','ستميه');add(700,'سبعمية','سبعمئه','سبعمائه');add(800,'ثمانمية','تمنمية','ثمانمئه','ثمانمائه');add(900,'تسعمية','تسعمئه','تسعمائه');add(1000,'الف','ألف','الاف');add(2000,'الفين','ألفين');
+ return o;})();
+function pp219Words2Num(str){
+  const nz=w=>w.replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[ً-ٰٟـ]/g,'');
+  const parts=String(str).split(/(\s+)/),out=[];
+  for(let i=0;i<parts.length;i++){
+    let w=nz(parts[i]),v=PP219_NUM[w];
+    if(v==null||/\d/.test(parts[i])){out.push(parts[i]);continue;}
+    let sum=v,j=i;
+    while(j+2<parts.length&&/^\s+$/.test(parts[j+1])){const nx=nz(parts[j+2]);const m=nx.startsWith('و')?PP219_NUM[nx.slice(1)]:null;if(m==null)break;sum+=m;j+=2;}
+    out.push(String(sum));i=j;
+  }
+  return out.join('');
+}
+/* numbers & units in the raw text: decimals, Arabic digits, "ونص", spoken units -> 2d5mm2 / 500v / 32a / 200ah / 550w */
+function pp219Units(str){
+  let s=pp219Words2Num(String(str==null?'':str)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/(\d)\s*[٫,]\s*(\d)/g,'$1.$2').replace(/²/g,'2');
+  s=s.replace(/(\d+)\s*(?:و\s*)?(?:نص|نصف)(?![\p{L}])/gu,(m,a)=>a+'.5');
+  const U=(re,f)=>{s=s.replace(re,f);};
+  U(/(\d+(?:\.\d+)?)\s*(?:a\s*h|ah|امبير\s*(?:ب\s*)?ال?ساع[هة]|[اأ]مب[يى]ر\s*ساع[هة])(?![a-z\p{L}])/giu,(m,n)=>' '+n.replace('.','d')+'ah ');
+  U(/(\d+(?:\.\d+)?)\s*(?:kv|كيلو\s*فول[تط])(?![a-z\p{L}])/giu,(m,n)=>' '+String(Math.round(parseFloat(n)*1000))+'v ');
+  U(/(\d+(?:\.\d+)?)\s*(?:v|volt|volts|فولت|فولط|فلت|فولتات|ڤولت|فولتيه)(?=dc|ac|[^a-z\p{L}]|$)/giu,(m,n)=>' '+n.replace('.','d')+'v ');
+  U(/(\d+(?:\.\d+)?)\s*(?:kw|كيلو\s*وا[طت]|كيلو\s*وات|كيلوات|كيلوواط)(?![a-z\p{L}])/giu,(m,n)=>' '+String(Math.round(parseFloat(n)*1000))+'w ');
+  U(/(\d+(?:\.\d+)?)\s*(?:w|watt|watts|واط|وات|واات)(?![a-z\p{L}])/giu,(m,n)=>' '+n.replace('.','d')+'w ');
+  U(/(\d+(?:\.\d+)?)\s*(?:mm2|mm\s*2|sq\s*mm|mm|مم\s*2|مم|ملم|ملي|مللي|ميلي|ملي\s*متر\s*مربع|مربع)(?![a-z\p{L}])/giu,(m,n)=>' '+n.replace('.','d')+'mm2 ');
+  U(/(\d+(?:\.\d+)?)\s*(?:a|amp|amps|ampere|amperes|[اأ]مب[يى]ر(?:ات)?|[اأ]مبر|[اأ]مب)(?![a-z\p{L}])/giu,(m,n)=>' '+n.replace('.','d')+'a ');
+  s=s.replace(/(?:^|\s)(?:وان|ون)\s*(?:بول|پول)/gu,' 1p ').replace(/(?:^|\s)(?:تو|توو)\s*(?:بول|پول)/gu,' 2p ').replace(/(?:^|\s)(?:ثري|تري)\s*(?:بول|پول)/gu,' 3p ').replace(/(?:^|\s)فور\s*(?:بول|پول)/gu,' 4p ');
+  s=s.replace(/(^|\s)(?:ثنائي|ثنائيه|ثنائية|ثنايي|زوجي)(?=\s|$)/g,'$1 2p ').replace(/(^|\s)(?:رباعي|رباعيه|رباعية)(?=\s|$)/g,'$1 4p ').replace(/(^|\s)(?:ثلاثي|ثلاثيه|ثلاثية)(?!\s*(?:فاز|الطور|طور))(?=\s|$)/g,'$1 3p ');
+  s=s.replace(/(\d+)\s*(?:بول|بولات|قطب|اقطاب|أقطاب|pole|poles)(?![\p{L}])/giu,' $1p ').replace(/قطبين/g,' 2p ').replace(/قطب\s*واحد/g,' 1p ');
+  s=s.replace(/(\d+)\.(\d+)/g,'$1d$2');
+  s=s.replace(/(\d+)\.(\d+)/g,'$1d$2');
+  return s;
+}
+const PP219_PRE=['','ال','وال','بال','لل','ب','و','ل','فال','وب'];
+function pp219Eat(t,out){for(const [ph,tok] of PP219_PH){for(const pre of PP219_PRE){const k=' '+pre+ph+' ';while(t.includes(k)){t=t.replace(k,' ');if(!out.includes(tok))out.push(tok);}}}return t;}
+function pp219Tags(text){
+  const out=[];pp219Eat(' '+pp219N(pp219Units(text))+' ',out);const set=new Set(out);
+  for(const k of [...set])(PP219_IMPLY[k]||[]).forEach(x=>set.add(x));
+  return set;
+}
+/* query -> canonical words: synonyms become zz-tokens, units become 32a/500v/4mm2, filler words dropped */
+function pp219Q(userText){
+  const toks=[];const t=pp219Eat(' '+pp219N(pp219Units(userText))+' ',toks);
+  const rest=t.split(' ').filter(w=>w&&!PP219_STOP.has(w)).map(w=>(/^(ال|وال|بال)[\u0621-\u064A]{3,}$/.test(w)?w.replace(/^(وال|بال|ال)/,''):w));
+  const unit=toks.includes('zzferr')||toks.includes('zzcable')?'mm2':(['zzbrk','zzcont','zzats','zzfuse','zziso','zzphoto','zzvp','zzwifi','zzrecl','zzrcd'].some(t=>toks.includes(t))?'a':'');
+  const rest2=unit?rest.map(w=>/^\d+(?:d\d+)?$/.test(w)?w+unit:w):rest;
+  return [...toks,...rest2].join(' ');
+}
+const pp219Cache=new Map();
+function pp219Prod(p){
+  const raw=[p.nameAr,p.nameEn,p.category,p.brand,p.model,(Array.isArray(p.sizes)?p.sizes.join(' '):''),p.descriptionAr,p.descriptionEn].join(' \n ');
+  const key=p.id+'|'+raw.length+'|'+String(p.nameAr||'').length;let c=pp219Cache.get(p.id);if(c&&c.key===key)return c;
+  const aka=(String(p.descriptionAr||'').match(/يعرف ايضا باسم[^\n]*|يُعرف أيضاً باسم[^\n]*/)||[''])[0];
+  const tags=pp219Tags([p.nameAr,p.nameEn,p.category,p.model,aka].join(' '));
+  const L=pp219Units(raw).toLowerCase(),num=x=>parseFloat(String(x).replace('d','.'));
+  const spec={a:[],v:[],mm2:[],w:[],ah:[],ra:[],rv:[],rmm2:[]};
+  const R=/(\d+(?:d\d+)?)(a|v|mm2|w|ah)(?![a-z0-9])/g;let m;while((m=R.exec(L)))spec[m[2]].push(num(m[1]));
+  const rr=(u,re)=>{let k;while((k=re.exec(L)))spec['r'+u].push([num(k[1]),num(k[2])]);};
+  const raw2=String(raw).toLowerCase().replace(/(\d)\s*[٫,]\s*(\d)/g,'$1.$2').replace(/²/g,'2');
+  const rr2=(u,re)=>{let k;while((k=re.exec(raw2)))spec['r'+u].push([parseFloat(k[1]),parseFloat(k[2])]);};
+  rr2('a',/(\d+(?:\.\d+)?)\s*a?\s*(?:-|–|—|_|to|إلى|الى|حتى|~)\s*(\d+(?:\.\d+)?)\s*a(?![a-z])/g);
+  rr2('v',/(\d+(?:\.\d+)?)\s*v?\s*(?:-|–|—|~|to|إلى|الى)\s*(\d+(?:\.\d+)?)\s*v(?![a-z]{2})/g);
+  rr2('mm2',/(\d+(?:\.\d+)?)\s*(?:mm2?)?\s*(?:-|–|—|to|إلى|الى)\s*(\d+(?:\.\d+)?)\s*mm\s*2/g);
+  const nm=' '+pp219N([p.nameAr,p.nameEn,p.category].join(' '))+' ';
+  if(/ (3p|4p|3p n) | 3 phase |ثلاثي|رباعي/.test(nm))tags.add('zz3ph');
+  if(/ (1p|1p n|2p|dpn) |مفرد|فاز نيوترال|single phase/.test(nm))tags.add('zz1ph');
+  c={key,tags:' '+[...tags].join(' ')+' ',spec};pp219Cache.set(p.id,c);return c;
+}
+function pp219UnitHit(p,word){
+  const m=/^(\d+(?:d\d+)?)(a|v|mm2|w|ah)$/.exec(word);if(!m)return null;
+  const x=parseFloat(m[1].replace('d','.')),u=m[2],s=pp219Prod(p).spec,eq=(a,b)=>Math.abs(a-b)<1e-6;
+  if(u==='v'){if(s.v.some(v=>v>=x*0.95&&v<=x*2))return true;return s.rv.some(([lo,hi])=>x>=lo&&x<=hi);}
+  if(s[u].some(v=>eq(v,x)))return true;
+  if(s['r'+u]&&s['r'+u].some(([lo,hi])=>x>=lo&&x<=hi))return true;
+  return false;
+}
+function pp219Hit(p,hay,word){
+  const u=pp219UnitHit(p,word);if(u!==null)return u;
+  if(/^zz[a-z0-9]+$/.test(word))return pp219Prod(p).tags.includes(' '+word+' ');
+  return hay.includes(word);
+}
+function pp219Hay(p){return pp219Prod(p).tags;}
+
 /* V218: a product code typed in search shows exactly that product; old leftover codes in sku no longer match other products */
 const pp218Key=s=>String(s==null?'':s).toLowerCase().replace(/[^\p{L}\p{N}]+/gu,'');
 const pp218Sku=p=>{const s=String(p&&p.sku||'');return /^[a-z]{1,4}-\d{3,}(-[a-z0-9]+)?$/i.test(s)&&pp218Key(s)!==pp218Key(p.productCode)?'':s;};
-const searchable=(p)=>normalizeSearch([pp218Sku(p),p.productCode,p.barcode,p.nameAr,p.nameEn,p.category,p.brand,p.model,p.specs,p.descriptionAr,p.descriptionEn,(Array.isArray(p.sizes)?p.sizes.join(' '):'')].join(' '));
+const searchable=(p)=>normalizeSearch([pp218Sku(p),p.productCode,p.barcode,p.nameAr,p.nameEn,p.category,p.brand,p.model,p.specs,p.descriptionAr,p.descriptionEn,(Array.isArray(p.sizes)?p.sizes.join(' '):'')].join(' '))+pp219Hay(p); /* V219 tags */
 const ALIASES={breaker:['breaker','mcb','mccb','قاطع','قواطع'],mcb:['mcb','قاطع','قواطع','breaker'],mccb:['mccb','قاطع','قواطع','breaker'],fuse:['fuse','fuses','فيوز','فيوزات'],inverter:['inverter','انفرتر','انفرترات'],battery:['battery','بطاريه','بطاريات'],قاطع:['قاطع','قواطع','mcb','mccb','breaker'],فيوز:['فيوز','فيوزات','fuse','fuses'],انفرتر:['انفرتر','انفرترات','inverter']};
-const list=()=>{const pp218k=pp218Key(q);if(pp218k.length>=3){const ex=state.products.filter(p=>(p.active||visibleAdmin())&&pp218Key(p.productCode)===pp218k);if(ex.length)return ex;}const terms=normalizeSearch(q).split(' ').filter(Boolean);return state.products.filter(p=>(p.active||visibleAdmin())&&(!ppOnlyNew||ppIsNew(p))&&(!cat||p.category===cat)&&(!ppDept||pp139InDept(ppDept,p.category))&&(!onlyStock||p.stock==null||p.stock>0)&&(!terms.length||terms.every(term=>(ALIASES[term]||[term]).some(alt=>searchable(p).includes(alt))))).sort((a,b)=>order==='az'?S(a.nameAr,a.nameEn).localeCompare(S(b.nameAr,b.nameEn),'ar'):order==='price-low'?(a.price??Infinity)-(b.price??Infinity):order==='price-high'?(b.price??-1)-(a.price??-1):order==='old'?(a.createdAt||0)-(b.createdAt||0):order==='home'?(pp201Rank(a)-pp201Rank(b)||(a.createdAt||0)-(b.createdAt||0)):(b.createdAt||0)-(a.createdAt||0));};
+const list=()=>{const pp218k=pp218Key(q);if(pp218k.length>=3){const ex=state.products.filter(p=>(p.active||visibleAdmin())&&pp218Key(p.productCode)===pp218k);if(ex.length)return ex;}const terms=normalizeSearch(pp219Q(q)).split(' ').filter(Boolean);return state.products.filter(p=>(p.active||visibleAdmin())&&(!ppOnlyNew||ppIsNew(p))&&(!cat||p.category===cat)&&(!ppDept||pp139InDept(ppDept,p.category))&&(!onlyStock||p.stock==null||p.stock>0)&&(!terms.length||terms.every(term=>pp219Hit(p,searchable(p),term)||(ALIASES[term]||[term]).some(alt=>searchable(p).includes(alt))))).sort((a,b)=>order==='az'?S(a.nameAr,a.nameEn).localeCompare(S(b.nameAr,b.nameEn),'ar'):order==='price-low'?(a.price??Infinity)-(b.price??Infinity):order==='price-high'?(b.price??-1)-(a.price??-1):order==='old'?(a.createdAt||0)-(b.createdAt||0):order==='home'?(pp201Rank(a)-pp201Rank(b)||(a.createdAt||0)-(b.createdAt||0)):(b.createdAt||0)-(a.createdAt||0));};
 /* V201: «حسب الترتيب» = the order the owner arranged on the home page (1P, 2P, 3P …), then oldest first */
 let pp201Map=null,pp201Sig='';function pp201Rank(p){try{const secs=(state.settings&&state.settings.homeSections)||[];const sig=secs.length+':'+secs.map(x=>(x&&x.productIds||[]).length).join(',');if(!pp201Map||sig!==pp201Sig){pp201Sig=sig;pp201Map=new Map();let i=0;secs.forEach(x=>{(x&&Array.isArray(x.productIds)?x.productIds:[]).forEach(id=>{if(id&&!pp201Map.has(id))pp201Map.set(id,i++);});});}const v=pp201Map.get(p.id);return v==null?1e6:v;}catch(_){return 1e6}}
 const allCategories=()=>[...new Set([...state.settings.categories,...state.products.map(p=>p.category)])].filter(Boolean);
@@ -1967,8 +2095,8 @@ const SMART_CONCEPTS=[
  ['panel','علبه توزيع','علبة توزيع','لوحه','لوحه تحكم','لوحات','enclosure','distribution box']
 ];
 const SMART_STOP=new Set(['بدي','اريد','ابحث','بحث','عن','عندي','عندكم','عندكن','عندك','في','هل','يوجد','عطيني','اعطيني','جيب','شوي','من','شو','عندك','بدي','بديك','محتاج','عايز','بشوف','شراء','ممكن','please','want','need','show','me','a','the','an','for','do','you','have','i','looking']);
-function searchProductsSmart(userText){
- const query=normalizeSearch(userText),remaining=new Set(query.split(' ').filter(w=>w&&!SMART_STOP.has(w)&&w.length>1));
+function searchProductsSmart(userText){{const k=pp218Key(userText);if(k.length>=3){const ex=state.products.filter(p=>(p.active||visibleAdmin())&&pp218Key(p.productCode)===k);if(ex.length)return {matches:ex,exact:true,missing:[]};}} /* V219: exact code */
+ const pp219raw=normalizeSearch(userText),query=normalizeSearch(pp219Q(userText)),remaining=new Set(query.split(' ').filter(w=>w&&!SMART_STOP.has(w)&&w.length>1));
  const concepts=[];
  for(const group of SMART_CONCEPTS){
   const options=group.map(normalizeSearch);
@@ -1978,14 +2106,14 @@ function searchProductsSmart(userText){
  const words=[...remaining];const results=[];
  for(const p of state.products){if(!p.active&&!visibleAdmin())continue;const hay=searchable(p);const title=normalizeSearch([p.nameAr,p.nameEn,p.model,p.sku].join(' '));let hits=0;let score=0;
   for(const opts of concepts){if(opts.some(k=>k&&(' '+hay+' ').includes(' '+k+' '))){hits++;score+=8}else if(opts.some(k=>k&&hay.includes(k))){hits++;score+=6}}
-  for(const word of words){if(hay.includes(word)){hits++;score+=title.includes(word)?5:2}}
-  if(query&&title.includes(query))score+=16;
+  for(const word of words){if(pp219Hit(p,hay,word)){hits++;score+=/^zz/.test(word)?7:(title.includes(word)?5:2)}}
+  if(pp219raw&&title.includes(pp219raw))score+=16;
   if(score>0)results.push({p,score,hits});
  }
  const required=concepts.length+words.length;
  results.sort((a,b)=>b.score-a.score||Number(b.p.stock!==0)-Number(a.p.stock!==0));
  const exact=required>0&&results.some(r=>r.hits>=required);
- return pp92Finish(userText,results,exact);
+ return pp92Finish(userText,exact?results.filter(r=>r.hits>=required):results,exact); /* V219: only full matches when they exist */
 }
 function doSmartSearch(text){const val=clean(text);if(!val){note(T('اكتب اسم المنتج للبحث','Type a product to search'));return}assistantQuery=val;const found=searchProductsSmart(val);assistantMatches=found.matches;assistantExact=found.exact;try{pp92Note(found)}catch(_){}assistantSearched=true;goto('assistant');}
 function assistantProduct(p){return `<div class="assistant-card"><div class="visual">${photo(p)}</div><div style="flex:1;min-width:0"><strong>${esc(S(p.nameAr,p.nameEn))}</strong><small>${esc([p.brand,p.model,p.sku].filter(Boolean).join(' • '))}</small><span class="assistant-price">${money(p.price,p.currency)}</span><div class="actions"><button class="btn small" data-action="details" data-id="${esc(p.id)}">${T('التفاصيل','Details')}</button><button class="btn small dark" data-action="add-cart" data-id="${esc(p.id)}">＋ ${T('أضف','Add')}</button>${visibleAdmin()?`<button class="btn small gold" data-action="edit" data-id="${esc(p.id)}">✏️ ${T('تعديل','Edit')}</button>`:''}</div></div></div>`}
@@ -6075,13 +6203,13 @@ window.addEventListener('click',e=>{
 /* ===== V92: strict amps / poles / AC-DC filtering in search, with "not available" note ===== */
 function pp92Hum(t){return /^\d+a$/.test(t)?t.toUpperCase():/^\dp$/.test(t)?t.toUpperCase():t.toUpperCase();}
 function pp92Finish(userText,results,exact){
-  const q=normalizeSearch(userText),toks=q.split(' ').filter(Boolean);
+  const q=normalizeSearch(pp219Q(userText)),toks=q.split(' ').filter(Boolean);
   const cons=[];
-  toks.forEach(w=>{if(/^\d{1,4}a$/.test(w)||/^[1-4]p$/.test(w)||w==='ac'||w==='dc')if(!cons.includes(w))cons.push(w);});
+  toks.forEach(w=>{if(/^\d+(?:d\d+)?(?:a|v|mm2|w|ah)$/.test(w)||/^[1-4]p$/.test(w)||w==='ac'||w==='dc')if(!cons.includes(w))cons.push(w);});
   let list=results.slice(),missing=[];
   const has=(r,w)=>(' '+searchable(r.p)+' ').includes(' '+w+' ');
   for(const w of cons){
-    const ok=w==='ac'?(r=>has(r,'ac')||!has(r,'dc')):(r=>has(r,w));
+    const ok=w==='ac'?(r=>has(r,'ac')||!has(r,'dc')):(r=>{const u=pp219UnitHit(r.p,w);return u===null?has(r,w):u;});
     const keep=list.filter(ok);
     if(keep.length)list=keep;else if(list.length)missing.push(w);
   }
