@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" data-store-theme="light" data-edition="customer" data-demo="false" style="--pp-card-default: #ffffff; --pp-photo-default: #ffffff; --pp-banner-default: #fff8ed; --pp-intro-bg: #fffdfa; --pp-intro-text: #2d2f33; --pp-page-bg: #f9f6ef; --pp-banner-text: #ffffff; --pp29-page-bg: #f9f6ef; --pp29-card-bg: #ffffff; --pp29-photo-bg: #ffffff;"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14213d"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petra Electric"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="color-scheme" content="light">
-<title>Petra Power Energy</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V220">
+<title>Petra Power Energy</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V221">
 <style>
 .pp-sy{display:inline-block;width:1.4em;height:.93em;vertical-align:-.12em;background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDdhM2QiLz48cmVjdCB5PSIxMy4zMyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDAiLz48ZyBmaWxsPSIjY2UxMTI2Ij48cGF0aCBpZD0icyIgZD0iTTAtMS45bC41NiAxLjcyaDEuODFsLTEuNDYgMS4wNi41NiAxLjcyTDAgMS41NGwtMS40NyAxLjA2LjU2LTEuNzItMS40Ni0xLjA2aDEuODF6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4IDEwKSIvPjx1c2UgaHJlZj0iI3MiIHg9IjciLz48dXNlIGhyZWY9IiNzIiB4PSIxNCIvPjwvZz48L3N2Zz4=) center/100% 100% no-repeat;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-style:normal}
 :root{--navy:#14213d;--navy2:#1d3150;--gold:#c9a14a;--goldsoft:#fcf3de;--paper:#f8f7f3;--line:#e3dfd7;--ink:#1a2b44;--mute:#667487;--warn:#a43c36;--white:#fff;--green:#136c48}
@@ -1466,7 +1466,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V220';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V221';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1746,6 +1746,7 @@ const PP219_GROUPS={
  zzspd:['spd','مانعه صواعق','مانع صواعق','موانع صواعق','حمايه صواعق','حمايه من الصواعق','صاعقه','صواعق','سرج','surge','surge protector','ارستر','arrester','lightning'],
  zztimer:['timer','تايمر','تايمرات','ساعه توقيت','ساعات توقيت','مؤقت','موقت','مؤقتات','ساعه زمنيه','ساعه برمجه','minuterie','مينوتري'],
  zzsock:['بريز','بريزه','بريزات','مأخذ','ماخذ','فيش','فيشه','فيشات','socket','plug','prise','انتربتور','انتربيتور','انتربتير','interrupteur','مفتاح ضو','مفتاح ضوء','مفتاح انارة','سويتش','switch'],
+ zzdpn:['dpn','dpn n','دي بي ان','ديبيان','دي بي ن','دي بي إن','1p n','فاز نيوترال','فاز ونيوترال','phase neutral','phase and neutral'],
  zztwin:['دبل','دوبل','مزدوج','مزدوجه','twin','double','لسلكين','سلكين','2 سلك','زوجي'],
  zzauto:['اوتوماتيك','اتوماتيك','اوتوماتيكي','اتوماتيكي','تلقائي','تلقائيه','اوتو','auto','automatic','automatique'],
  zz3ph:['3 فاز','3فاز','ثلاث فاز','ثلاثه فاز','تري فاز','ثري فاز','تريفاز','ثلاثي الطور','ثلاثي فاز','3 phase','three phase','3phase','تري فيز','تريفيز','380'],
@@ -1814,7 +1815,10 @@ function pp219Prod(p){
   const raw=[p.nameAr,p.nameEn,p.category,p.brand,p.model,(Array.isArray(p.sizes)?p.sizes.join(' '):''),p.descriptionAr,p.descriptionEn].join(' \n ');
   const key=p.id+'|'+raw.length+'|'+String(p.nameAr||'').length;let c=pp219Cache.get(p.id);if(c&&c.key===key)return c;
   const aka=(String(p.descriptionAr||'').match(/يعرف ايضا باسم[^\n]*|يُعرف أيضاً باسم[^\n]*/)||[''])[0];
-  const tags=pp219Tags([p.nameAr,p.nameEn,p.category,p.model,aka].join(' '));
+  const tags=pp219Tags([p.nameAr,p.nameEn,p.model,aka].join(' '));
+  /* the category may hold mixed types (AC / DC, 3 فاز – سنجل فاز): take only its product-type words */
+  {const ct=pp219Tags(p.category||''),mixAD=ct.has('zzac')&&ct.has('zzdc'),mixPh=ct.has('zz1ph')&&ct.has('zz3ph');
+   for(const t of ct){if(mixAD&&['zzac','zzdc','zzsolar'].includes(t))continue;if(mixPh&&['zz1ph','zz3ph'].includes(t))continue;if(['zzdpn','zztwin'].includes(t))continue;tags.add(t);}}
   const L=pp219Units(raw).toLowerCase(),num=x=>parseFloat(String(x).replace('d','.'));
   const spec={a:[],v:[],mm2:[],w:[],ah:[],ra:[],rv:[],rmm2:[],sz:{}};
   {const SZ=/(\d+(?:d\d+)?)(a|v|mm2|w|ah)(?![a-z0-9])/g;const zs=pp219Units((Array.isArray(p.sizes)?p.sizes.join(' '):'')).toLowerCase();let q;while((q=SZ.exec(zs))){(spec.sz[q[2]]=spec.sz[q[2]]||[]).push(num(q[1]));}}
