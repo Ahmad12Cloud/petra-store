@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" data-store-theme="light" data-edition="customer" data-demo="false" style="--pp-card-default: #ffffff; --pp-photo-default: #ffffff; --pp-banner-default: #fff8ed; --pp-intro-bg: #fffdfa; --pp-intro-text: #2d2f33; --pp-page-bg: #f9f6ef; --pp-banner-text: #ffffff; --pp29-page-bg: #f9f6ef; --pp29-card-bg: #ffffff; --pp29-photo-bg: #ffffff;"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14213d"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petra Electric"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="color-scheme" content="light">
-<title>Petra Power Energy</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V221">
+<title>Petra Power Energy</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V222">
 <style>
 .pp-sy{display:inline-block;width:1.4em;height:.93em;vertical-align:-.12em;background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDdhM2QiLz48cmVjdCB5PSIxMy4zMyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDAiLz48ZyBmaWxsPSIjY2UxMTI2Ij48cGF0aCBpZD0icyIgZD0iTTAtMS45bC41NiAxLjcyaDEuODFsLTEuNDYgMS4wNi41NiAxLjcyTDAgMS41NGwtMS40NyAxLjA2LjU2LTEuNzItMS40Ni0xLjA2aDEuODF6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4IDEwKSIvPjx1c2UgaHJlZj0iI3MiIHg9IjciLz48dXNlIGhyZWY9IiNzIiB4PSIxNCIvPjwvZz48L3N2Zz4=) center/100% 100% no-repeat;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-style:normal}
 :root{--navy:#14213d;--navy2:#1d3150;--gold:#c9a14a;--goldsoft:#fcf3de;--paper:#f8f7f3;--line:#e3dfd7;--ink:#1a2b44;--mute:#667487;--warn:#a43c36;--white:#fff;--green:#136c48}
@@ -1466,7 +1466,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V221';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V222';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1716,11 +1716,11 @@ function ppBindBuilderDrag(){
 const normalizeSearch=(s)=>pp87Pre(clean(s)).toLowerCase().normalize('NFKC').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[\u064B-\u065F\u0670]/g,'').replace(/[^\p{L}\p{N}]+/gu,' ');
 /* ===== V219: Lebanese + Syrian + engineering vocabulary, spoken/typed units (V, A, mm², W, Ah) ===== */
 const PP219_GROUPS={
- zzbrk:['قاطع','قواطع','قاطعه','قطاعه','قاطع كهربا','قاطع كهربائي','قاطع حمايه','قواطع حمايه','ديجونكتور','ديجنكتور','دجنكتور','دجونكتور','ديجونكتير','ديجنكتير','دجنكتير','ديجونتير','ديجنتير','دجنتير','دجونتير','ديجونتر','ديجنتر','دجنتر','ديسجونكتور','ديزجونكتور','disjoncteur','disjoncteurs','breaker','breakers','circuit breaker','سيركت بريكر','سيركيت بريكر','بريكر','بريكرات','مفتاح اوتوماتيك','مفاتيح اوتوماتيك','مفتاح اتوماتيك','كتاوت','كات اوت','cb'],
+ zzbrk:['قاطع','مقاطع','قواطع','قاطعه','قطاعه','قاطع كهربا','قاطع كهربائي','قاطع حمايه','قواطع حمايه','ديجونكتور','ديجنكتور','دجنكتور','دجونكتور','ديجونكتير','ديجنكتير','دجنكتير','ديجونتير','ديجنتير','دجنتير','دجونتير','ديجونتر','ديجنتر','دجنتر','ديسجونكتور','ديزجونكتور','disjoncteur','disjoncteurs','breaker','breakers','circuit breaker','سيركت بريكر','سيركيت بريكر','بريكر','بريكرات','مفتاح اوتوماتيك','مفاتيح اوتوماتيك','مفتاح اتوماتيك','كتاوت','كات اوت','cb'],
  zzmcb:['mcb','ام سي بي','امسيبي','ام سيبي','ميني بريكر','قاطع صغير','قواطع صغيره','قاطع مودولار','miniature circuit breaker'],
  zzmccb:['mccb','ام سي سي بي','امسيسيبي','قاطع صناعي','قواطع صناعيه','قاطع علبه مقولبه','علبه مقولبه','مقولب','قاطع كبير','قاطع تجاري','قاطع بلوك','moulded case','molded case'],
  zzrcd:['rcd','rccb','rcbo','elcb','تفاضلي','قاطع تفاضلي','ديفرانسيال','ديفرنسيال','دفرنسيال','ديفيرانسيال','ديفرانسيل','differential','قاطع تسريب','تسريب ارضي','حمايه تسريب','قاطع ارضي','earth leakage','residual current'],
- zzdc:['dc','دي سي','ديسي','دى سى','تيار مستمر','مستمر','direct current'],
+ zzdc:['dc','دي سي','بي سي','بيسي','دي اس','تي سي','دسي','ديسيه','دي سيه','ديسي','دى سى','تيار مستمر','مستمر','direct current'],
  zzac:['ac','اي سي','ايه سي','ايسي','تيار متناوب','متناوب','alternating current'],
  zzsolar:['solar','سولار','سولر','صولار','سولاري','طاقه شمسيه','الطاقه الشمسيه','شمسي','شمسيه','الواح شمسيه','pv','بي في','فوتوفولتيك','كهروضوئي','photovoltaic'],
  zzcont:['contactor','contactors','كونتاكتور','كونتاكتورات','كونتكتور','كونتاكتر','كنتاكتور','كنتكتور','كنتكتر','كونتكتر','كونتاكت','كونتكت','كونتاكتير','كونتاكتيره','متمم','متممات','مفتاح مغناطيسي','ملامس','ملامسات','contacteur','كونتاكتور مودولار','modular contactor'],
@@ -2103,7 +2103,8 @@ const SMART_CONCEPTS=[
  ['panel','علبه توزيع','علبة توزيع','لوحه','لوحه تحكم','لوحات','enclosure','distribution box']
 ];
 const SMART_STOP=new Set(['بدي','اريد','ابحث','بحث','عن','عندي','عندكم','عندكن','عندك','في','هل','يوجد','عطيني','اعطيني','جيب','شوي','من','شو','عندك','بدي','بديك','محتاج','عايز','بشوف','شراء','ممكن','please','want','need','show','me','a','the','an','for','do','you','have','i','looking']);
-function searchProductsSmart(userText){{const k=pp218Key(userText);if(k.length>=3){const ex=state.products.filter(p=>(p.active||visibleAdmin())&&pp218Key(p.productCode)===k);if(ex.length)return {matches:ex,exact:true,missing:[]};}} /* V219: exact code */
+function searchProductsSmart(userText){const pp222r=pp222Core(userText);if(pp222r.exact)return pp222r;const pp222u=pp219Q(userText).split(' ').filter(w=>/^\d+(?:d\d+)?(?:a|v|mm2|w|ah)$/.test(w));if(pp222u.length){const loose=pp222Core(pp219Q(userText).split(' ').filter(w=>!pp222u.includes(w)).join(' '));if(loose.exact&&loose.matches.length)return {matches:loose.matches,exact:false,missing:pp222u.map(w=>w.replace('d','.').toUpperCase().replace('MM2','mm²'))};}return pp222r;}
+function pp222Core(userText){{const k=pp218Key(userText);if(k.length>=3){const ex=state.products.filter(p=>(p.active||visibleAdmin())&&pp218Key(p.productCode)===k);if(ex.length)return {matches:ex,exact:true,missing:[]};}} /* V219: exact code */
  const pp219raw=normalizeSearch(userText),query=normalizeSearch(pp219Q(userText)),remaining=new Set(query.split(' ').filter(w=>w&&!SMART_STOP.has(w)&&w.length>1));
  const concepts=[];
  for(const group of SMART_CONCEPTS){
@@ -6107,9 +6108,9 @@ window.addEventListener('click',e=>{
   if(a==='pp87-wa'){window.open('https://wa.me/96176685783?text='+encodeURIComponent(T('مرحباً، أبحث عن: ','Hello, I am looking for: ')+t.dataset.q),'_blank','noopener');return;}
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return;
   if(pp87Rec){try{pp87Rec.stop()}catch(_){}return;}
-  const r=new SR();pp87Rec=r;r.lang=lang==='ar'?'ar-LB':'en-US';r.interimResults=true;r.maxAlternatives=1;r.continuous=false;
+  const r=new SR();pp87Rec=r;r.lang=lang==='ar'?'ar-LB':'en-US';r.interimResults=true;r.maxAlternatives=5;r.continuous=false;
   const ph=inp?inp.placeholder:'';t.classList.add('on');if(inp)inp.placeholder=T('جاري الاستماع…','Listening…');
-  r.onresult=ev=>{let txt='';for(const res of ev.results)txt+=res[0].transcript;if(inp){inp.value=txt;updateSearchHints(txt);}};
+  r.onresult=ev=>{let txt='';for(const res of ev.results){let best=res[0].transcript;if(res.isFinal&&res.length>1){try{for(let k=0;k<res.length;k++){const c=res[k].transcript;if(searchProductsSmart(txt+c).exact){best=c;break;}}}catch(_){}}txt+=best;}if(inp){inp.value=txt;updateSearchHints(txt);}}; /* V222: best of 5 voice guesses */
   r.onerror=ev=>{if(ev.error==='not-allowed'||ev.error==='service-not-allowed')note(T('اسمح للمتصفح باستخدام الميكروفون','Please allow microphone access'));};
   r.onend=()=>{pp87Rec=null;t.classList.remove('on');if(inp)inp.placeholder=ph;};
   try{r.start()}catch(_){pp87Rec=null;t.classList.remove('on');}
