@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" data-store-theme="light" data-edition="customer" data-demo="false" style="--pp-card-default: #ffffff; --pp-photo-default: #ffffff; --pp-banner-default: #fff8ed; --pp-intro-bg: #fffdfa; --pp-intro-text: #2d2f33; --pp-page-bg: #f9f6ef; --pp-banner-text: #ffffff; --pp29-page-bg: #f9f6ef; --pp29-card-bg: #ffffff; --pp29-photo-bg: #ffffff;"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14213d"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petra Electric"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="color-scheme" content="light">
-<title>Petra Power Energy</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V222">
+<title>Petra Power Energy</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V223">
 <style>
 .pp-sy{display:inline-block;width:1.4em;height:.93em;vertical-align:-.12em;background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDdhM2QiLz48cmVjdCB5PSIxMy4zMyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDAiLz48ZyBmaWxsPSIjY2UxMTI2Ij48cGF0aCBpZD0icyIgZD0iTTAtMS45bC41NiAxLjcyaDEuODFsLTEuNDYgMS4wNi41NiAxLjcyTDAgMS41NGwtMS40NyAxLjA2LjU2LTEuNzItMS40Ni0xLjA2aDEuODF6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4IDEwKSIvPjx1c2UgaHJlZj0iI3MiIHg9IjciLz48dXNlIGhyZWY9IiNzIiB4PSIxNCIvPjwvZz48L3N2Zz4=) center/100% 100% no-repeat;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-style:normal}
 :root{--navy:#14213d;--navy2:#1d3150;--gold:#c9a14a;--goldsoft:#fcf3de;--paper:#f8f7f3;--line:#e3dfd7;--ink:#1a2b44;--mute:#667487;--warn:#a43c36;--white:#fff;--green:#136c48}
@@ -1466,7 +1466,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V222';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V223';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1832,7 +1832,7 @@ function pp219Prod(p){
   const nm=' '+pp219N([p.nameAr,p.nameEn,p.category].join(' '))+' ';
   if(/ (3p|4p|3p n) | 3 phase |ثلاثي|رباعي/.test(nm))tags.add('zz3ph');
   if(/ (1p|1p n|2p|dpn) |مفرد|فاز نيوترال|single phase/.test(nm))tags.add('zz1ph');
-  c={key,tags:' '+[...tags].join(' ')+' ',spec};pp219Cache.set(p.id,c);return c;
+  c={key,tags:' '+[...tags].join(' ')+' ',spec,nm:' '+pp219N([p.nameAr,p.nameEn,p.model].join(' '))+' '};pp219Cache.set(p.id,c);return c;
 }
 function pp219UnitHit(p,word){
   const m=/^(\d+(?:d\d+)?)(a|v|mm2|w|ah)$/.exec(word);if(!m)return null;
@@ -1849,6 +1849,9 @@ function pp219Hit(p,hay,word){
   return hay.includes(word);
 }
 function pp219Hay(p){return pp219Prod(p).tags;}
+/* V223: a product whose own name carries the group's key term ranks first (DPN → GYM9N DPN) */
+const PP219_KEY=(()=>{const o={};for(const [tok,list] of Object.entries(PP219_GROUPS))o[tok]=pp219N(list[0]);return o;})();
+function pp219Bonus(p,word){const k=PP219_KEY[word];if(!k)return 0;const nm=pp219Prod(p).nm;return (nm.includes(' '+k+' ')||nm.includes(' '+k))?5:0;}
 
 /* V218: a product code typed in search shows exactly that product; old leftover codes in sku no longer match other products */
 const pp218Key=s=>String(s==null?'':s).toLowerCase().replace(/[^\p{L}\p{N}]+/gu,'');
@@ -2115,7 +2118,7 @@ function pp222Core(userText){{const k=pp218Key(userText);if(k.length>=3){const e
  const words=[...remaining];const results=[];
  for(const p of state.products){if(!p.active&&!visibleAdmin())continue;const hay=searchable(p);const title=normalizeSearch([p.nameAr,p.nameEn,p.model,p.sku].join(' '));let hits=0;let score=0;
   for(const opts of concepts){if(opts.some(k=>k&&(' '+hay+' ').includes(' '+k+' '))){hits++;score+=8}else if(opts.some(k=>k&&hay.includes(k))){hits++;score+=6}}
-  for(const word of words){if(pp219Hit(p,hay,word)){hits++;score+=/^zz/.test(word)?7:(title.includes(word)?5:2)}}
+  for(const word of words){if(pp219Hit(p,hay,word)){hits++;score+=/^zz/.test(word)?7+pp219Bonus(p,word):(title.includes(word)?5:2)}}
   if(pp219raw&&title.includes(pp219raw))score+=16;
   if(score>0)results.push({p,score,hits});
  }
