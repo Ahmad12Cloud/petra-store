@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" data-store-theme="light" data-edition="manager" data-demo="false" style="--pp-card-default: #ffffff; --pp-photo-default: #ffffff; --pp-banner-default: #fff8ed; --pp-intro-bg: #fffdfa; --pp-intro-text: #2d2f33; --pp-page-bg: #f9f6ef; --pp-banner-text: #ffffff; --pp29-page-bg: #f9f6ef; --pp29-card-bg: #ffffff; --pp29-photo-bg: #ffffff;"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1b1b1f"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petra Admin"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="color-scheme" content="light">
-<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V226">
+<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V227">
 <style>
 .pp-sy{display:inline-block;width:1.4em;height:.93em;vertical-align:-.12em;background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDdhM2QiLz48cmVjdCB5PSIxMy4zMyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDAiLz48ZyBmaWxsPSIjY2UxMTI2Ij48cGF0aCBpZD0icyIgZD0iTTAtMS45bC41NiAxLjcyaDEuODFsLTEuNDYgMS4wNi41NiAxLjcyTDAgMS41NGwtMS40NyAxLjA2LjU2LTEuNzItMS40Ni0xLjA2aDEuODF6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4IDEwKSIvPjx1c2UgaHJlZj0iI3MiIHg9IjciLz48dXNlIGhyZWY9IiNzIiB4PSIxNCIvPjwvZz48L3N2Zz4=) center/100% 100% no-repeat;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-style:normal}
 :root{--navy:#14213d;--navy2:#1d3150;--gold:#c9a14a;--goldsoft:#fcf3de;--paper:#f8f7f3;--line:#e3dfd7;--ink:#1a2b44;--mute:#667487;--warn:#a43c36;--white:#fff;--green:#136c48}
@@ -1466,7 +1466,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V226';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V227';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -8652,10 +8652,10 @@ document.addEventListener('change',e=>{const cb=e.target;if(!(cb&&cb.name==='act
 /* ===== V208: product counts per department (owner: all + every department; staff: their department only) ===== */
 function pp208Counts(){try{const L=state.products.filter(p=>!p.demoOnly);const ds=pp139Depts();const staff=typeof pp123Staff!=='undefined'&&pp123Staff;
   const inD=(d,p)=>{const x=pp142DeptOf(p);return x&&x.id===d.id;};
-  const row=(lab,list,cls)=>{const a=list.filter(p=>p.active!==false).length;return `<div class="r"><span class="${cls||''}">${lab}</span><span class="n"><span>👁 <b>${a}</b></span><span>🙈 <b>${list.length-a}</b></span><span>${T('المجموع','Total')} <b>${list.length}</b></span></span></div>`;};
+  const row=(lab,list,cls,key)=>{const a=list.filter(p=>p.active!==false).length,h=list.length-a;return `<div class="r"><span class="${cls||''}">${lab}</span><span class="n"><span>👁 <b>${a}</b></span><span class="pp227h${h?' hot':''}" ${h?`role="button" tabindex="0" data-pp227="${esc(key||'all')}"`:''}>🙈 <b>${h}</b></span><span>${T('المجموع','Total')} <b>${list.length}</b></span></span></div>`;};
   let rows='';
-  if(staff){const ids=((pp123Staff.perms||{}).depts)||[];ds.filter(d=>!ids.length||ids.includes(d.id)).forEach(d=>{rows+=row(esc((d.icon||'')+' '+(lang==='en'?(d.nameEn||d.name):d.name)),L.filter(p=>inD(d,p)),d.rest?'':'ac');});}
-  else{rows=row('📦 '+T('كل المتجر','All store'),L,'h');ds.forEach(d=>{rows+=row(esc((d.icon||'')+' '+(lang==='en'?(d.nameEn||d.name):d.name)),L.filter(p=>inD(d,p)),d.rest?'':'ac');});}
+  if(staff){const ids=((pp123Staff.perms||{}).depts)||[];ds.filter(d=>!ids.length||ids.includes(d.id)).forEach(d=>{rows+=row(esc((d.icon||'')+' '+(lang==='en'?(d.nameEn||d.name):d.name)),L.filter(p=>inD(d,p)),d.rest?'':'ac',d.id);});}
+  else{rows=row('📦 '+T('كل المتجر','All store'),L,'h','all');ds.forEach(d=>{rows+=row(esc((d.icon||'')+' '+(lang==='en'?(d.nameEn||d.name):d.name)),L.filter(p=>inD(d,p)),d.rest?'':'ac',d.id);});}
   return `<div class="pp208">${rows}</div>`;}catch(e){return '';}}
 (function(){const st=document.createElement('style');st.textContent='.pp208{margin:4px 0 8px;padding:4px 12px;border-radius:14px;background:#4a3417;border:1px solid #b79049;color:#fff}.pp208 .r{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-weight:800;font-size:14px}.pp208 .r+.r{border-top:1px solid #ffffff22}.pp208 .n{display:grid;grid-template-columns:52px 52px 86px;text-align:center;font-size:13px}.pp208 .n b{font-size:15px}.pp208 .h{color:#f3c04f}.pp208 .ac{color:#9fd4ff}';document.head.appendChild(st);})();
 
@@ -8960,6 +8960,32 @@ try{const _l=pp150Link;pp150Link=function(scope,p,dId){if(scope==='product'&&p){
 /* ===== V178: laptop/desktop header — full width, bigger brand (right) and icons (left), bigger rotating text; scales with screen width. Phones unchanged. ===== */
 (function(){const st=document.createElement('style');st.textContent='@media (min-width:900px){html body #app header .v12-headbar{max-width:none!important;width:calc(100% - 64px)!important;margin-inline:auto!important}html body #app header .brand-icon{width:clamp(56px,4.2vw,76px)!important;height:clamp(56px,4.2vw,76px)!important;max-height:none!important}html body #app header .pp30-brand-lines .pp30-brand-line:first-child{font-size:clamp(24px,1.85vw,34px)!important;line-height:1.15!important}html body #app header .pp30-brand-lines .pp30-brand-line:last-child{font-size:clamp(14px,1.05vw,19px)!important;letter-spacing:.32em!important}html body #app header .v12-top-actions{gap:clamp(10px,.8vw,16px)!important}html body #app header .v12-top-actions .v12-icon{width:clamp(42px,3vw,54px)!important;height:clamp(42px,3vw,54px)!important}html body #app header .v12-top-actions .v12-icon svg{width:clamp(22px,1.55vw,28px)!important;height:clamp(22px,1.55vw,28px)!important}html body #app header .pp117-lines .m{font-size:clamp(21px,1.6vw,30px)!important;line-height:1.45!important}}';document.head.appendChild(st);})();
 ppBoot();
+/* ===== V227: tap the 🙈 hidden count → list of hidden products (what is missing · open · show) ===== */
+(function(){const st=document.createElement('style');st.textContent='.pp208 .pp227h.hot{cursor:pointer;background:#fff3c8;color:#4a3417;border-radius:10px;outline:2.5px solid #ff3b30;box-shadow:0 0 0 4px #ff3b3044;padding:1px 0}.pp208 .pp227h.hot b{color:#4a3417}#pp227{position:fixed;inset:0;z-index:2147482600;background:#0008;display:flex;align-items:flex-end;justify-content:center}#pp227 .sh{background:#fffdf7;color:#2a1d0a;width:min(560px,100%);max-height:86vh;overflow:auto;border-radius:22px 22px 0 0;padding:14px 14px 24px;direction:rtl;border-top:3px solid #c9a24a}#pp227 .hd{display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:17px}#pp227 .hd button{border:1.5px solid #e3d6b8;border-radius:12px;width:38px;height:38px;background:#fff;font-size:18px}#pp227 .tb{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}#pp227 .tb button{border:0;border-radius:14px;padding:5px 12px;background:#f3eee2;font:inherit;font-weight:800;font-size:13.5px}#pp227 .tb button.on{background:#f5b915}#pp227 .it{display:flex;gap:10px;align-items:center;border:1.5px solid #eadbb5;border-radius:16px;padding:8px;margin-bottom:8px;background:#fff}#pp227 .th{width:64px;height:64px;flex:none;border-radius:10px;overflow:hidden;background:#eee;display:flex;align-items:center;justify-content:center}#pp227 .th img{width:100%;height:100%;object-fit:contain}#pp227 .in{flex:1;min-width:0}#pp227 .in b{display:block;font-size:14.5px;line-height:1.35}#pp227 .in small{display:block;font-size:12px;color:#777;font-weight:700}#pp227 .in .ms{color:#c0392b}#pp227 .in .ok{color:#1f8a46}#pp227 .bt{display:flex;flex-direction:column;gap:6px;flex:none}#pp227 .bt button{border-radius:12px;padding:6px 10px;font:inherit;font-weight:900;font-size:13px}#pp227 .bt .e{background:#fff3c8;border:1.5px solid #d9a521}#pp227 .bt .s{background:#2fbf57;color:#fff;border:0}#pp227 .em{text-align:center;padding:24px;color:#777;font-weight:800}';document.head.appendChild(st);})();
+let pp227Key='all';
+function pp227Miss(p){const m=[];if(!String(p.descriptionAr||'').trim())m.push('شرح');
+  let tr=false;try{tr=p.enStatus==='ok'&&p.enHash===ppEnHash(p.nameAr,p.descriptionAr);}catch(_){tr=p.enStatus==='ok';}if(!tr)m.push('ترجمة');
+  const sp=p.sizePrices&&typeof p.sizePrices==='object'?Object.keys(p.sizePrices).length:0;if(p.price==null&&!sp)m.push('سعر');
+  if(!(p.images&&p.images.length))m.push('صورة');
+  if(!String(p.nameAr||'').replace(/[.\s]/g,''))m.push('اسم');return m;}
+function pp227Draw(){let o=document.getElementById('pp227');if(!o){o=document.createElement('div');o.id='pp227';document.body.appendChild(o);}
+  const L=state.products.filter(p=>!p.demoOnly&&p.active===false),ds=pp139Depts();
+  const inD=(id,p)=>{const x=pp142DeptOf(p);return x&&x.id===id;};
+  const staff=typeof pp123Staff!=='undefined'&&pp123Staff,ids=staff?(((pp123Staff.perms||{}).depts)||[]):[];
+  const dl=ds.filter(d=>!staff||!ids.length||ids.includes(d.id));
+  const pool=staff?L.filter(p=>dl.some(d=>inD(d.id,p))):L;
+  const list=pp227Key==='all'?pool:pool.filter(p=>inD(pp227Key,p));
+  const tabs=(staff?[]:[['all','الكل',pool.length]]).concat(dl.map(d=>[d.id,(d.icon||'')+' '+d.name,pool.filter(p=>inD(d.id,p)).length]));
+  o.innerHTML=`<div class="sh"><div class="hd"><span>🙈 المنتجات المخفية (${list.length})</span><button type="button" data-pp227x="1">✕</button></div>`+
+   `<div class="tb">${tabs.map(([k,l,n])=>`<button type="button" data-pp227t="${esc(k)}" class="${k===pp227Key?'on':''}">${esc(l)} ${n}</button>`).join('')}</div>`+
+   (list.length?list.map(p=>{const m=pp227Miss(p),im=safeImg(p.images&&p.images[0]);return `<div class="it"><div class="th">${im?`<img src="${im}" alt="">`:'📦'}</div><div class="in"><b>${esc(String(p.nameAr||'').replace(/^[.\s]+$/,'')||'(بلا اسم)')}</b><small>${esc(p.productCode||p.sku||'')} · ${esc(p.category||'بلا فئة')} · ${money(p.price,p.currency)}</small>${m.length?`<small class="ms">⚠️ ناقصه: ${m.join(' · ')}</small>`:`<small class="ok">✅ كامل — جاهز للإظهار</small>`}</div><div class="bt"><button type="button" class="e" data-action="edit" data-id="${esc(p.id)}" data-pp227go="1">✏️ فتح</button><button type="button" class="s" data-action="toggle-product" data-id="${esc(p.id)}" data-pp227go="1">👁 إظهار</button></div></div>`;}).join(''):`<div class="em">✅ ما في منتجات مخفية هون</div>`)+`</div>`;}
+document.addEventListener('click',e=>{const t=e.target;if(!(t&&t.closest))return;
+  const h=t.closest('[data-pp227]');if(h){e.preventDefault();e.stopImmediatePropagation();pp227Key=h.dataset.pp227||'all';pp227Draw();return;}
+  const o=document.getElementById('pp227');if(!o)return;
+  if(t===o||t.closest('[data-pp227x]')){e.preventDefault();e.stopImmediatePropagation();o.remove();return;}
+  const tb=t.closest('[data-pp227t]');if(tb){e.preventDefault();e.stopImmediatePropagation();pp227Key=tb.dataset.pp227t;pp227Draw();return;}
+  if(t.closest('[data-pp227go]'))setTimeout(()=>{const x=document.getElementById('pp227');if(x)x.remove();},0);},true);
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target&&e.target.dataset&&e.target.dataset.pp227){e.preventDefault();e.target.click();}});
 })();
 
 </script>
