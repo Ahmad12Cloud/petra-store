@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" data-store-theme="light" data-edition="customer" data-demo="false" style="--pp-card-default: #ffffff; --pp-photo-default: #ffffff; --pp-banner-default: #fff8ed; --pp-intro-bg: #fffdfa; --pp-intro-text: #2d2f33; --pp-page-bg: #f9f6ef; --pp-banner-text: #ffffff; --pp29-page-bg: #f9f6ef; --pp29-card-bg: #ffffff; --pp29-photo-bg: #ffffff;"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14213d"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petra Electric"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="color-scheme" content="light">
-<title>Petra Power Energy</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V227">
+<title>Petra Power Energy</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V228">
 <style>
 .pp-sy{display:inline-block;width:1.4em;height:.93em;vertical-align:-.12em;background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDdhM2QiLz48cmVjdCB5PSIxMy4zMyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDAiLz48ZyBmaWxsPSIjY2UxMTI2Ij48cGF0aCBpZD0icyIgZD0iTTAtMS45bC41NiAxLjcyaDEuODFsLTEuNDYgMS4wNi41NiAxLjcyTDAgMS41NGwtMS40NyAxLjA2LjU2LTEuNzItMS40Ni0xLjA2aDEuODF6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4IDEwKSIvPjx1c2UgaHJlZj0iI3MiIHg9IjciLz48dXNlIGhyZWY9IiNzIiB4PSIxNCIvPjwvZz48L3N2Zz4=) center/100% 100% no-repeat;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-style:normal}
 :root{--navy:#14213d;--navy2:#1d3150;--gold:#c9a14a;--goldsoft:#fcf3de;--paper:#f8f7f3;--line:#e3dfd7;--ink:#1a2b44;--mute:#667487;--warn:#a43c36;--white:#fff;--green:#136c48}
@@ -1466,7 +1466,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V227';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V228';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -7000,7 +7000,7 @@ body.pp113-on,body.pp113-on *{user-select:none!important;-webkit-user-select:non
 /* V116: each suggested size chip is a toggle (tap ✓ to remove, tap ＋ to add), saved immediately */
 /* V115: read the amp range from the product name (e.g. "من 6A إلى 125A") and fill the missing standard sizes with one tap */
 try{(function(){
-  const SER=[1,2,3,4,5,6,10,16,20,25,32,40,50,63,80,100,125];
+  const SER=[1,2,3,4,5,6,10,16,20,25,32,40,50,63,80,100,125,160,200,250,315,400,630,800];
   const st=document.createElement('style');st.textContent=`.pp115{margin-top:10px;border:2px solid #c8962e;border-radius:14px;background:#fff8e6;padding:10px 10px 12px;box-shadow:0 2px 10px #c8962e33;direction:rtl;font-family:inherit}
 .pp115 .h{font-weight:800;font-size:14px;color:#5a3b00}.pp115 .h span{background:#f7cf6f;border-radius:8px;padding:1px 8px;direction:ltr;display:inline-block}
 .pp115 .s{font-size:12px;color:#7a6330;margin:4px 0 8px}
@@ -7020,6 +7020,8 @@ try{(function(){
   }
   const key=s=>dig(s).replace(/\s+/g,'').toUpperCase().replace(/أمبير|امبير|آمبير|AMP?S?$/,'A');
   const amp=s=>{const m=key(s).match(/^(\d+(?:\.\d+)?)A$/);return m?+m[1]:null;};
+  /* V228: the «📐 read from name» size helper is for breakers only (its size series stops at 125A) */
+  const pp228Brk=t=>/قاطع|قواطع|ديجونكتور|ديجنتير|mcb|mccb|rcbo|rccb|breaker/i.test(String(t||''));
   function plan(name,have){
     const r=range(name);if(!r)return null;
     const sug=SER.filter(v=>v>=r[0]&&v<=r[1]).map(v=>v+'A');if(!sug.length)return null;
@@ -7041,7 +7043,7 @@ try{(function(){
   function sync(){
     const own=document.getElementById('pp69-own');
     if(own){const p=state.products.find(x=>x.id===own.dataset.id);
-      if(p){const pl=plan(p.nameAr,ppSizes(p))||plan(p.nameEn,ppSizes(p)),sig=pl?JSON.stringify([pl.r,pl.miss,ppSizes(p)]):'';
+      if(p){const pl=pp228Brk((p.category||'')+' '+(p.nameAr||'')+' '+(p.nameEn||''))?(plan(p.nameAr,ppSizes(p))||plan(p.nameEn,ppSizes(p))):null,sig=pl?JSON.stringify([pl.r,pl.miss,ppSizes(p)]):'';
         let b=own.querySelector(':scope > .pp115');const pre=own.querySelector('[data-pp69-preset]');
         if(pre)pre.style.display=pl?'none':'';
         if(!pl){b?.remove();}
@@ -7050,7 +7052,7 @@ try{(function(){
     /* 2) add / edit product form */
     document.querySelectorAll('form textarea[name="sizes"]').forEach(ta=>{
       const f=ta.closest('form'),nm=f&&f.querySelector('[name="nameAr"]'),en=f&&f.querySelector('[name="nameEn"]');if(!f)return;
-      const have=ppParseSizes(ta.value),pl=plan(nm?.value,have)||plan(en?.value,have),sig=pl?JSON.stringify([pl.r,pl.miss,have]):'';
+      const have=ppParseSizes(ta.value),ct=f.querySelector('[name="category"]'),pl=pp228Brk((ct?.value||'')+' '+(nm?.value||'')+' '+(en?.value||''))?(plan(nm?.value,have)||plan(en?.value,have)):null,sig=pl?JSON.stringify([pl.r,pl.miss,have]):'';
       const anchor=f.querySelector('.pp69-form')||ta;let b=f.querySelector('.pp115');
       const pre=f.querySelector('[data-action="pp64-breaker"]');if(pre)pre.style.display=pl?'none':'';
       if(!pl){b?.remove();return;}
