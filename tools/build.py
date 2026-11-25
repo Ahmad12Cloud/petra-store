@@ -322,7 +322,7 @@ a{color:inherit;text-decoration:none}.top{background:#000;display:flex;align-ite
 .lc .ic{font-size:26px}.lc b{display:block;font-size:15px}.lc span{font-size:13px;color:#555;direction:ltr;display:inline-block}
 .more{text-align:center;margin:14px 0 4px}.go{display:inline-flex;gap:6px;background:#fff8e6;border:1px solid #efd9a0;border-radius:22px;padding:7px 16px;font-size:14px;font-weight:700;color:#6b4e00}
 details{margin-top:12px;background:#faf6ea;border-radius:12px;padding:8px 12px;font-size:13.5px}summary{font-weight:800;cursor:pointer}
-.soc{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}.soc a{background:#fff;border-radius:16px;padding:10px 12px;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;align-items:center;gap:10px;min-width:0}
+.soc{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}.soc a{background:#fff;border-radius:16px;padding:10px 12px;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;align-items:center;gap:10px;min-width:0}
 .soc svg{width:38px;height:38px;border-radius:50%;padding:7px;flex:none}.soc b{display:block;font-size:15px;line-height:1.3}.soc small{display:block;color:#777;font-size:11px;direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 footer{background:#000;color:#bbb;text-align:center;font-size:12.5px;padding:18px 10px;margin-top:20px}footer b{color:#d4af37}"""
 
@@ -456,8 +456,8 @@ if(s||h||a)location.replace("/shop/"+s+h);}})();
            ld=ldj, font=FONT_CSS, css=HOME_CSS, wa="".join(wa), cats=cat_html,
            newsec=('<h2>وصل حديثاً</h2><div class="pr">%s</div>' % new_html) if new_html else "",
            lb=html.escape(lb), sy=html.escape(sy),
-           social="".join('<a href="%s" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" style="background:%s" aria-hidden="true">%s</svg><span><b>%s</b><small>%s</small></span></a>' % (
-               html.escape(u), bg, ic, n, html.escape(h)) for n, u, h, bg, ic in SOCIAL))
+           social="".join('<a href="%s" target="_blank" rel="noopener" aria-label="%s"><svg viewBox="0 0 24 24" style="background:%s" aria-hidden="true">%s</svg><b>%s</b></a>' % (
+               html.escape(u), n, bg, ic, n) for n, u, h, bg, ic in SOCIAL))
     with open(os.path.join(ROOT, "index.html"), "w", encoding="utf-8") as f:
         f.write(page)
 
