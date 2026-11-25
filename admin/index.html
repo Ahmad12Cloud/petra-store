@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" data-store-theme="light" data-edition="manager" data-demo="false" style="--pp-card-default: #ffffff; --pp-photo-default: #ffffff; --pp-banner-default: #fff8ed; --pp-intro-bg: #fffdfa; --pp-intro-text: #2d2f33; --pp-page-bg: #f9f6ef; --pp-banner-text: #ffffff; --pp29-page-bg: #f9f6ef; --pp29-card-bg: #ffffff; --pp29-photo-bg: #ffffff;"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1b1b1f"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petra Admin"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="color-scheme" content="light">
-<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V233">
+<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V234">
 <style>
 .pp-sy{display:inline-block;width:1.4em;height:.93em;vertical-align:-.12em;background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDdhM2QiLz48cmVjdCB5PSIxMy4zMyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDAiLz48ZyBmaWxsPSIjY2UxMTI2Ij48cGF0aCBpZD0icyIgZD0iTTAtMS45bC41NiAxLjcyaDEuODFsLTEuNDYgMS4wNi41NiAxLjcyTDAgMS41NGwtMS40NyAxLjA2LjU2LTEuNzItMS40Ni0xLjA2aDEuODF6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4IDEwKSIvPjx1c2UgaHJlZj0iI3MiIHg9IjciLz48dXNlIGhyZWY9IiNzIiB4PSIxNCIvPjwvZz48L3N2Zz4=) center/100% 100% no-repeat;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-style:normal}
 :root{--navy:#14213d;--navy2:#1d3150;--gold:#c9a14a;--goldsoft:#fcf3de;--paper:#f8f7f3;--line:#e3dfd7;--ink:#1a2b44;--mute:#667487;--warn:#a43c36;--white:#fff;--green:#136c48}
@@ -1466,7 +1466,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V233';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V234';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -5040,6 +5040,7 @@ document.addEventListener('change',async e=>{
     if(!v||cats.includes(v)){note(!v?'الاسم فاضي':'يوجد قسم بنفس الاسم');t.value=old;return;}
     cats[i]=v;state.settings.pp183HiddenCats=pp183Hidden(state).map(x=>x===old?v:x);if(state.settings.catEn[old]){state.settings.catEn[v]=state.settings.catEn[old];delete state.settings.catEn[old];}
     state.products.forEach(p=>{if(p.category===old)p.category=v;});(state.settings.homeSections||[]).forEach(s=>{if(s.category===old)s.category=v;});
+    try{state.settings.pp232Groups=pp232Groups().map(g=>Object.assign({},g,{cats:g.cats.map(x=>x===old?v:x)}));}catch(_){}try{(state.settings.pp139Depts||[]).forEach(d=>{if(Array.isArray(d.cats))d.cats=d.cats.map(x=>x===old?v:x);});}catch(_){}
     await ppCatsCommit('✓ تم تغيير الاسم وتحديث منتجات القسم');}
 },true);
 
@@ -9027,7 +9028,7 @@ let pp232Draft=null;
 function pp232EdDraw(){let o=document.getElementById('pp232ed');if(!o){o=document.createElement('div');o.id='pp232ed';document.body.appendChild(o);}
   const all=allCategories(),gs=pp232Draft;const where=c=>{const g=gs.find(x=>x.cats.includes(c));return g?g.id:'';};
   o.innerHTML=`<h2>🗂 ${T('الأقسام الرئيسية','Main sections')}</h2><p class="hint">كل قسم رئيسي بيفتح الأقسام اللي جوّاته. غيّر الأسماء، رتّب بالأسهم، واختار لكل قسم فرعي تحت أي قسم رئيسي بيكون. القسم اللي ما إلو قسم رئيسي بيبيّن لحاله. القسم الفاضي ما بيبيّن للزبون.</p>
-  ${gs.map((g,i)=>`<div class="g"><input data-pp232f="name" data-i="${i}" value="${esc(g.name)}" placeholder="الاسم بالعربي"><input data-pp232f="nameEn" data-i="${i}" value="${esc(g.nameEn||'')}" placeholder="English name" dir="ltr"><div class="ctl"><button type="button" data-pp232e="up" data-i="${i}">▲</button><button type="button" data-pp232e="down" data-i="${i}">▼</button><button type="button" class="del" data-pp232e="del" data-i="${i}">🗑 حذف القسم الرئيسي</button></div><div style="font-size:12.5px;margin-top:6px;color:#6b5b45">${g.cats.filter(c=>all.includes(c)).map(c=>esc(c)).join(' · ')||'— فاضي —'}</div></div>`).join('')}
+  ${gs.map((g,i)=>`<div class="g"><input data-pp232f="name" data-i="${i}" value="${esc(g.name)}" placeholder="الاسم بالعربي"><input data-pp232f="nameEn" data-i="${i}" value="${esc(g.nameEn||'')}" placeholder="English name" dir="ltr"><div class="ctl"><button type="button" data-pp232e="up" data-i="${i}">▲</button><button type="button" data-pp232e="down" data-i="${i}">▼</button><button type="button" class="del" data-pp232e="del" data-i="${i}">🗑 حذف القسم الرئيسي</button></div><div class="ctl" style="margin-top:6px"><input data-pp232new="${i}" placeholder="اسم قسم فرعي جديد جوّا هالقسم" style="flex:1;margin:0"><button type="button" data-pp232e="addsub" data-i="${i}" style="font-weight:800">＋ زيد هون</button></div><div style="font-size:12.5px;margin-top:6px;color:#6b5b45">${g.cats.filter(c=>all.includes(c)).map(c=>esc(c)).join(' · ')||'— فاضي —'}</div></div>`).join('')}
   <button type="button" data-pp232e="add" style="width:100%;font-weight:800;background:#f3bc4f">＋ قسم رئيسي جديد</button>
   <h2 style="margin-top:16px">${T('وين بينحط كل قسم','Sub-sections')}</h2>${all.map(c=>`<div class="c"><b style="font-size:14px">${esc(c)}</b><select data-pp232c="${esc(c)}"><option value="">— لحاله (بدون قسم رئيسي) —</option>${gs.map(g=>`<option value="${esc(g.id)}" ${where(c)===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></div>`).join('')}
   <div class="bar"><button type="button" class="ok" data-pp232e="save">✅ حفظ</button><button type="button" data-pp232e="close">إلغاء</button></div>`;}
@@ -9044,8 +9045,9 @@ document.addEventListener('click',async e=>{const b=e.target&&e.target.closest&&
   if(x==='up'&&i>0){[pp232Draft[i-1],pp232Draft[i]]=[pp232Draft[i],pp232Draft[i-1]];}
   if(x==='down'&&i<pp232Draft.length-1){[pp232Draft[i+1],pp232Draft[i]]=[pp232Draft[i],pp232Draft[i+1]];}
   if(x==='del'){if(!confirm('حذف القسم الرئيسي؟ الأقسام اللي جوّاته بيرجعوا يبيّنوا لحالهن، وما بينمحى أي منتج.'))return;pp232Draft.splice(i,1);}
+  if(x==='addsub'){const inp=document.querySelector('#pp232ed [data-pp232new="'+i+'"]'),v=(inp&&inp.value||'').trim();if(!v)return;if(allCategories().includes(v)||pp232Draft.some(g=>g.cats.includes(v))){note('هذا القسم موجود');return;}pp232Draft[i].cats.push(v);note('✓ انزاد «'+v+'» – اكبس حفظ');}
   if(x==='add'){pp232Draft.push({id:'g'+Date.now().toString(36),name:'قسم رئيسي جديد',nameEn:'',cats:[]});}
-  if(x==='save'){if(pp232Draft.some(g=>!g.name)){note('اكتب اسم لكل قسم رئيسي');return;}state.settings.pp232Groups=pp232Draft;pp232Draft=null;document.getElementById('pp232ed')?.remove();await changed();start();note('✅ انحفظت الأقسام الرئيسية');return;}
+  if(x==='save'){if(pp232Draft.some(g=>!g.name)){note('اكتب اسم لكل قسم رئيسي');return;}const cl=state.settings.categories||(state.settings.categories=[]);pp232Draft.forEach(g=>g.cats.forEach(c=>{if(!allCategories().includes(c)&&!cl.includes(c))cl.push(c);}));state.settings.pp232Groups=pp232Draft;pp232Draft=null;document.getElementById('pp232ed')?.remove();await changed();start();note('✅ انحفظت الأقسام الرئيسية');return;}
   pp232EdDraw();
   }catch(err){note('صار خطأ: '+(err&&err.message||err));}
 },true);
