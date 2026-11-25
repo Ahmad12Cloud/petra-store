@@ -39,7 +39,7 @@ def products():
     while True:
         rows = sb("products?select=code,name_ar,name_en,description_ar,description_en,images,active,price,"
                   "category_name,updated_at,extra->priceMax,extra->sizes,extra->sizePrices,extra->sizeLabel,"
-                  "extra->department&active=eq.true&order=code.asc&limit=1000&offset=%d" % off)
+                  "extra->department,created_at&active=eq.true&order=code.asc&limit=1000&offset=%d" % off)
         out += rows
         if len(rows) < 1000:
             return out
@@ -281,6 +281,168 @@ def build_page(p, by_cat, contact_list):
                        body=desc_html(p.get("description_ar") or ""), gallery=gal, endesc=endesc, related=related)
 
 
+# ---------------------------------------------------------------- home page (/)
+# Real landing page for Google (was an instant redirect to /shop/).
+# Font: Noto Sans Arabic, self-hosted in /fonts (SIL OFL), so every phone shows the same letters.
+AR_RANGE = "U+0600-06FF,U+0750-077F,U+0870-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F"
+LA_RANGE = "U+0000-00FF,U+2010-2027,U+20AC"
+FONT_CSS = "".join(
+    "@font-face{font-family:'PE Sans';src:url('/fonts/noto-sans-arabic-%s-%d-normal.woff2') format('woff2');"
+    "font-weight:%d;font-display:swap;unicode-range:%s}" % (sub, w, w, rng)
+    for w in (400, 700, 800) for sub, rng in (("arabic", AR_RANGE), ("latin", LA_RANGE)))
+
+WA_SVG = ('<svg viewBox="0 0 32 32" width="18" height="18" aria-hidden="true"><path fill="#25D366" d="M16 3C8.8 3 3 8.7 3 15.8c0 2.5.7 4.9 2 7L3 29l6.4-2c2 1.1 4.3 1.7 6.6 1.7 7.2 0 13-5.7 13-12.8S23.2 3 16 3z"/>'
+          '<path fill="#fff" d="M23.3 19.2c-.4-.2-2.3-1.1-2.6-1.2-.4-.1-.6-.2-.9.2-.3.4-1 1.2-1.2 1.4-.2.2-.4.3-.8.1-.4-.2-1.6-.6-3-1.9-1.1-1-1.9-2.2-2.1-2.6-.2-.4 0-.6.2-.8l.6-.7c.2-.2.3-.4.4-.7.1-.3 0-.5 0-.7l-1.2-2.8c-.3-.7-.6-.6-.9-.6h-.7c-.3 0-.7.1-1 .5-.4.4-1.4 1.3-1.4 3.2s1.4 3.7 1.6 4c.2.3 2.8 4.2 6.7 5.9 2.5 1 3.4 1.1 4.6.9.7-.1 2.3-.9 2.6-1.8.3-.9.3-1.7.2-1.8-.1-.2-.4-.3-.8-.5z"/></svg>')
+
+HOME_CSS = """*{box-sizing:border-box}body{margin:0;font-family:'PE Sans',Tahoma,Arial,sans-serif;background:#f6f2e8;color:#1b1b1b;line-height:1.7}
+a{color:inherit;text-decoration:none}.top{background:#000;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;position:sticky;top:0;z-index:2}
+.brand{display:flex;align-items:center;gap:8px}.brand img{width:43px;height:43px}
+.bl{display:flex;flex-direction:column;align-items:center;font-family:Arial,sans-serif;font-weight:800;color:#d4af37;text-transform:uppercase;line-height:1.15}.bl .l1{font-size:16px}.bl .l2{font-size:12px}
+.all{background:linear-gradient(#ffd34d,#f29a10);color:#141414;font-weight:800;border-radius:12px;padding:7px 12px;font-size:14px}
+.hero{background:linear-gradient(160deg,#111 0%,#1d1a12 60%,#3a2c08 100%);color:#fff;padding:22px 16px 20px;text-align:center}
+.hero .lg{width:84px;height:84px}.hero h1{font-size:21px;line-height:1.5;margin:8px 0 6px;color:#fff;font-weight:800}.hero h1 em{font-style:normal;color:#f5c23e}
+.hero p{font-size:14px;color:#ddd;margin:0 auto 14px;max-width:560px}
+.cta{display:inline-block;background:linear-gradient(#ffd34d,#f29a10);color:#141414;font-weight:800;border-radius:24px;padding:10px 26px;font-size:16px}
+.warow{display:flex;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.wa{display:inline-flex;align-items:center;gap:5px;background:#f0f9f3;border:1px solid #d6eedf;border-radius:20px;padding:5px 12px;font-size:14px;font-weight:700;color:#2c6b45;white-space:nowrap}
+.chips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:14px}.chips span{border:1px solid #6b5520;color:#f0d68a;border-radius:16px;padding:2px 10px;font-size:12px}
+.br{margin-top:12px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;align-items:center;font-size:13px}.br b{color:#f5c23e;width:100%}
+.br span{background:rgba(255,255,255,.08);border:1px solid #6b5520;color:#fff;border-radius:16px;padding:3px 12px}
+.wrap{max-width:760px;margin:0 auto;padding:4px 12px 10px}h2{font-size:19px;margin:20px 2px 10px;display:flex;align-items:center;gap:8px}h2:before{content:"";width:5px;height:20px;background:#f29a10;border-radius:3px}
+.cats,.pr{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.ct{background:#fff;border-radius:16px;padding:8px;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;flex-direction:column;text-align:center}
+.ct img,.pc img{width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;border-radius:12px}.ct b{font-size:13px;line-height:1.45;margin-top:4px;min-height:38px}.ct span{font-size:12px;color:#a06a00;font-weight:700}
+.box{background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,.07);font-size:14.5px}.box p{margin:0 0 8px}
+.sv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}.sv div{background:#faf6ea;border-radius:12px;padding:8px;font-size:13px;font-weight:700;text-align:center}
+.sv div small{display:block;font-weight:400;color:#777;font-size:11.5px;direction:ltr}
+.pc{background:#fff;border-radius:16px;padding:8px;box-shadow:0 2px 8px rgba(0,0,0,.07);font-size:12.5px;display:flex;flex-direction:column}
+.pc b{line-height:1.45;min-height:38px;font-size:13.5px}.pc small{display:block;color:#666;font-size:11.5px;line-height:1.4;min-height:32px;text-align:left}
+.pc i{font-style:normal;color:#e07b00;font-weight:800;font-size:17px;direction:ltr;unicode-bidi:isolate;margin-top:auto}
+.loc{display:grid;gap:10px}.lc{background:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;gap:10px;align-items:center}
+.lc .ic{font-size:26px}.lc b{display:block;font-size:15px}.lc span{font-size:13px;color:#555;direction:ltr;display:inline-block}
+.more{text-align:center;margin:14px 0 4px}.go{display:inline-flex;gap:6px;background:#fff8e6;border:1px solid #efd9a0;border-radius:22px;padding:7px 16px;font-size:14px;font-weight:700;color:#6b4e00}
+details{margin-top:12px;background:#faf6ea;border-radius:12px;padding:8px 12px;font-size:13.5px}summary{font-weight:800;cursor:pointer}
+footer{background:#000;color:#bbb;text-align:center;font-size:12.5px;padding:18px 10px;margin-top:20px}footer b{color:#d4af37}"""
+
+
+def arabic_count(n):
+    if n == 1:
+        return "منتج واحد"
+    if n == 2:
+        return "منتجان"
+    return ("%d منتجات" % n) if n <= 10 else ("%d منتجاً" % n)
+
+
+def phone_for(contact_list, cc, fallback):
+    for c in contact_list:
+        num = re.sub(r"\D", "", c.get("phone") or "")
+        if num.startswith(cc) and (c.get("where") or {}).get("elec"):
+            return c.get("phone").strip()
+    return fallback
+
+
+def build_home(rows, contact_list):
+    elec = [p for p in rows if not is_ac(p)]
+    # categories in store order of first appearance, with one picture each
+    cats = {}
+    for p in elec:
+        c = p.get("category_name") or ""
+        if c:
+            cats.setdefault(c, []).append(p)
+    cat_html = "".join(
+        '<a class="ct" href="%s"><img src="%s" alt="%s" width="300" height="300" loading="lazy"><b>%s</b><span>%s</span></a>' % (
+            html.escape(STORE), html.escape(thumb_or_full(imgs_of(ps[0])[0]) if imgs_of(ps[0]) else LOGO),
+            html.escape(c), html.escape(c), arabic_count(len(ps)))
+        for c, ps in cats.items())
+    # newest 4 priced products
+    new = sorted([p for p in elec if money(p.get("price")) and imgs_of(p)],
+                 key=lambda p: p.get("created_at") or "", reverse=True)[:4]
+
+    def pcard(p):
+        name = clean(p.get("name_ar") or p["code"], 140)
+        a, _, b = name.partition(" – ")
+        return '<a class="pc" href="/p/%s/"><img src="%s" alt="%s" width="300" height="300" loading="lazy"><b>%s</b><small dir="ltr">%s</small><i>%s $</i></a>' % (
+            html.escape(p["code"]), html.escape(thumb_or_full(imgs_of(p)[0])), html.escape(name),
+            html.escape(a), html.escape(b), money(p.get("price")))
+    new_html = "".join(pcard(p) for p in new)
+    # WhatsApp (same main numbers as the product pages)
+    msg = urllib.parse.quote("مرحبا، بدي استفسر عن منتجاتكم\n" + SITE + "/")
+    wa = []
+    for c in contact_list:
+        if not (c.get("where") or {}).get("elec"):
+            continue
+        num = re.sub(r"\D", "", c.get("phone") or "")
+        if num:
+            label = re.sub(r"^(فرع|قسم)\s+", "", no_flags(c.get("name") or ""))
+            wa.append('<a class="wa" href="https://wa.me/%s?text=%s">%s %s</a>' % (num, msg, WA_SVG, html.escape(label)))
+    lb = phone_for(contact_list, "961", "+961 76 685 783")
+    sy = phone_for(contact_list, "963", "+963 957 320 372")
+    title = "Petra Power Energy – معدات كهربائية وطاقة شمسية في بيروت، لبنان وسوريا"
+    desc = ("متجر Petra Power Energy للمعدات الكهربائية والطاقة الشمسية في بيروت – لبنان ودمشق – سوريا: "
+            "قواطع MCB و MCCB، كونتاكتورات، ATS، حمايات فولتاج وفازات، أيزوليتر DC وأجهزة قياس، مع طلب مباشر عبر واتساب.")
+    ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": BRAND, "url": SITE + "/", "inLanguage": ["ar", "en"]},
+          {"@context": "https://schema.org", "@type": "Store", "name": BRAND, "alternateName": "Petra Power",
+           "url": SITE + "/", "logo": LOGO, "image": LOGO, "description": desc, "telephone": lb,
+           "address": {"@type": "PostalAddress", "addressLocality": "Beirut", "addressCountry": "LB"},
+           "areaServed": [{"@type": "Country", "name": "Lebanon"}, {"@type": "Country", "name": "Syria"}],
+           "department": [{"@type": "Store", "name": BRAND + " – Damascus", "telephone": sy,
+                           "address": {"@type": "PostalAddress", "addressLocality": "Damascus – Al-Qazzaz", "addressCountry": "SY"}}],
+           "knowsAbout": ["Solar energy", "On-Grid", "Off-Grid", "Control panels", "Fuel Save", "MCB", "MCCB", "ATS", "Contactor"]}]
+    ldj = json.dumps(ld, ensure_ascii=False).replace("</", "<\\/")
+    page = """<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{title}</title>
+<meta name="description" content="{desc}">
+<meta name="theme-color" content="#000000">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{brand}">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{desc}">
+<meta property="og:image" content="{logo}">
+<meta property="og:url" content="{site}/">
+<link rel="canonical" href="{site}/">
+<link rel="icon" href="/icon-192.png">
+<link rel="preload" href="/fonts/noto-sans-arabic-arabic-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<script>
+/* old links (?p=CODE, #...) and the installed app still open the store directly */
+(function(){{var s=location.search,h=location.hash,a=false;try{{a=matchMedia("(display-mode: standalone)").matches||navigator.standalone;}}catch(e){{}}
+if(s||h||a)location.replace("/shop/"+s+h);}})();
+</script>
+<script type="application/ld+json">{ld}</script>
+<style>{font}{css}</style>
+</head><body>
+<header class="top"><a class="brand" href="/" aria-label="{brand}"><img src="/pe-logo.webp" alt="{brand}" width="43" height="43"><span class="bl"><span class="l1">Petrapower</span><span class="l2">Energy</span></span></a><a class="all" href="{store}">🛒 كل المنتجات</a></header>
+<section class="hero"><img class="lg" src="/pe-logo.webp" alt="{brand}" width="84" height="84">
+<h1>Petra Power Energy<br><em>معدات كهربائية وطاقة شمسية</em><br>في بيروت – لبنان وسوريا</h1>
+<p>قواطع MCB و MCCB، كونتاكتورات، ATS، حمايات فولتاج وفازات، أيزوليتر DC وأجهزة قياس — أسعار واضحة وطلب مباشر عبر واتساب.</p>
+<a class="cta" href="{store}">🛒 ادخل المتجر</a>
+<div class="warow">{wa}</div>
+<div class="chips"><span>⚡ منتجات أصلية</span><span>☀️ طاقة شمسية · خبرة طويلة في مجال العمل</span></div>
+<div class="br"><b>📍 فروعنا</b><span>لبنان – بيروت</span><span>سوريا – دمشق – القزاز</span></div>
+</section>
+<main class="wrap">
+<h2>الأقسام</h2><div class="cats">{cats}</div>
+<h2>مين نحنا</h2>
+<div class="box"><p><b>Petra Power Energy</b> شركة هندسية مقرّها بيروت، لها خبرة طويلة في مشاريع الطاقة الشمسية في لبنان وسوريا، وتوفّر المعدات الكهربائية التي تستخدمها في مشاريعها لكل فنّي وصاحب مشروع.</p>
+<div class="sv"><div>☀️ تصميم وتنفيذ أنظمة شمسية<small>On-Grid · Off-Grid</small></div><div>🎛️ تابلوهات تحكّم<small>Control Panels</small></div><div>⛽ توفير وقود المولدات<small>Fuel Save</small></div><div>🔌 معدات كهربائية أصلية<small>MCB · MCCB · ATS</small></div></div></div>
+{newsec}
+<div class="more"><a class="go" href="{store}">🛒 اكتشف منتجات أكثر</a></div>
+<h2>وين نحنا</h2>
+<div class="loc"><div class="lc"><span class="ic">📍</span><div><b>بيروت – لبنان</b><span>{lb}</span></div></div>
+<div class="lc"><span class="ic">📍</span><div><b>دمشق – القزاز – سوريا</b><span>{sy}</span></div></div></div>
+<details open dir="ltr"><summary>English</summary>Petra Power Energy – electrical equipment &amp; solar energy store in Beirut, Lebanon and Syria: MCB &amp; MCCB breakers, contactors, ATS, voltage &amp; phase protection, DC isolators and meters. Order directly on WhatsApp.</details>
+</main>
+<footer><b>{brand}</b><br>بيروت – لبنان · دمشق – سوريا<br><a href="{store}">petrapowerstore.com</a></footer>
+</body></html>
+""".format(title=html.escape(title), desc=html.escape(desc), brand=BRAND, logo=LOGO, site=SITE, store=html.escape(STORE),
+           ld=ldj, font=FONT_CSS, css=HOME_CSS, wa="".join(wa), cats=cat_html,
+           newsec=('<h2>وصل حديثاً</h2><div class="pr">%s</div>' % new_html) if new_html else "",
+           lb=html.escape(lb), sy=html.escape(sy))
+    with open(os.path.join(ROOT, "index.html"), "w", encoding="utf-8") as f:
+        f.write(page)
+
+
 def main():
     rows = [p for p in products() if re.fullmatch(r"[A-Za-z0-9_-]{2,40}", (p.get("code") or "").strip())]
     for p in rows:
@@ -304,7 +466,8 @@ def main():
     sm.append("</urlset>")
     with open(os.path.join(ROOT, "sitemap.xml"), "w", encoding="utf-8") as f:
         f.write("\n".join(sm) + "\n")
-    print("built", len(rows), "product pages + sitemap")
+    build_home(rows, contact_list)
+    print("built", len(rows), "product pages + home + sitemap")
 
 
 if __name__ == "__main__":
