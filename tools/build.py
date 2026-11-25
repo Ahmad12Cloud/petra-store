@@ -334,13 +334,13 @@ a{color:inherit;text-decoration:none}.top{background:#000;display:flex;align-ite
 .br span{background:rgba(255,255,255,.08);border:1px solid #6b5520;color:#fff;border-radius:16px;padding:3px 12px}
 .wrap{max-width:760px;margin:0 auto;padding:4px 12px 10px}h2{font-size:19px;margin:20px 2px 10px;display:flex;align-items:center;gap:8px}h2:before{content:"";width:5px;height:20px;background:#f29a10;border-radius:3px}
 .pr{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
-.hint{margin:-4px 2px 10px;color:#9a7b3c;font-size:12.5px;font-weight:700}
-.cats{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.cats::-webkit-scrollbar{display:none}
-.ct{flex:0 0 78%;max-width:300px;scroll-snap-align:start;background:#fff;border-radius:20px;padding:10px 10px 14px;box-shadow:0 2px 10px rgba(0,0,0,.07);display:flex;flex-direction:column;text-align:center}
-.ct img,.pc img{width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;border-radius:12px}.ct b{font-size:19px;line-height:1.45;margin:8px 0 6px;font-weight:800}
-.sc{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.sc i{font-style:normal;border:1.5px solid #e8c77a;background:#fffaf0;color:#6b4e12;border-radius:999px;padding:2px 10px;font-size:12.5px;font-weight:700}
-.ct:last-child{scroll-snap-align:end}.ct>span{font-size:15px;color:#c08413;font-weight:800;margin:8px 0 8px}.ct>u{text-decoration:none;margin-top:auto;border:1.6px solid #e0a62a;border-radius:999px;padding:5px;font-weight:700;font-size:14px;color:#6b4e12}
-.dots{display:flex;gap:6px;justify-content:center;margin:6px 0 2px}.dots i{width:7px;height:7px;border-radius:9px;background:#d8cdb6;transition:width .2s}.dots i.on{width:22px;background:#f2a417}
+.cats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ct{background:#fff;border-radius:14px;padding:5px 5px 7px;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;flex-direction:column;text-align:center}
+.ct img,.pc img{width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;border-radius:10px}.ct b{font-size:11px;line-height:1.4;margin-top:5px;font-weight:800;min-height:31px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.ct span{font-size:10.5px;color:#a06a00;font-weight:700;margin-top:auto}
+.sh{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 8px}.sh h3{margin:0;font-size:17px;font-weight:800;display:flex;align-items:center;gap:7px}.sh h3:before{content:"";width:4px;height:17px;background:#f29a10;border-radius:3px}
+.sh a{font-size:13px;font-weight:700;color:#a06a00;white-space:nowrap}
+.p3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.p3 .pc{min-width:0;padding:5px 5px 7px;border-radius:12px}.p3 .pc b{font-size:11.5px;min-height:34px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.p3 .pc small{min-height:0;font-size:10.5px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:1px 0 3px}.p3 .pc i{font-size:14px}
+@media(min-width:600px){.cats{grid-template-columns:repeat(6,minmax(0,1fr))}.p3{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .box{background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,.07);font-size:14.5px}.box p{margin:0 0 8px}
 .sv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}.sv div{background:#faf6ea;border-radius:12px;padding:8px;font-size:13px;font-weight:700;text-align:center}
 .sv div small{display:block;font-weight:400;color:#777;font-size:11.5px;direction:ltr}
@@ -395,22 +395,24 @@ def build_home(rows, contact_list):
             cats.setdefault(c, []).append(p)
     tiles, used = [], set()
 
-    def short(c):
-        # short chip label for a sub-section: drop (...), keep the Latin type (MCB – AC) or the Arabic head
-        c = re.sub(r"\s*\([^)]*\)", "", c).strip()
-        head, _, tail = c.partition(" – ")
-        m = re.search(r"[A-Za-z][A-Za-z0-9 ]*$", head)
-        if m and tail and re.fullmatch(r"[A-Za-z0-9 /_]+", tail):
-            return m.group(0).strip() + " – " + tail.strip()
-        return head.strip()
-
     def tile(name, ps, subs):
         img = next((imgs_of(p)[0] for p in ps if imgs_of(p)), None)
-        sub = ('<div class="sc">%s</div>' % "".join('<i title="%s">%s</i>' % (html.escape(x), html.escape(short(x))) for x in subs)) if len(subs) > 1 else ""
-        cnt = ("%s · %s" % ({2: "قسمين"}.get(len(subs), "%d أقسام" % len(subs)), arabic_count(len(ps)))) if len(subs) > 1 else arabic_count(len(ps))
         alt = name + ((" – " + " · ".join(subs)) if len(subs) > 1 else "")
-        return '<a class="ct" href="%s"><img src="%s" alt="%s" width="300" height="300" loading="lazy"><b>%s</b>%s<span>%s</span><u>تصفّح القسم ←</u></a>' % (
-            html.escape(STORE), html.escape(thumb_or_full(img) if img else LOGO), html.escape(alt), html.escape(name), sub, cnt)
+        return '<a class="ct" href="%s"><img src="%s" alt="%s" width="150" height="150" loading="lazy"><b>%s</b><span>%s</span></a>' % (
+            html.escape(STORE), html.escape(thumb_or_full(img) if img else LOGO), html.escape(alt), html.escape(name), arabic_count(len(ps)))
+
+    def mini(p):
+        name = clean(p.get("name_ar") or p["code"], 140)
+        a, _, b = name.partition(" – ")
+        return '<a class="pc" href="/p/%s/"><img src="%s" alt="%s" width="150" height="150" loading="lazy"><b>%s</b><small dir="ltr">%s</small><i>%s $</i></a>' % (
+            html.escape(p["code"]), html.escape(thumb_or_full(imgs_of(p)[0])), html.escape(name), html.escape(a), html.escape(b or p["code"]), money(p.get("price")))
+    secs = []
+
+    def section(name, ps):
+        ps = sorted([p for p in ps if money(p.get("price")) and imgs_of(p)], key=lambda p: p.get("code") or "")
+        if ps:
+            secs.append('<div class="sh"><h3>%s</h3><a href="%s">عرض الكل ←</a></div><div class="p3">%s</div>' % (
+                html.escape(name), html.escape(STORE), "".join(mini(p) for p in ps[:12])))
     for gname, gcats in groups():
         subs = [c for c in gcats if c in cats]
         used.update(subs)
@@ -418,9 +420,11 @@ def build_home(rows, contact_list):
             continue
         ps = [p for c in subs for p in cats[c]]
         tiles.append(tile(gname if len(subs) > 1 else subs[0], ps, subs))
+        section(gname if len(subs) > 1 else subs[0], ps)
     for c, ps in cats.items():
         if c not in used:
             tiles.append(tile(c, ps, [c]))
+            section(c, ps)
     cat_html = "".join(tiles)
     # newest 4 priced products
     new = sorted([p for p in elec if money(p.get("price")) and imgs_of(p)],
@@ -491,8 +495,8 @@ if(s||h||a)location.replace("/shop/"+s+h);}})();
 <div class="br"><b>📍 فروعنا</b><span>لبنان – بيروت</span><span>سوريا – دمشق – القزاز</span></div>
 </section>
 <main class="wrap">
-<h2>الأقسام</h2><div class="hint">اسحب لتشوف باقي الأقسام ←</div><div class="cats" id="cats">{cats}</div><div class="dots" id="dots"></div>
-<script>(function(){{var c=document.getElementById("cats"),d=document.getElementById("dots");if(!c||!d)return;var n=c.children.length,h="";for(var i=0;i<n;i++)h+="<i></i>";d.innerHTML=h;function u(){{var w=c.children[0]?c.children[0].offsetWidth+12:1,k=Math.round(Math.abs(c.scrollLeft)/w);if(Math.abs(c.scrollLeft)>=c.scrollWidth-c.clientWidth-4)k=n-1;if(k>n-1)k=n-1;for(var j=0;j<n;j++)d.children[j].className=j==k?"on":"";}}c.addEventListener("scroll",u,{{passive:true}});u();}})();</script>
+<h2>الأقسام</h2><div class="cats">{cats}</div>
+{secs}
 <h2>مين نحنا</h2>
 <div class="box"><p><b>Petra Power Energy</b> شركة هندسية مقرّها بيروت، لها خبرة طويلة في مشاريع الطاقة الشمسية في لبنان وسوريا، وتوفّر المعدات الكهربائية التي تستخدمها في مشاريعها لكل فنّي وصاحب مشروع.</p>
 <div class="sv"><div>☀️ تصميم وتنفيذ أنظمة شمسية<small>On-Grid · Off-Grid</small></div><div>🎛️ تابلوهات تحكّم<small>Control Panels</small></div><div>⛽ توفير وقود المولدات<small>Fuel Save</small></div><div>🔌 معدات كهربائية أصلية<small>MCB · MCCB · ATS</small></div></div></div>
@@ -507,7 +511,7 @@ if(s||h||a)location.replace("/shop/"+s+h);}})();
 <footer><b>{brand}</b><br>بيروت – لبنان · دمشق – سوريا<br><a href="{store}">petrapowerstore.com</a></footer>
 </body></html>
 """.format(title=html.escape(title), desc=html.escape(desc), brand=BRAND, logo=LOGO, site=SITE, store=html.escape(STORE),
-           ld=ldj, font=FONT_CSS, css=HOME_CSS, wa="".join(wa), cats=cat_html,
+           ld=ldj, font=FONT_CSS, css=HOME_CSS, wa="".join(wa), cats=cat_html, secs="".join(secs),
            newsec=('<h2>وصل حديثاً</h2><div class="pr">%s</div>' % new_html) if new_html else "",
            lb=html.escape(lb), sy=html.escape(sy),
            social="".join('<a href="%s" target="_blank" rel="noopener" aria-label="%s"><svg viewBox="0 0 24 24" style="background:%s" aria-hidden="true">%s</svg><b>%s</b></a>' % (
