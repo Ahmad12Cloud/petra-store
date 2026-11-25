@@ -322,7 +322,22 @@ a{color:inherit;text-decoration:none}.top{background:#000;display:flex;align-ite
 .lc .ic{font-size:26px}.lc b{display:block;font-size:15px}.lc span{font-size:13px;color:#555;direction:ltr;display:inline-block}
 .more{text-align:center;margin:14px 0 4px}.go{display:inline-flex;gap:6px;background:#fff8e6;border:1px solid #efd9a0;border-radius:22px;padding:7px 16px;font-size:14px;font-weight:700;color:#6b4e00}
 details{margin-top:12px;background:#faf6ea;border-radius:12px;padding:8px 12px;font-size:13.5px}summary{font-weight:800;cursor:pointer}
+.soc{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}.soc a{background:#fff;border-radius:16px;padding:10px 12px;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;align-items:center;gap:10px;min-width:0}
+.soc svg{width:38px;height:38px;border-radius:50%;padding:7px;flex:none}.soc b{display:block;font-size:15px;line-height:1.3}.soc small{display:block;color:#777;font-size:11px;direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 footer{background:#000;color:#bbb;text-align:center;font-size:12.5px;padding:18px 10px;margin-top:20px}footer b{color:#d4af37}"""
+
+
+# official social pages (clean links, no tracking parameters)
+SOCIAL = [
+    ("YouTube", "https://www.youtube.com/@deye.installation", "Petra Power Energy", "#ff0000",
+     '<path fill="#fff" d="M9.5 7.5v9l7.5-4.5z"/>'),
+    ("Facebook", "https://www.facebook.com/share/1EJPw6eAka/", "Petra Power Energy", "#1877f2",
+     '<path fill="#fff" d="M13.5 21v-7.5H16l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.5V4.4c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8v2.4H8v3h2.6V21z"/>'),
+    ("TikTok", "https://www.tiktok.com/@petrapowerenergy", "@petrapowerenergy", "#111",
+     '<path fill="#fff" d="M16.6 5.8A4.3 4.3 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.3 0 .5 0 .8.1V9.7a5.7 5.7 0 1 0 4.9 5.7V9a7.3 7.3 0 0 0 4.3 1.4V7.3a4.3 4.3 0 0 1-3.2-1.5z"/>'),
+    ("Instagram", "https://www.instagram.com/petrapower_energy/", "@petrapower_energy", "linear-gradient(45deg,#f9a825,#e1306c,#833ab4)",
+     '<rect x="4" y="4" width="16" height="16" rx="5" fill="none" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="3.6" fill="none" stroke="#fff" stroke-width="2"/><circle cx="17" cy="7" r="1.2" fill="#fff"/>'),
+]
 
 
 def arabic_count(n):
@@ -387,6 +402,7 @@ def build_home(rows, contact_list):
            "areaServed": [{"@type": "Country", "name": "Lebanon"}, {"@type": "Country", "name": "Syria"}],
            "department": [{"@type": "Store", "name": BRAND + " – Damascus", "telephone": sy,
                            "address": {"@type": "PostalAddress", "addressLocality": "Damascus – Al-Qazzaz", "addressCountry": "SY"}}],
+           "sameAs": [u for _, u, _, _, _ in SOCIAL],
            "knowsAbout": ["Solar energy", "On-Grid", "Off-Grid", "Control panels", "Fuel Save", "MCB", "MCCB", "ATS", "Contactor"]}]
     ldj = json.dumps(ld, ensure_ascii=False).replace("</", "<\\/")
     page = """<!doctype html>
@@ -431,6 +447,7 @@ if(s||h||a)location.replace("/shop/"+s+h);}})();
 <h2>وين نحنا</h2>
 <div class="loc"><div class="lc"><span class="ic">📍</span><div><b>بيروت – لبنان</b><span>{lb}</span></div></div>
 <div class="lc"><span class="ic">📍</span><div><b>دمشق – القزاز – سوريا</b><span>{sy}</span></div></div></div>
+<h2>تابع مشاريعنا</h2><div class="soc">{social}</div>
 <details open dir="ltr"><summary>English</summary>Petra Power Energy – electrical equipment &amp; solar energy store in Beirut, Lebanon and Syria: MCB &amp; MCCB breakers, contactors, ATS, voltage &amp; phase protection, DC isolators and meters. Order directly on WhatsApp.</details>
 </main>
 <footer><b>{brand}</b><br>بيروت – لبنان · دمشق – سوريا<br><a href="{store}">petrapowerstore.com</a></footer>
@@ -438,7 +455,9 @@ if(s||h||a)location.replace("/shop/"+s+h);}})();
 """.format(title=html.escape(title), desc=html.escape(desc), brand=BRAND, logo=LOGO, site=SITE, store=html.escape(STORE),
            ld=ldj, font=FONT_CSS, css=HOME_CSS, wa="".join(wa), cats=cat_html,
            newsec=('<h2>وصل حديثاً</h2><div class="pr">%s</div>' % new_html) if new_html else "",
-           lb=html.escape(lb), sy=html.escape(sy))
+           lb=html.escape(lb), sy=html.escape(sy),
+           social="".join('<a href="%s" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" style="background:%s" aria-hidden="true">%s</svg><span><b>%s</b><small>%s</small></span></a>' % (
+               html.escape(u), bg, ic, n, html.escape(h)) for n, u, h, bg, ic in SOCIAL))
     with open(os.path.join(ROOT, "index.html"), "w", encoding="utf-8") as f:
         f.write(page)
 
