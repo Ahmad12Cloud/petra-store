@@ -46,6 +46,30 @@ def products():
         off += 1000
 
 
+GROUPS_DEFAULT = [
+    ("القواطع", ["قواطع صغيرة MCB – AC", "قواطع صغيرة MCB – DC", "قواطع صناعية MCCB – DC", "قواطع ذكية Smart MCB – AC / DC"]),
+    ("الكونتاكتورات", ["كونتاكتور مودولار (Contactor)", "كونتاكتورات تحكّم · صناعي"]),
+    ("الحمايات والتحكّم", ["ريليه حماية 3 فاز – مع نيوترال · بدون نيوترال", "بروتكشن 3 فاز · سنجل فاز – حماية فولتاج", "تايمرات – ريليه وقت", "حساسات ضوئية (فوتوسيل)"]),
+    ("مفاتيح التحويل والعزل", ["ATS تلقائي / يدوي", "أيزوليتر DC (مفاتيح عزل)"]),
+    ("القياس والعدادات", ["أجهزة القياس والفحص – أفوميتر · كلامب ميتر", "عدادات تابلو – فولتميتر · أمبيرميتر · ملتيميتر"]),
+    ("الفيوزات", ["بورد فيوز 1000V_DC", "بورد فيوز AC", "فيوزات DC"]),
+    ("الكوسات والأدوات", ["كوسات وأطراف كابلات – أنبوبي بلاستيك · نحاس · ألمنيوم", "كبّاسات وأدوات تركيب – MC4 · كوسات أنبوبي · مشكّل"]),
+    ("المكيفات", ["مكيفات (Air Conditioners)", "مكيفات ميديا (Midea)", "مكيفات فيليبس (Philips)", "مكيفات إل جي (LG)", "مكيفات تي سي إل (TCL)", "مكيفات سامسونج (Samsung)"]),
+]
+
+
+def groups():
+    """Main sections as the owner arranged them in the store (V232), else the default."""
+    try:
+        rows = sb("store_settings?select=g:data->pp232Groups&id=eq.1")
+        g = rows[0].get("g") if rows else None
+        if isinstance(g, list) and g:
+            return [(x.get("name") or "", [c for c in (x.get("cats") or []) if isinstance(c, str)]) for x in g if isinstance(x, dict)]
+    except Exception as e:
+        print("groups fallback:", e)
+    return GROUPS_DEFAULT
+
+
 def contacts():
     try:
         rows = sb("store_settings?select=c:data->pp210Contacts&id=eq.1")
@@ -311,7 +335,7 @@ a{color:inherit;text-decoration:none}.top{background:#000;display:flex;align-ite
 .wrap{max-width:760px;margin:0 auto;padding:4px 12px 10px}h2{font-size:19px;margin:20px 2px 10px;display:flex;align-items:center;gap:8px}h2:before{content:"";width:5px;height:20px;background:#f29a10;border-radius:3px}
 .cats,.pr{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
 .ct{background:#fff;border-radius:16px;padding:8px;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;flex-direction:column;text-align:center}
-.ct img,.pc img{width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;border-radius:12px}.ct b{font-size:13px;line-height:1.45;margin-top:4px;min-height:38px}.ct span{font-size:12px;color:#a06a00;font-weight:700}
+.ct img,.pc img{width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;border-radius:12px}.ct b{font-size:14px;line-height:1.45;margin-top:4px;min-height:22px}.ct em{font-style:normal;font-size:11.5px;color:#666;line-height:1.5;margin:2px 0 4px}.ct span{font-size:12px;color:#a06a00;font-weight:700}
 .box{background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,.07);font-size:14.5px}.box p{margin:0 0 8px}
 .sv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}.sv div{background:#faf6ea;border-radius:12px;padding:8px;font-size:13px;font-weight:700;text-align:center}
 .sv div small{display:block;font-weight:400;color:#777;font-size:11.5px;direction:ltr}
@@ -358,17 +382,31 @@ def phone_for(contact_list, cc, fallback):
 
 def build_home(rows, contact_list):
     elec = [p for p in rows if not is_ac(p)]
-    # categories in store order of first appearance, with one picture each
+    # main sections (grouped like the store), each with its sub-sections listed for Google
     cats = {}
     for p in elec:
         c = p.get("category_name") or ""
         if c:
             cats.setdefault(c, []).append(p)
-    cat_html = "".join(
-        '<a class="ct" href="%s"><img src="%s" alt="%s" width="300" height="300" loading="lazy"><b>%s</b><span>%s</span></a>' % (
-            html.escape(STORE), html.escape(thumb_or_full(imgs_of(ps[0])[0]) if imgs_of(ps[0]) else LOGO),
-            html.escape(c), html.escape(c), arabic_count(len(ps)))
-        for c, ps in cats.items())
+    tiles, used = [], set()
+
+    def tile(name, ps, subs):
+        img = next((imgs_of(p)[0] for p in ps if imgs_of(p)), None)
+        sub = ('<em>%s</em>' % " · ".join(html.escape(x) for x in subs)) if len(subs) > 1 else ""
+        cnt = ("%s · %s" % ({2: "قسمين"}.get(len(subs), "%d أقسام" % len(subs)), arabic_count(len(ps)))) if len(subs) > 1 else arabic_count(len(ps))
+        return '<a class="ct" href="%s"><img src="%s" alt="%s" width="300" height="300" loading="lazy"><b>%s</b>%s<span>%s</span></a>' % (
+            html.escape(STORE), html.escape(thumb_or_full(img) if img else LOGO), html.escape(name), html.escape(name), sub, cnt)
+    for gname, gcats in groups():
+        subs = [c for c in gcats if c in cats]
+        used.update(subs)
+        if not subs:
+            continue
+        ps = [p for c in subs for p in cats[c]]
+        tiles.append(tile(gname if len(subs) > 1 else subs[0], ps, subs))
+    for c, ps in cats.items():
+        if c not in used:
+            tiles.append(tile(c, ps, [c]))
+    cat_html = "".join(tiles)
     # newest 4 priced products
     new = sorted([p for p in elec if money(p.get("price")) and imgs_of(p)],
                  key=lambda p: p.get("created_at") or "", reverse=True)[:4]
