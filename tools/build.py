@@ -333,9 +333,14 @@ a{color:inherit;text-decoration:none}.top{background:#000;display:flex;align-ite
 .br{margin-top:12px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;align-items:center;font-size:13px}.br b{color:#f5c23e;width:100%}
 .br span{background:rgba(255,255,255,.08);border:1px solid #6b5520;color:#fff;border-radius:16px;padding:3px 12px}
 .wrap{max-width:760px;margin:0 auto;padding:4px 12px 10px}h2{font-size:19px;margin:20px 2px 10px;display:flex;align-items:center;gap:8px}h2:before{content:"";width:5px;height:20px;background:#f29a10;border-radius:3px}
-.cats,.pr{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
-.ct{background:#fff;border-radius:16px;padding:8px;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;flex-direction:column;text-align:center}
-.ct img,.pc img{width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;border-radius:12px}.ct b{font-size:14px;line-height:1.45;margin-top:4px;min-height:22px}.ct em{font-style:normal;font-size:11.5px;color:#666;line-height:1.5;margin:2px 0 4px}.ct span{font-size:12px;color:#a06a00;font-weight:700}
+.pr{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.hint{margin:-4px 2px 10px;color:#9a7b3c;font-size:12.5px;font-weight:700}
+.cats{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.cats::-webkit-scrollbar{display:none}
+.ct{flex:0 0 78%;max-width:300px;scroll-snap-align:start;background:#fff;border-radius:20px;padding:10px 10px 14px;box-shadow:0 2px 10px rgba(0,0,0,.07);display:flex;flex-direction:column;text-align:center}
+.ct img,.pc img{width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;border-radius:12px}.ct b{font-size:19px;line-height:1.45;margin:8px 0 6px;font-weight:800}
+.sc{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.sc i{font-style:normal;border:1.5px solid #e8c77a;background:#fffaf0;color:#6b4e12;border-radius:999px;padding:2px 10px;font-size:12.5px;font-weight:700}
+.ct:last-child{scroll-snap-align:end}.ct>span{font-size:15px;color:#c08413;font-weight:800;margin:8px 0 8px}.ct>u{text-decoration:none;margin-top:auto;border:1.6px solid #e0a62a;border-radius:999px;padding:5px;font-weight:700;font-size:14px;color:#6b4e12}
+.dots{display:flex;gap:6px;justify-content:center;margin:6px 0 2px}.dots i{width:7px;height:7px;border-radius:9px;background:#d8cdb6;transition:width .2s}.dots i.on{width:22px;background:#f2a417}
 .box{background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,.07);font-size:14.5px}.box p{margin:0 0 8px}
 .sv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}.sv div{background:#faf6ea;border-radius:12px;padding:8px;font-size:13px;font-weight:700;text-align:center}
 .sv div small{display:block;font-weight:400;color:#777;font-size:11.5px;direction:ltr}
@@ -390,12 +395,22 @@ def build_home(rows, contact_list):
             cats.setdefault(c, []).append(p)
     tiles, used = [], set()
 
+    def short(c):
+        # short chip label for a sub-section: drop (...), keep the Latin type (MCB – AC) or the Arabic head
+        c = re.sub(r"\s*\([^)]*\)", "", c).strip()
+        head, _, tail = c.partition(" – ")
+        m = re.search(r"[A-Za-z][A-Za-z0-9 ]*$", head)
+        if m and tail and re.fullmatch(r"[A-Za-z0-9 /_]+", tail):
+            return m.group(0).strip() + " – " + tail.strip()
+        return head.strip()
+
     def tile(name, ps, subs):
         img = next((imgs_of(p)[0] for p in ps if imgs_of(p)), None)
-        sub = ('<em>%s</em>' % " · ".join(html.escape(x) for x in subs)) if len(subs) > 1 else ""
+        sub = ('<div class="sc">%s</div>' % "".join('<i title="%s">%s</i>' % (html.escape(x), html.escape(short(x))) for x in subs)) if len(subs) > 1 else ""
         cnt = ("%s · %s" % ({2: "قسمين"}.get(len(subs), "%d أقسام" % len(subs)), arabic_count(len(ps)))) if len(subs) > 1 else arabic_count(len(ps))
-        return '<a class="ct" href="%s"><img src="%s" alt="%s" width="300" height="300" loading="lazy"><b>%s</b>%s<span>%s</span></a>' % (
-            html.escape(STORE), html.escape(thumb_or_full(img) if img else LOGO), html.escape(name), html.escape(name), sub, cnt)
+        alt = name + ((" – " + " · ".join(subs)) if len(subs) > 1 else "")
+        return '<a class="ct" href="%s"><img src="%s" alt="%s" width="300" height="300" loading="lazy"><b>%s</b>%s<span>%s</span><u>تصفّح القسم ←</u></a>' % (
+            html.escape(STORE), html.escape(thumb_or_full(img) if img else LOGO), html.escape(alt), html.escape(name), sub, cnt)
     for gname, gcats in groups():
         subs = [c for c in gcats if c in cats]
         used.update(subs)
@@ -476,7 +491,8 @@ if(s||h||a)location.replace("/shop/"+s+h);}})();
 <div class="br"><b>📍 فروعنا</b><span>لبنان – بيروت</span><span>سوريا – دمشق – القزاز</span></div>
 </section>
 <main class="wrap">
-<h2>الأقسام</h2><div class="cats">{cats}</div>
+<h2>الأقسام</h2><div class="hint">اسحب لتشوف باقي الأقسام ←</div><div class="cats" id="cats">{cats}</div><div class="dots" id="dots"></div>
+<script>(function(){{var c=document.getElementById("cats"),d=document.getElementById("dots");if(!c||!d)return;var n=c.children.length,h="";for(var i=0;i<n;i++)h+="<i></i>";d.innerHTML=h;function u(){{var w=c.children[0]?c.children[0].offsetWidth+12:1,k=Math.round(Math.abs(c.scrollLeft)/w);if(Math.abs(c.scrollLeft)>=c.scrollWidth-c.clientWidth-4)k=n-1;if(k>n-1)k=n-1;for(var j=0;j<n;j++)d.children[j].className=j==k?"on":"";}}c.addEventListener("scroll",u,{{passive:true}});u();}})();</script>
 <h2>مين نحنا</h2>
 <div class="box"><p><b>Petra Power Energy</b> شركة هندسية مقرّها بيروت، لها خبرة طويلة في مشاريع الطاقة الشمسية في لبنان وسوريا، وتوفّر المعدات الكهربائية التي تستخدمها في مشاريعها لكل فنّي وصاحب مشروع.</p>
 <div class="sv"><div>☀️ تصميم وتنفيذ أنظمة شمسية<small>On-Grid · Off-Grid</small></div><div>🎛️ تابلوهات تحكّم<small>Control Panels</small></div><div>⛽ توفير وقود المولدات<small>Fuel Save</small></div><div>🔌 معدات كهربائية أصلية<small>MCB · MCCB · ATS</small></div></div></div>
