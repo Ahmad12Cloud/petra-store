@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" data-store-theme="light" data-edition="manager" data-demo="false" style="--pp-card-default: #ffffff; --pp-photo-default: #ffffff; --pp-banner-default: #fff8ed; --pp-intro-bg: #fffdfa; --pp-intro-text: #2d2f33; --pp-page-bg: #f9f6ef; --pp-banner-text: #ffffff; --pp29-page-bg: #f9f6ef; --pp29-card-bg: #ffffff; --pp29-photo-bg: #ffffff;"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1b1b1f"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petra Admin"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="color-scheme" content="light">
-<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V237">
+<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V238">
 <style>
 .pp-sy{display:inline-block;width:1.4em;height:.93em;vertical-align:-.12em;background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDdhM2QiLz48cmVjdCB5PSIxMy4zMyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDAiLz48ZyBmaWxsPSIjY2UxMTI2Ij48cGF0aCBpZD0icyIgZD0iTTAtMS45bC41NiAxLjcyaDEuODFsLTEuNDYgMS4wNi41NiAxLjcyTDAgMS41NGwtMS40NyAxLjA2LjU2LTEuNzItMS40Ni0xLjA2aDEuODF6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4IDEwKSIvPjx1c2UgaHJlZj0iI3MiIHg9IjciLz48dXNlIGhyZWY9IiNzIiB4PSIxNCIvPjwvZz48L3N2Zz4=) center/100% 100% no-repeat;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-style:normal}
 :root{--navy:#14213d;--navy2:#1d3150;--gold:#c9a14a;--goldsoft:#fcf3de;--paper:#f8f7f3;--line:#e3dfd7;--ink:#1a2b44;--mute:#667487;--warn:#a43c36;--white:#fff;--green:#136c48}
@@ -1466,7 +1466,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V237';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V238';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -8576,7 +8576,8 @@ document.addEventListener('click',async e=>{const b=e.target&&e.target.closest&&
 .pp156-add{display:block;width:100%;border:2px dashed #e3a400;border-radius:12px;padding:12px;background:#fff8e6;color:#8a5a00;font:inherit;font-weight:900;font-size:14px;margin:0 0 10px;cursor:pointer}.pp156-hi{background:#1e3a5f;color:#fff;border-radius:12px;padding:9px 12px;font-weight:800;font-size:13px;margin:8px 0}
 body.pp156-on article.pp156-ro .pp35-owner-edit,body.pp156-on article.pp156-ro .pp35-owner-edit~button{display:none!important}
 /* V235: staff outside his department edits nothing; the top header stays owner-only */
-html body.pp156-on.pp156-out .pp49-toolbar,html body.pp156-on.pp156-out .pp49-between,html body.pp156-on.pp156-out .pp49-pencil,html body.pp156-on.pp156-out .pp35-owner-edit,html body.pp156-on.pp156-out .pp35-owner-edit~button,html body.pp156-on.pp156-out .pp229-ed,html body.pp156-on.pp156-out [data-action="pp49-open"],html body.pp156-on.pp156-out [data-pp49-add-after],html body.pp156-on.pp123-staff #pp56-hdr-edit,html body.pp123-staff [data-pp49-export],html body.pp123-staff [data-action="pp81-open"],html body.pp123-staff [data-action="pp75-open"],html body.pp123-staff [data-action="pp71-flow"],html body.pp123-staff [data-action="pp62-cats"],html body.pp156-on.pp156-out [data-action="pp49-add"],html body.pp156-on .pp209-own .btn,html body.pp156-on #view .empty,html body.pp123-staff .pp39-contact-editor{display:none!important}`;document.head.appendChild(st);})();
+html body.pp156-on.pp156-out .pp49-toolbar,html body.pp156-on.pp156-out .pp49-between,html body.pp156-on.pp156-out .pp49-pencil,html body.pp156-on.pp156-out .pp35-owner-edit,html body.pp156-on.pp156-out .pp35-owner-edit~button,html body.pp156-on.pp156-out .pp229-ed,html body.pp156-on.pp156-out [data-action="pp49-open"],html body.pp156-on.pp156-out [data-pp49-add-after],html body.pp156-on.pp123-staff #pp56-hdr-edit,html body.pp123-staff [data-pp49-export],html body.pp123-staff [data-action="pp81-open"],html body.pp123-staff [data-action="pp75-open"],html body.pp123-staff [data-action="pp71-flow"],html body.pp123-staff [data-action="pp62-cats"],html body.pp156-on.pp156-out [data-action="pp49-add"],html body.pp156-on .pp209-own .btn,html body.pp156-on #view .empty,html body.pp123-staff .pp39-contact-editor{display:none!important}
+/* V238 staff row sheet: compact slots, no extra settings */html body.pp123-staff #pp49-sheet .pp52-quick-form,html body.pp123-staff #pp49-sheet .pp52-existing,html body.pp123-staff #pp49-sheet .pp49-advanced,html body.pp123-staff #pp49-sheet .pp52-slots~*:not(.pp52-slots),html body.pp123-staff #pp49-sheet .pp49-grid:has([data-pp49-field="pp49Cols"]),html body.pp123-staff #pp49-sheet label.pp49-field:has([data-pp49-field="category"]){display:none!important}html body.pp123-staff #pp49-sheet .pp52-open{display:block;width:100%;padding:12px;border-radius:14px;border:2px solid #e0a62a;background:linear-gradient(#f7c048,#e9a521);font-weight:800}`;document.head.appendChild(st);})();
 
 /* ===== V157: sliders / images / product rows added from a department live on that department's page only ===== */
 let pp157Tag=null;
@@ -8641,6 +8642,33 @@ try{const _oa203=pp49OpenAdd;pp49OpenAdd=function(anchor){if(!(typeof pp123Staff
   const kinds=[1,2,3,4].map(n=>({kind:'products',count:n,label:'📦 '+n+' '+(n>1?'منتجات':'منتج')+' بالسطر'}));
   if(P.sliders)kinds.push({kind:'slider',label:'🎞️ سلايدر صور متحرك',size:'1600 × 900 px لكل شريحة'},{kind:'image',label:'🖼️ صورة عريضة ثابتة',size:'1600 × 900 px'},{kind:'twoimages',label:'🖼️ صورتان جنباً إلى جنب',size:'1200 × 1200 px لكل صورة'},{kind:'text',label:'📝 مربع وصف',size:'نص بلا صورة'});
   pp49ShowSheet(`<p class="pp49-hint">بيظهر عندك فوراً، وبيوصل للإدارة لتوافق قبل ما يظهر للزبائن.</p><button type="button" class="pp236-new" data-action="edit-new" style="display:block;width:100%;margin:0 0 12px;padding:14px;border-radius:16px;border:2px solid #e0a62a;background:linear-gradient(#f7c048,#e9a521);font:inherit;font-weight:800;font-size:17px;color:#2b1d00">🆕 منتج جديد<small style="display:block;font-weight:600;font-size:12.5px;margin-top:3px;opacity:.8">صورة · اسم · سعر — بيضل مخفي لتوافق الإدارة</small></button><div style="font-weight:800;margin:4px 2px 8px;color:#6b4e12">أو حط منتجات بواجهة قسمك:</div><div class="pp49-choice-grid">${kinds.map(k=>`<button type="button" data-pp49-create="${k.kind}" data-pp49-count="${k.count||0}">${k.label}<small class="pp50-new-choice">📐 ${k.size||'صورة المنتج: 800 × 800 px'}</small></button>`).join('')}</div>`,'＋ أضف لواجهة قسمك');};}catch(_){}
+
+/* ===== V238: staff (non-electrical department, e.g. ❄️ المكيفات) — row slots open the full product form, and that form shows only: photo, name, price from/to, section, description ===== */
+let pp238Pending=null;
+function pp238Simple(){try{const d=pp156Depts();return !!pp123Staff&&d.length>0&&!d.includes('elec');}catch(_){return false}}
+function pp238Form(f){if(!f||f.dataset.pp238||!pp238Simple())return;f.dataset.pp238='1';
+  const keepSel=['[name="nameAr"]','[name="price"]','[name="priceMax"]','[name="category"]','#image-upload','#form-images','[name="descriptionAr"]','[type="submit"]','[data-action="close-modal"]','[data-pp206]'];
+  const keep=[];keepSel.forEach(q=>f.querySelectorAll(q).forEach(el=>{const w=el.closest('label,.pp44-image-field,.pp206-vis')||el;keep.push(w);if(el.matches('[type="submit"],[data-action="close-modal"]'))keep.push(el.parentElement);}));
+  if(!keep.length)return;
+  f.querySelectorAll('*').forEach(el=>{if(keep.some(k=>k===el||k.contains(el)||el.contains(k)))return;el.style.setProperty('display','none','important');});
+  f.querySelectorAll('details').forEach(d=>{if(keep.some(k=>d.contains(k)))d.open=true;});
+  const nm=f.querySelector('[name="nameAr"]');if(nm)nm.placeholder='مثلاً: مكيف ميديا 18000 BTU إنفرتر';
+  const ds=f.querySelector('[name="descriptionAr"]');if(ds){ds.placeholder='مثلاً: إنفرتر، تبريد وتدفئة، موفّر للكهرباء…';ds.rows=4;}
+  const ph=f.querySelector('.pp44-image-field b');if(ph)ph.textContent='📷 صورة المنتج';
+  if(pp238Pending&&pp238Pending.cat){const c=f.querySelector('[name="category"]');if(c&&!c.value&&[...c.options].some(o=>o.value===pp238Pending.cat&&!o.disabled))c.value=pp238Pending.cat;}
+}
+window.addEventListener('click',e=>{try{const b=e.target&&e.target.closest&&e.target.closest('[data-pp52-open-slot]');if(!b||!pp238Simple()||!pp49SheetSection)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const s=state.settings.homeSections.find(x=>x.id===pp49SheetSection);if(!s)return;
+  pp238Pending={sec:s.id,slot:Number(b.dataset.pp52OpenSlot),t:Date.now()-1000,ids:new Set(state.products.map(p=>p.id)),cat:s.category||''};
+  document.getElementById('pp49-sheet')?.remove();edit(null);}catch(err){console.error('V238',err)}},true);
+setInterval(()=>{try{if(!pp238Pending)return;if(document.getElementById('product-form'))return;
+  const P=pp238Pending;if(Date.now()-P.t<1500)return;pp238Pending=null;
+  const np=state.products.find(p=>!P.ids.has(p.id));
+  const s=state.settings.homeSections.find(x=>x.id===P.sec);
+  if(np&&s){s.pp49Manual=true;s.productIds=Array.isArray(s.productIds)?s.productIds:[];s.productIds[P.slot]=np.id;changed();note('✓ انحفظ المنتج بالخانة '+(P.slot+1));}
+  if(s){render();pp49OpenBlock(s.id);}}catch(err){console.error('V238',err)}},700);
+try{new MutationObserver(()=>{try{const f=document.getElementById('product-form');if(f)pp238Form(f);}catch(_){}}).observe(document.body,{childList:true,subtree:true});}catch(_){}
 
 /* ===== V207: staff own new products stay hidden until the owner approves; after that staff can show/hide them ===== */
 const pp207PendingIds=new Set();
