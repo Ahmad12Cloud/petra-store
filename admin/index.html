@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" data-store-theme="light" data-edition="manager" data-demo="false" style="--pp-card-default: #ffffff; --pp-photo-default: #ffffff; --pp-banner-default: #fff8ed; --pp-intro-bg: #fffdfa; --pp-intro-text: #2d2f33; --pp-page-bg: #f9f6ef; --pp-banner-text: #ffffff; --pp29-page-bg: #f9f6ef; --pp29-card-bg: #ffffff; --pp29-photo-bg: #ffffff;"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1b1b1f"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petra Admin"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="color-scheme" content="light">
-<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V241">
+<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V242">
 <style>
 .pp-sy{display:inline-block;width:1.4em;height:.93em;vertical-align:-.12em;background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDdhM2QiLz48cmVjdCB5PSIxMy4zMyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDAiLz48ZyBmaWxsPSIjY2UxMTI2Ij48cGF0aCBpZD0icyIgZD0iTTAtMS45bC41NiAxLjcyaDEuODFsLTEuNDYgMS4wNi41NiAxLjcyTDAgMS41NGwtMS40NyAxLjA2LjU2LTEuNzItMS40Ni0xLjA2aDEuODF6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4IDEwKSIvPjx1c2UgaHJlZj0iI3MiIHg9IjciLz48dXNlIGhyZWY9IiNzIiB4PSIxNCIvPjwvZz48L3N2Zz4=) center/100% 100% no-repeat;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-style:normal}
 :root{--navy:#14213d;--navy2:#1d3150;--gold:#c9a14a;--goldsoft:#fcf3de;--paper:#f8f7f3;--line:#e3dfd7;--ink:#1a2b44;--mute:#667487;--warn:#a43c36;--white:#fff;--green:#136c48}
@@ -1466,7 +1466,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V241';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V242';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1734,6 +1734,7 @@ const PP219_GROUPS={
  zzphoto:['photocell','photo cell','فوتوسيل','فوتو سيل','فوتوسل','فوتوسيلي','حساس ضوء','حساس ضوئي','حساس الضوء','حساس ليلي','حساس ليل نهار','خليه ضوئيه','مفتاح شفق','twilight switch','light sensor','عين الكترونيه','عين ضوئيه'],
  zzwifi:['wifi','wi fi','واي فاي','وايفاي','وايرلس','wireless','سمارت','smart','ذكي','ذكيه','تحكم عن بعد','عن بعد','تطبيق','tuya','توياه','تويا','smart life','سمارت لايف'],
  zzrecl:['اعاده تشغيل','اعاده تشغيل تلقائي','اعاده وصل','ريكلوزر','recloser','auto reclosing','reclosing','رجوع تلقائي','يرجع لحالو','يرجع لحاله','بيرجع لحالو','يرجع وحده'],
+ zzscreen:['ساعه كهربا','ساعه كهرباء','ساعات كهربا','ساعات كهرباء','ساعه كهربائيه','ساعات كهربائيه','ساعه الكهربا','ساعات الكهربا','ساعه بشاشه','ساعات بشاشه','جهاز بشاشه','اجهزه بشاشه'],
  zzmeter:['ساعه فولت','ساعه امبير','ساعه فولتميتر','ساعه امبيرميتر','ساعه قياس','ساعات قياس','افوميتر','افو','avo','ملتيميتر','مالتيميتر','مولتيميتر','ملتي ميتر','multimeter','كلامب','كلامب ميتر','clamp meter','كماشه قياس','كلبس','امبيرميتر','امبير ميتر','فولتميتر','فولت ميتر','جهاز قياس','اجهزه قياس','جهاز فحص','اجهزه فحص','فاحص','تستر','تيستر','tester','ميزان كهربا','ساعه فحص','ساعه قياس','عداد فحص'],
  zzscrew:['مفك فحص','مفك كهربا','مفك كهرباء','مفك','قلم فحص','قلم كهربا','قلم تيست','مفك تست','مفك تيستر','voltage tester','ncv','test pen'],
  zzferr:['ferrule','ferrules','فيرول','فيرولات','كبسه','كبسات','كبسه سلك','كبسات اسلاك','كبسه ابره','طرف سلك','اطراف اسلاك','اطراف سلك','طرف انبوبي','cord end','كوس','كوسه','كوسات','كوس انبوبي','ترمنال','تيرمنال','تيرمينال','terminal','لاغ','لوغ','cable lug'],
@@ -1822,6 +1823,8 @@ function pp219Prod(p){
   /* the category may hold mixed types (AC / DC, 3 فاز – سنجل فاز): take only its product-type words */
   {const ct=pp219Tags(p.category||''),mixAD=ct.has('zzac')&&ct.has('zzdc'),mixPh=ct.has('zz1ph')&&ct.has('zz3ph');
    for(const t of ct){if(mixAD&&['zzac','zzdc','zzsolar'].includes(t))continue;if(mixPh&&['zz1ph','zz3ph'].includes(t))continue;if(['zzdpn','zztwin'].includes(t))continue;tags.add(t);}}
+  /* V242: «ساعات كهربا» = every panel device with a screen (protections, V/A meters, energy meters, smart breakers with metering) — not hand testers or timers */
+  {const tx=String(raw).toLowerCase(),nm=String(p.nameAr||'')+' '+String(p.nameEn||'');if(/شاش|lcd|display|رقمي|digital|عداد|meter/i.test(tx)&&!/مفك|فاحص|جهاز فحص|تايمر|timer|tester/i.test(nm))tags.add('zzscreen');}
   const L=pp219Units(raw).toLowerCase(),num=x=>parseFloat(String(x).replace('d','.'));
   const spec={a:[],v:[],mm2:[],w:[],ah:[],ra:[],rv:[],rmm2:[],sz:{}};
   {const SZ=/(\d+(?:d\d+)?)(a|v|mm2|w|ah)(?![a-z0-9])/g;const zs=pp219Units((Array.isArray(p.sizes)?p.sizes.join(' '):'')).toLowerCase();let q;while((q=SZ.exec(zs))){(spec.sz[q[2]]=spec.sz[q[2]]||[]).push(num(q[1]));}}
