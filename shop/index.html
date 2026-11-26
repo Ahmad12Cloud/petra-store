@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" data-store-theme="light" data-edition="customer" data-demo="false" style="--pp-card-default: #ffffff; --pp-photo-default: #ffffff; --pp-banner-default: #fff8ed; --pp-intro-bg: #fffdfa; --pp-intro-text: #2d2f33; --pp-page-bg: #f9f6ef; --pp-banner-text: #ffffff; --pp29-page-bg: #f9f6ef; --pp29-card-bg: #ffffff; --pp29-photo-bg: #ffffff;"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14213d"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petra Electric"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="color-scheme" content="light">
-<title>Petra Power Energy</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V239">
+<title>Petra Power Energy</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V240">
 <style>
 .pp-sy{display:inline-block;width:1.4em;height:.93em;vertical-align:-.12em;background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDdhM2QiLz48cmVjdCB5PSIxMy4zMyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDAiLz48ZyBmaWxsPSIjY2UxMTI2Ij48cGF0aCBpZD0icyIgZD0iTTAtMS45bC41NiAxLjcyaDEuODFsLTEuNDYgMS4wNi41NiAxLjcyTDAgMS41NGwtMS40NyAxLjA2LjU2LTEuNzItMS40Ni0xLjA2aDEuODF6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4IDEwKSIvPjx1c2UgaHJlZj0iI3MiIHg9IjciLz48dXNlIGhyZWY9IiNzIiB4PSIxNCIvPjwvZz48L3N2Zz4=) center/100% 100% no-repeat;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-style:normal}
 :root{--navy:#14213d;--navy2:#1d3150;--gold:#c9a14a;--goldsoft:#fcf3de;--paper:#f8f7f3;--line:#e3dfd7;--ink:#1a2b44;--mute:#667487;--warn:#a43c36;--white:#fff;--green:#136c48}
@@ -1466,7 +1466,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V239';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V240';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -1716,14 +1716,14 @@ function ppBindBuilderDrag(){
 const normalizeSearch=(s)=>pp87Pre(clean(s)).toLowerCase().normalize('NFKC').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[\u064B-\u065F\u0670]/g,'').replace(/[^\p{L}\p{N}]+/gu,' ');
 /* ===== V219: Lebanese + Syrian + engineering vocabulary, spoken/typed units (V, A, mm², W, Ah) ===== */
 const PP219_GROUPS={
- zzbrk:['قاطع','مقاطع','قواطع','قاطعه','قطاعه','قاطع كهربا','قاطع كهربائي','قاطع حمايه','قواطع حمايه','ديجونكتور','ديجنكتور','دجنكتور','دجونكتور','ديجونكتير','ديجنكتير','دجنكتير','ديجونتير','ديجنتير','دجنتير','دجونتير','ديجونتر','ديجنتر','دجنتر','ديسجونكتور','ديزجونكتور','disjoncteur','disjoncteurs','breaker','breakers','circuit breaker','سيركت بريكر','سيركيت بريكر','بريكر','بريكرات','مفتاح اوتوماتيك','مفاتيح اوتوماتيك','مفتاح اتوماتيك','كتاوت','كات اوت','cb'],
- zzmcb:['mcb','ام سي بي','امسيبي','ام سيبي','ميني بريكر','قاطع صغير','قواطع صغيره','قاطع مودولار','miniature circuit breaker'],
- zzmccb:['mccb','ام سي سي بي','امسيسيبي','قاطع صناعي','قواطع صناعيه','قاطع علبه مقولبه','علبه مقولبه','مقولب','قاطع كبير','قاطع تجاري','قاطع بلوك','moulded case','molded case'],
+ zzbrk:['قاطع','مقاطع','قواطع','قاطعه','قطاعه','قاطع كهربا','قاطع كهربائي','قاطع حمايه','قواطع حمايه','ديجونكتور','ديجنكتور','دجنكتور','دجونكتور','ديجونكتير','ديجنكتير','دجنكتير','ديجونتير','ديجنتير','دجنتير','ديجانتير','دجانتير','ديجانتور','ديجانتر','دجانتر','ديجنتور','ديشانتير','ديجانكتور','دجونتير','ديجونتر','ديجنتر','دجنتر','ديسجونكتور','ديزجونكتور','disjoncteur','disjoncteurs','breaker','breakers','circuit breaker','سيركت بريكر','سيركيت بريكر','بريكر','بريكرات','مفتاح اوتوماتيك','مفاتيح اوتوماتيك','مفتاح اتوماتيك','كتاوت','كات اوت','cb'],
+ zzmcb:['mcb','ام سي بي','امسيبي','ام سيبي','ميني بريكر','قاطع صغير','قاطع فرعي','قواطع فرعيه','قاطع منزلي','قواطع منزليه','قاطع هاوس','دجنتير هاوس','ديجنتير هاوس','ديجانتير هاوس','قواطع صغيره','قاطع مودولار','miniature circuit breaker'],
+ zzmccb:['mccb','ام سي سي بي','امسيسيبي','قاطع رئيسي','قواطع رئيسيه','دجنتير رئيسي','ديجانتير رئيسي','دجنتير صناعي','ديجانتير صناعي','قاطع صناعي','قواطع صناعيه','قاطع علبه مقولبه','علبه مقولبه','مقولب','قاطع كبير','قاطع تجاري','قاطع بلوك','moulded case','molded case'],
  zzrcd:['rcd','rccb','rcbo','elcb','تفاضلي','قاطع تفاضلي','ديفرانسيال','ديفرنسيال','دفرنسيال','ديفيرانسيال','ديفرانسيل','differential','قاطع تسريب','تسريب ارضي','حمايه تسريب','قاطع ارضي','earth leakage','residual current'],
  zzdc:['dc','دي سي','بي سي','بيسي','دي اس','تي سي','دسي','ديسيه','دي سيه','ديسي','دى سى','تيار مستمر','مستمر','direct current'],
  zzac:['ac','اي سي','ايه سي','ايسي','تيار متناوب','متناوب','alternating current'],
  zzsolar:['solar','سولار','سولر','صولار','سولاري','طاقه شمسيه','الطاقه الشمسيه','شمسي','شمسيه','الواح شمسيه','pv','بي في','فوتوفولتيك','كهروضوئي','photovoltaic'],
- zzcont:['contactor','contactors','كونتاكتور','كونتاكتورات','كونتكتور','كونتاكتر','كنتاكتور','كنتكتور','كنتكتر','كونتكتر','كونتاكت','كونتكت','كونتاكتير','كونتاكتيره','متمم','متممات','مفتاح مغناطيسي','ملامس','ملامسات','contacteur','كونتاكتور مودولار','modular contactor'],
+ zzcont:['contactor','contactors','كونتكتير','كونتكتيرات','كونتكتير سكه','كونتاكتير سكه','كونتكتر سكه','مفتاح تلامس','مفاتيح تلامس','مساعد كونتكتر','مساعد كونتاكتور','كونتاكتور','كونتاكتورات','كونتكتور','كونتاكتر','كنتاكتور','كنتكتور','كنتكتر','كونتكتر','كونتاكت','كونتكت','كونتاكتير','كونتاكتيره','متمم','متممات','مفتاح مغناطيسي','ملامس','ملامسات','contacteur','كونتاكتور مودولار','modular contactor'],
  zzrelay:['relay','relays','ريليه','ريليات','ريلي','ريلاي','ريليه','رلي','رليه','مرحل','مرحلات','relais','ريليه حمايه'],
  zzphase:['حمايه فاز','حمايه فازات','حمايه الفازات','ريليه فاز','ريليه فازات','فيز ريليه','فاز ريليه','فقدان فاز','فقد فاز','تسلسل فازات','تسلسل الفازات','ترتيب الفازات','عكس فاز','عكس الفازات','phase failure','phase sequence','phase loss','phase monitoring','phase relay','مراقبه فازات','دوران الموتور','اتجاه الدوران'],
  zzvp:['حمايه فولت','حمايه فولتاج','حمايه الفولتاج','حمايه جهد','ساعه حمايه','ساعات حمايه','حامي جهد','حامي فولت','حامي فولتاج','واقي جهد','واقي فولت','فولت بروتكتور','فولتاج بروتكتور','voltage protector','over voltage','under voltage','اوفر فولت','اوفر فولتاج','اندر فولت','اندر فولتاج','فولت عالي','فولت واطي','ارتفاع فولت','هبوط فولت'],
@@ -1734,7 +1734,7 @@ const PP219_GROUPS={
  zzphoto:['photocell','photo cell','فوتوسيل','فوتو سيل','فوتوسل','فوتوسيلي','حساس ضوء','حساس ضوئي','حساس الضوء','حساس ليلي','حساس ليل نهار','خليه ضوئيه','مفتاح شفق','twilight switch','light sensor','عين الكترونيه','عين ضوئيه'],
  zzwifi:['wifi','wi fi','واي فاي','وايفاي','وايرلس','wireless','سمارت','smart','ذكي','ذكيه','تحكم عن بعد','عن بعد','تطبيق','tuya','توياه','تويا','smart life','سمارت لايف'],
  zzrecl:['اعاده تشغيل','اعاده تشغيل تلقائي','اعاده وصل','ريكلوزر','recloser','auto reclosing','reclosing','رجوع تلقائي','يرجع لحالو','يرجع لحاله','بيرجع لحالو','يرجع وحده'],
- zzmeter:['افوميتر','افو','avo','ملتيميتر','مالتيميتر','مولتيميتر','ملتي ميتر','multimeter','كلامب','كلامب ميتر','clamp meter','كماشه قياس','كلبس','امبيرميتر','امبير ميتر','فولتميتر','فولت ميتر','جهاز قياس','اجهزه قياس','جهاز فحص','اجهزه فحص','فاحص','تستر','تيستر','tester','ميزان كهربا','ساعه فحص','ساعه قياس','عداد فحص'],
+ zzmeter:['ساعه فولت','ساعه امبير','ساعه فولتميتر','ساعه امبيرميتر','ساعه قياس','ساعات قياس','افوميتر','افو','avo','ملتيميتر','مالتيميتر','مولتيميتر','ملتي ميتر','multimeter','كلامب','كلامب ميتر','clamp meter','كماشه قياس','كلبس','امبيرميتر','امبير ميتر','فولتميتر','فولت ميتر','جهاز قياس','اجهزه قياس','جهاز فحص','اجهزه فحص','فاحص','تستر','تيستر','tester','ميزان كهربا','ساعه فحص','ساعه قياس','عداد فحص'],
  zzscrew:['مفك فحص','مفك كهربا','مفك كهرباء','مفك','قلم فحص','قلم كهربا','قلم تيست','مفك تست','مفك تيستر','voltage tester','ncv','test pen'],
  zzferr:['ferrule','ferrules','فيرول','فيرولات','كبسه','كبسات','كبسه سلك','كبسات اسلاك','كبسه ابره','طرف سلك','اطراف اسلاك','اطراف سلك','طرف انبوبي','cord end','كوس','كوسه','كوسات','كوس انبوبي','ترمنال','تيرمنال','تيرمينال','terminal','لاغ','لوغ','cable lug'],
  zzcable:['cable','cables','wire','wires','كابل','كابلات','كبل','كبلات','سلك','اسلاك','شريط','شريط كهربا','شرايط','كابل سولار','solar cable'],
@@ -1787,7 +1787,8 @@ function pp219Units(str){
   U(/(\d+(?:\.\d+)?)\s*(?:mm2|mm\s*2|sq\s*mm|mm|مم\s*2|مم|ملم|ملي|مللي|ميلي|ملي\s*متر\s*مربع|مربع)(?![a-z\p{L}])/giu,(m,n)=>' '+n.replace('.','d')+'mm2 ');
   U(/(\d+(?:\.\d+)?)\s*(?:a|amp|amps|ampere|amperes|[اأ]مب[يى]ر(?:ات)?|[اأ]مبر|[اأ]مب)(?![a-z\p{L}])/giu,(m,n)=>' '+n.replace('.','d')+'a ');
   s=s.replace(/(?:^|\s)(?:وان|ون)\s*(?:بول|پول)/gu,' 1p ').replace(/(?:^|\s)(?:تو|توو)\s*(?:بول|پول)/gu,' 2p ').replace(/(?:^|\s)(?:ثري|تري)\s*(?:بول|پول)/gu,' 3p ').replace(/(?:^|\s)فور\s*(?:بول|پول)/gu,' 4p ');
-  s=s.replace(/(^|\s)(?:ثنائي|ثنائيه|ثنائية|ثنايي|زوجي)(?=\s|$)/g,'$1 2p ').replace(/(^|\s)(?:رباعي|رباعيه|رباعية)(?=\s|$)/g,'$1 4p ').replace(/(^|\s)(?:ثلاثي|ثلاثيه|ثلاثية)(?!\s*(?:فاز|الطور|طور))(?=\s|$)/g,'$1 3p ');
+  s=s.replace(/(^|\s)(?:ثنائي|ثنائيه|ثنائية|ثنايي|زوجي|مجوز|مجوزه|مجوزة|مجوّز)(?=\s|$)/g,'$1 2p ').replace(/(^|\s)(?:رباعي|رباعيه|رباعية)(?=\s|$)/g,'$1 4p ').replace(/(^|\s)(?:ثلاثي|ثلاثيه|ثلاثية)(?!\s*(?:فاز|الطور|طور))(?=\s|$)/g,'$1 3p ');
+  s=s.replace(/(^|\s)2\s*فاز(?=\s|$)/g,'$1 2p ');
   s=s.replace(/(\d+)\s*(?:بول|بولات|قطب|اقطاب|أقطاب|pole|poles)(?![\p{L}])/giu,' $1p ').replace(/قطبين/g,' 2p ').replace(/قطب\s*واحد/g,' 1p ');
   s=s.replace(/(\d+)\.(\d+)/g,'$1d$2');
   s=s.replace(/(\d+)\.(\d+)/g,'$1d$2');
@@ -2120,7 +2121,7 @@ function pp222Core(userText){{const k=pp218Key(userText);if(k.length>=3){const e
  const words=[...remaining];const results=[];
  for(const p of state.products){if(!p.active&&!visibleAdmin())continue;const hay=searchable(p);const title=normalizeSearch([p.nameAr,p.nameEn,p.model,p.sku].join(' '));let hits=0;let score=0;
   for(const opts of concepts){if(opts.some(k=>k&&(' '+hay+' ').includes(' '+k+' '))){hits++;score+=8}else if(opts.some(k=>k&&hay.includes(k))){hits++;score+=6}}
-  for(const word of words){if(pp219Hit(p,hay,word)){hits++;score+=/^zz/.test(word)?7+pp219Bonus(p,word):(title.includes(word)?5:2);if(/^[1-4]p$/.test(word)&&new RegExp('(^|[^a-z0-9])'+word+'(?![a-z0-9+\\-])','i').test(String(p.nameAr||'')))score+=4; /* V239: exact pole count (1P, not 1P+N / 1P-4P) ranks first */}}
+  for(const word of words){if(pp219Hit(p,hay,word)){hits++;score+=/^zz/.test(word)?7+pp219Bonus(p,word):(title.includes(word)?5:2);if(/^[1-4]p$/.test(word)&&new RegExp('(^|[^a-z0-9+\\-])'+word+'(?![a-z0-9+\\-])','i').test(String(p.nameAr||'')))score+=4; /* V239: exact pole count (1P, not 1P+N / 1P-4P) ranks first */}}
   if(pp219raw&&title.includes(pp219raw))score+=16;
   if(score>0)results.push({p,score,hits});
  }
