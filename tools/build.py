@@ -402,7 +402,8 @@ def build_home(rows, contact_list):
 
     def tile(name, ps, subs, gname=None):
         own = COVERS.get(gname or name)
-        img = own if own and any(own in imgs_of(p) for p in ps) else next((imgs_of(p)[0] for p in ps if imgs_of(p)), None)
+        ok = own and (any(own in imgs_of(p) for p in ps) or "/storage/v1/object/public/product-images/site/" in own)  # V243: or a photo the owner uploaded
+        img = own if ok else next((imgs_of(p)[0] for p in ps if imgs_of(p)), None)
         alt = name + ((" – " + " · ".join(subs)) if len(subs) > 1 else "")
         return '<a class="ct" href="%s"><img src="%s" alt="%s" width="150" height="150" loading="lazy"><b>%s</b><span>%s</span></a>' % (
             html.escape(STORE), html.escape(thumb_or_full(img) if img else LOGO), html.escape(alt), html.escape(name), arabic_count(len(ps)))
