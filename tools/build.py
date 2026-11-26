@@ -58,12 +58,17 @@ GROUPS_DEFAULT = [
 ]
 
 
+COVERS = {}  # V241: main-section name -> cover image the owner picked
+
+
 def groups():
     """Main sections as the owner arranged them in the store (V232), else the default."""
     try:
         rows = sb("store_settings?select=g:data->pp232Groups&id=eq.1")
         g = rows[0].get("g") if rows else None
         if isinstance(g, list) and g:
+            COVERS.clear()
+            COVERS.update({(x.get("name") or ""): x["cover"] for x in g if isinstance(x, dict) and isinstance(x.get("cover"), str) and x["cover"].startswith("https://")})
             return [(x.get("name") or "", [c for c in (x.get("cats") or []) if isinstance(c, str)]) for x in g if isinstance(x, dict)]
     except Exception as e:
         print("groups fallback:", e)
@@ -395,8 +400,9 @@ def build_home(rows, contact_list):
             cats.setdefault(c, []).append(p)
     tiles, used = [], set()
 
-    def tile(name, ps, subs):
-        img = next((imgs_of(p)[0] for p in ps if imgs_of(p)), None)
+    def tile(name, ps, subs, gname=None):
+        own = COVERS.get(gname or name)
+        img = own if own and any(own in imgs_of(p) for p in ps) else next((imgs_of(p)[0] for p in ps if imgs_of(p)), None)
         alt = name + ((" – " + " · ".join(subs)) if len(subs) > 1 else "")
         return '<a class="ct" href="%s"><img src="%s" alt="%s" width="150" height="150" loading="lazy"><b>%s</b><span>%s</span></a>' % (
             html.escape(STORE), html.escape(thumb_or_full(img) if img else LOGO), html.escape(alt), html.escape(name), arabic_count(len(ps)))
@@ -419,7 +425,7 @@ def build_home(rows, contact_list):
         if not subs:
             continue
         ps = [p for c in subs for p in cats[c]]
-        tiles.append(tile(gname if len(subs) > 1 else subs[0], ps, subs))
+        tiles.append(tile(gname if len(subs) > 1 else subs[0], ps, subs, gname))
         section(gname if len(subs) > 1 else subs[0], ps)
     for c, ps in cats.items():
         if c not in used:
