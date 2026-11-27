@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl" data-store-theme="light" data-edition="manager" data-demo="false" style="--pp-card-default: #ffffff; --pp-photo-default: #ffffff; --pp-banner-default: #fff8ed; --pp-intro-bg: #fffdfa; --pp-intro-text: #2d2f33; --pp-page-bg: #f9f6ef; --pp-banner-text: #ffffff; --pp29-page-bg: #f9f6ef; --pp29-card-bg: #ffffff; --pp29-photo-bg: #ffffff;"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1b1b1f"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petra Admin"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="color-scheme" content="light">
-<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V243">
+<title>Petra Admin — المالك</title><meta name="petrapower-build" content="V65"><meta name="pp-app-version" content="V244">
 <style>
 .pp-sy{display:inline-block;width:1.4em;height:.93em;vertical-align:-.12em;background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDdhM2QiLz48cmVjdCB5PSIxMy4zMyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjYuNjciIGZpbGw9IiMwMDAiLz48ZyBmaWxsPSIjY2UxMTI2Ij48cGF0aCBpZD0icyIgZD0iTTAtMS45bC41NiAxLjcyaDEuODFsLTEuNDYgMS4wNi41NiAxLjcyTDAgMS41NGwtMS40NyAxLjA2LjU2LTEuNzItMS40Ni0xLjA2aDEuODF6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4IDEwKSIvPjx1c2UgaHJlZj0iI3MiIHg9IjciLz48dXNlIGhyZWY9IiNzIiB4PSIxNCIvPjwvZz48L3N2Zz4=) center/100% 100% no-repeat;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-style:normal}
 :root{--navy:#14213d;--navy2:#1d3150;--gold:#c9a14a;--goldsoft:#fcf3de;--paper:#f8f7f3;--line:#e3dfd7;--ink:#1a2b44;--mute:#667487;--warn:#a43c36;--white:#fff;--green:#136c48}
@@ -1466,7 +1466,7 @@ body .dialog{z-index:7200}
 'use strict';
 (function(){
 const $=(id)=>document.getElementById(id);
-const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V243';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
+const MANAGER=document.documentElement.dataset.edition==='manager';const PETRA_APP_VERSION='V244';const PP_IMG_RE=/^https:\/\/akkshuvvgjqkattbxvvk\.supabase\.co\/storage\/v1\/object\/public\/product-images\/[\w\-./%]+$/;
 // V26 favorites: customer-side convenience, never edits owner inventory.
 const pp26Favs=new Set((()=>{try{return JSON.parse(localStorage.getItem('petra-v26-favorites')||'[]')}catch(e){return []}})());
 
@@ -9115,6 +9115,148 @@ document.addEventListener('click',async e=>{const b=e.target&&e.target.closest&&
   }catch(err){note('صار خطأ: '+(err&&err.message||err));}
 },true);
 window.addEventListener('click',e=>{try{const b=e.target&&e.target.closest&&e.target.closest('[data-pp139="dept"],[data-action="pp24-home"],[data-pp139n],[data-pp200],[data-action="menu-all"],[data-action="menu-category"],[data-action="menu-new"],[data-action="open-search"]');if(b){pp232MG='';}}catch(_){}},true);
+
+/* ===== V244: customer reviews — product page section, write sheet, gentle reminder, owner moderation ===== */
+(function(){
+const P4_REASONS=['إعلان','مسبّات','مش عن المنتج','مكرّر'];
+let p4Cache={},p4Sort='help',p4Cur=null,p4Views=0;
+const p4Code=p=>String((p&&(p.productCode||p.sku))||'').trim();
+const p4Stars=n=>{n=Math.max(0,Math.min(5,Math.round(Number(n)||0)));return '★'.repeat(n)+'<i>'+'★'.repeat(5-n)+'</i>';};
+const p4Ago=t=>{const d=(Date.now()-new Date(t).getTime())/864e5;if(!(d>=0))return '';if(d<1)return T('اليوم','today');if(d<2)return T('مبارح','yesterday');if(d<7)return T('منذ '+Math.floor(d)+' أيام',Math.floor(d)+' days ago');if(d<30){const w=Math.floor(d/7);return T(w<2?'منذ أسبوع':'منذ '+w+' أسابيع',w+' wk ago');}const m=Math.floor(d/30);return T(m<2?'منذ شهر':'منذ '+m+' أشهر',m+' mo ago');};
+const p4Owner=()=>{try{return pp232Owner()}catch(_){return false}};
+const p4Staff=()=>{try{return typeof pp123Staff!=='undefined'&&!!pp123Staff}catch(_){return false}};
+const p4Anon={apikey:PP_SB_KEY,Authorization:'Bearer '+PP_SB_KEY};
+async function p4Load(code,force){if(!force&&p4Cache[code])return p4Cache[code];
+  const r=await fetch(PP_SB_URL+'/rest/v1/product_reviews?select=id,name,rating,body,reply,created_at&status=eq.published&product_code=eq.'+encodeURIComponent(code)+'&order=created_at.desc&limit=300',{headers:p4Anon});
+  if(!r.ok)throw Error('HTTP '+r.status);const j=await r.json();p4Cache[code]=j;return j;}
+function p4Sorted(list){const a=list.slice();
+  if(p4Sort==='new')a.sort((x,y)=>new Date(y.created_at)-new Date(x.created_at));
+  else if(p4Sort==='hi')a.sort((x,y)=>y.rating-x.rating||new Date(y.created_at)-new Date(x.created_at));
+  else if(p4Sort==='lo')a.sort((x,y)=>x.rating-y.rating||new Date(y.created_at)-new Date(x.created_at));
+  else a.sort((x,y)=>((y.body||'').length+(y.reply?120:0))-((x.body||'').length+(x.reply?120:0))||new Date(y.created_at)-new Date(x.created_at));
+  return a;}
+function p4Html(list,all){
+  const n=list.length,avg=n?list.reduce((s,r)=>s+r.rating,0)/n:0,cnt=[0,0,0,0,0,0];list.forEach(r=>cnt[r.rating]++);
+  let h=`<h3 class="p4-h">⭐ ${T('تقييمات الزباين','Customer reviews')}</h3>`;
+  if(!n)h+=`<p class="p4-empty">${T('ما في تقييمات لهالمنتج بعد. كون أول واحد بيقيّمه!','No reviews yet. Be the first!')}</p>`;
+  else h+=`<div class="p4-sum"><div class="p4-big"><b>${avg.toFixed(1)}</b><div class="p4-st">${p4Stars(avg)}</div><small>${T('من '+n+' تقييم',n+' reviews')}</small></div><div class="p4-bars">${[5,4,3,2,1].map(k=>`<div class="p4-br"><span>${k}</span><div><i style="width:${Math.round(cnt[k]/n*100)}%"></i></div><em>${cnt[k]}</em></div>`).join('')}</div></div>`;
+  h+=`<button type="button" class="p4-write" data-p4="write">⭐ ${T('اكتب تقييمك','Write a review')}</button>`;
+  if(n){const s=p4Sorted(list),show=all?s:s.slice(0,3);
+    h+=`<div class="p4-sort">${[['help',T('الأفيد','Most helpful')],['new',T('الأحدث','Newest')],['hi',T('الأعلى','Highest')],['lo',T('الأقل','Lowest')]].map(([k,l])=>`<button type="button" data-p4="sort" data-v="${k}" class="${p4Sort===k?'on':''}">${l}</button>`).join('')}</div>`;
+    h+=show.map(r=>`<div class="p4-rv"><div class="p4-rh"><b>${esc(r.name)}</b><small>${esc(p4Ago(r.created_at))}</small></div><div class="p4-st">${p4Stars(r.rating)}</div><p>${esc(r.body)}</p>${r.reply?`<div class="p4-rep"><b>↩︎ ${T('ردّ بترا باور','Petra Power reply')}</b>${esc(r.reply)}</div>`:''}</div>`).join('');
+    if(!all&&n>3)h+=`<button type="button" class="p4-more" data-p4="all">${T('عرض كل التقييمات ('+n+') ←','All reviews ('+n+')')}</button>`;}
+  return h;}
+async function p4Mount(p,all){const code=p4Code(p);if(!code)return;p4Cur=p;
+  const body=document.getElementById('modal-body');if(!body)return;
+  let w=document.getElementById('p4');if(!w){w=document.createElement('section');w.id='p4';body.appendChild(w);}
+  w.dataset.code=code;if(!w.innerHTML)w.innerHTML=`<p class="p4-empty">…</p>`;
+  try{const list=await p4Load(code);if(w.dataset.code!==code)return;w.innerHTML=p4Html(list,all);}
+  catch(err){w.innerHTML=`<h3 class="p4-h">⭐ ${T('تقييمات الزباين','Customer reviews')}</h3><button type="button" class="p4-write" data-p4="write">⭐ ${T('اكتب تقييمك','Write a review')}</button>`;}}
+try{const _d=detail;detail=function(p){_d.apply(this,arguments);try{document.getElementById('p4')?.remove();p4Mount(p,false);}catch(e){console.error(e);}
+  try{if(!p4Owner()&&!p4Staff()){p4Views++;const last=Number(ppLS.get('p4-remind')||0);if(p4Views===3&&Date.now()-last>7*864e5)setTimeout(()=>p4Toast(p),1800);}}catch(_){}};}catch(e){console.error(e);}
+
+/* ---- write sheet ---- */
+let p4Rate=0;
+function p4Sheet(p){if(!p)return;p4Cur=p;p4Rate=0;const code=p4Code(p);
+  let o=document.getElementById('p4w');if(!o){o=document.createElement('div');o.id='p4w';document.body.appendChild(o);}
+  const sent=Number(ppLS.get('p4-sent-'+code)||0),recent=Date.now()-sent<864e5;
+  o.innerHTML=`<div class="p4-dim" data-p4="close"></div><div class="p4-sheet"><h3>⭐ ${T('قيّم المنتج','Rate this product')}</h3><div class="p4-sub">${esc(S(p.nameAr,p.nameEn)||code)}</div>`+
+   (recent?`<p class="p4-note">✓ ${T('وصلنا تقييمك لهالمنتج، شكراً! بينشر بعد المراجعة.','We got your review, thanks! It will appear after a quick check.')}</p><button type="button" class="p4-send" data-p4="close">${T('تمام','OK')}</button>`:
+   `<div class="p4-pick">${[1,2,3,4,5].map(k=>`<button type="button" data-p4="rate" data-v="${k}">★</button>`).join('')}</div><div class="p4-pl" id="p4-pl">${T('اختار عدد النجوم','Tap the stars')}</div>
+   <label class="p4-f">${T('اسمك','Your name')}</label><input id="p4-name" maxlength="40" autocomplete="name" value="${esc(ppLS.get('p4-name')||'')}" placeholder="${T('متلاً: سامر خ.','e.g. Sam K.')}">
+   <label class="p4-f">${T('رأيك بالمنتج','Your review')} <b style="color:#c0262f">*</b></label><textarea id="p4-body" maxlength="1000" rows="4" placeholder="${T('اكتب تجربتك: الجودة، التركيب، السعر، التوصيل…','Quality, installation, price, delivery…')}"></textarea>
+   <div class="p4-note">✓ ${T('تقييمك بينشر بعد مراجعة سريعة من فريق بترا باور','Your review appears after a quick check by Petra Power')}</div>
+   <button type="button" class="p4-send" data-p4="send">${T('إرسال التقييم','Send review')}</button>`)+`</div>`;}
+const P4_WORDS=['','سيئ','مقبول','منيح','منيح كتير','ممتاز'];
+async function p4Send(btn){const p=p4Cur,code=p4Code(p);const name=(document.getElementById('p4-name')?.value||'').trim(),body=(document.getElementById('p4-body')?.value||'').trim();
+  if(!p4Rate){note(T('اختار عدد النجوم أول','Pick the stars first'));return;}
+  if(name.length<2){note(T('اكتب اسمك (حرفين على الأقل)','Write your name'));return;}
+  if(body.length<5){note(T('اكتب رأيك بكم كلمة','Write a few words'));return;}
+  btn.disabled=true;btn.textContent='⏳';
+  try{const r=await fetch(PP_SB_URL+'/rest/v1/product_reviews',{method:'POST',headers:{...p4Anon,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({product_code:code,name,rating:p4Rate,body})});
+    if(!r.ok)throw Error('HTTP '+r.status);
+    ppLS.set('p4-name',name);ppLS.set('p4-sent-'+code,String(Date.now()));ppLS.set('p4-remind',String(Date.now()));
+    document.getElementById('p4w')?.remove();note(T('✅ شكراً! وصلنا تقييمك، وبينشر بعد مراجعة سريعة.','✅ Thanks! Your review will appear after a quick check.'));}
+  catch(err){btn.disabled=false;btn.textContent=T('إرسال التقييم','Send review');note(T('ما انبعت التقييم، جرّب كمان مرة','Could not send, try again'));}}
+function p4Toast(p){if(document.getElementById('p4t'))return;ppLS.set('p4-remind',String(Date.now()));
+  const t=document.createElement('div');t.id='p4t';t.innerHTML=`<span>⭐</span><div>${T('جرّبت منتج من عنّا؟ <b>قيّمه</b> وساعد غيرك يختار','Tried one of our products? <b>Rate it</b>')}</div><button type="button" data-p4="toast">${T('قيّم الآن','Rate now')}</button><button type="button" class="p4-x" data-p4="tclose">✕</button>`;
+  t.dataset.pid=String(p.id);document.body.appendChild(t);setTimeout(()=>t.remove(),12000);}
+
+/* ---- owner moderation ---- */
+let p4Tab='pending';
+async function p4Count(){try{const r=await ppFetch('/rest/v1/product_reviews?select=id&status=eq.pending',{headers:{Prefer:'count=exact',Range:'0-0'}});const m=/\/(\d+)/.exec(r.headers.get('content-range')||'');return m?Number(m[1]):0;}catch(_){return 0;}}
+function p4PName(code){const p=(state.products||[]).find(x=>p4Code(x)===code);return p?S(p.nameAr,p.nameEn):code;}
+async function p4Admin(){if(!p4Owner())return;let o=document.getElementById('p4a');if(!o){o=document.createElement('div');o.id='p4a';document.body.appendChild(o);}
+  o.innerHTML=`<div class="p4a-h"><b>⭐ ${T('التقييمات','Reviews')}</b><button type="button" data-p4="aclose">✕</button></div><div class="p4a-tabs">${[['pending',T('بانتظار الموافقة','Pending')],['published',T('منشورة','Published')],['rejected',T('مرفوضة','Rejected')]].map(([k,l])=>`<button type="button" data-p4="tab" data-v="${k}" class="${p4Tab===k?'on':''}">${l}</button>`).join('')}</div><div class="p4a-list"><p class="p4-empty">…</p></div>`;
+  try{const r=await ppFetch('/rest/v1/product_reviews?select=*&status=eq.'+p4Tab+'&order=created_at.desc&limit=300');const list=await r.json();
+    const box=o.querySelector('.p4a-list');if(!list.length){box.innerHTML=`<p class="p4-empty">${T('ما في شي هون','Nothing here')}</p>`;return;}
+    box.innerHTML=list.map(v=>`<div class="p4a-c" data-id="${esc(v.id)}"><div class="p4a-p">${esc(p4PName(v.product_code))}</div><div class="p4-rh"><b>${esc(v.name)}${v.flagged?` <span class="p4-flag">${T('مشبوه','suspicious')}</span>`:''}</b><small>${esc(new Date(v.created_at).toLocaleString('ar-LB',{dateStyle:'short',timeStyle:'short'}))}</small></div><div class="p4-st">${p4Stars(v.rating)}</div><p>${esc(v.body)}</p>`+
+      (v.reply?`<div class="p4-rep"><b>↩︎ ${T('ردّك','Your reply')}</b>${esc(v.reply)}</div>`:'')+(v.reject_reason?`<div class="p4a-why">${T('سبب الرفض','Reason')}: ${esc(v.reject_reason)}</div>`:'')+
+      `<div class="p4a-acts">${v.status!=='published'?`<button type="button" class="ok" data-p4="pub">✓ ${T('انشر','Publish')}</button>`:''}<button type="button" class="rp" data-p4="rep">↩︎ ${T('ردّ','Reply')}</button>${v.status!=='rejected'?`<button type="button" class="no" data-p4="rej">✕ ${v.status==='published'?T('شيل','Remove'):T('ارفض','Reject')}</button>`:''}</div><div class="p4a-more"></div></div>`).join('');}
+  catch(err){o.querySelector('.p4a-list').innerHTML=`<p class="p4-empty">${T('صار خطأ بالتحميل','Load error')}: ${esc(err.message||err)}</p>`;}}
+async function p4Patch(id,obj){await ppFetch('/rest/v1/product_reviews?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(obj)});p4Cache={};}
+async function p4Badge(){const b=document.querySelector('[data-p4="admin"] .p4-n');if(!b)return;const n=await p4Count();b.textContent=n?String(n):'';b.style.display=n?'':'none';}
+try{const _m=pp232MenuHtml;pp232MenuHtml=function(){let h=_m.apply(this,arguments);if(p4Owner()){h+=`<button type="button" data-p4="admin" style="border:2px dashed #c9a24a;font-weight:800">⭐ ${T('التقييمات','Reviews')} <span class="p4-n" style="display:none"></span></button>`;setTimeout(p4Badge,300);}return h;};}catch(e){console.error(e);}
+
+document.addEventListener('click',async e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-p4]');if(!b)return;const a=b.dataset.p4;
+  e.preventDefault();e.stopPropagation();
+  try{
+  if(a==='write'){p4Sheet(p4Cur);return;}
+  if(a==='close'){document.getElementById('p4w')?.remove();return;}
+  if(a==='sort'){p4Sort=b.dataset.v;p4Mount(p4Cur,true);return;}
+  if(a==='all'){p4Mount(p4Cur,true);return;}
+  if(a==='rate'){p4Rate=Number(b.dataset.v)||0;document.querySelectorAll('#p4w .p4-pick button').forEach((x,i)=>x.classList.toggle('on',i<p4Rate));const l=document.getElementById('p4-pl');if(l)l.textContent=T(p4Rate+' من 5 – '+P4_WORDS[p4Rate],p4Rate+' / 5');return;}
+  if(a==='send'){await p4Send(b);return;}
+  if(a==='toast'){const t=document.getElementById('p4t');const p=(state.products||[]).find(x=>String(x.id)===t?.dataset.pid)||p4Cur;t?.remove();p4Sheet(p);return;}
+  if(a==='tclose'){document.getElementById('p4t')?.remove();return;}
+  if(a==='admin'){p4Tab='pending';p4Admin();return;}
+  if(a==='aclose'){document.getElementById('p4a')?.remove();return;}
+  if(a==='tab'){p4Tab=b.dataset.v;p4Admin();return;}
+  const c=b.closest('.p4a-c'),id=c&&c.dataset.id;if(!id)return;const more=c.querySelector('.p4a-more');
+  if(a==='pub'){b.disabled=true;await p4Patch(id,{status:'published',published_at:new Date().toISOString(),reject_reason:null});note(T('✅ انشر التقييم','✅ Published'));p4Admin();p4Badge();return;}
+  if(a==='rej'){more.innerHTML=`<div class="p4a-why">${T('اختار السبب','Pick a reason')}: ${P4_REASONS.map(r=>`<button type="button" data-p4="rejr" data-v="${esc(r)}">${esc(r)}</button>`).join('')}</div>`;return;}
+  if(a==='rejr'){await p4Patch(id,{status:'rejected',reject_reason:b.dataset.v});note(T('✓ انرفض التقييم','✓ Rejected'));p4Admin();p4Badge();return;}
+  if(a==='rep'){const cur=c.querySelector('.p4-rep')?c.querySelector('.p4-rep').childNodes[1]?.textContent||'':'';more.innerHTML=`<textarea class="p4a-ta" maxlength="1000" rows="3" placeholder="${T('اكتب ردّ بترا باور…','Write your reply…')}">${esc(cur)}</textarea><div class="p4a-acts"><button type="button" class="ok" data-p4="reps">💾 ${T('احفظ الردّ','Save reply')}</button>${cur?`<button type="button" class="no" data-p4="repd">${T('امسح الردّ','Delete reply')}</button>`:''}</div>`;return;}
+  if(a==='reps'){const v=(c.querySelector('.p4a-ta')?.value||'').trim();if(!v){note(T('اكتب الردّ','Write the reply'));return;}await p4Patch(id,{reply:v,replied_at:new Date().toISOString()});note(T('✅ انحفظ الردّ','✅ Reply saved'));p4Admin();return;}
+  if(a==='repd'){await p4Patch(id,{reply:null,replied_at:null});note(T('✓ انمسح الردّ','✓ Reply deleted'));p4Admin();return;}
+  }catch(err){note(T('صار خطأ: ','Error: ')+(err&&err.message||err));}
+},true);
+
+const st=document.createElement('style');st.textContent=`
+#p4{margin:16px 0 6px;padding:14px 13px;background:#fff;border:1px solid #eee3c9;border-radius:16px;direction:rtl;text-align:right}
+#p4 .p4-h{font-size:17px;margin:0 0 10px}.p4-empty{color:#777;font-size:14px;margin:6px 0}
+.p4-sum{display:flex;gap:14px;align-items:center}.p4-big{text-align:center;min-width:92px}.p4-big b{font-size:36px;line-height:1;display:block;direction:ltr}.p4-big small{font-size:12px;color:#777}
+.p4-st{color:#f2a900;font-size:16px;letter-spacing:1px}.p4-st i{color:#ddd;font-style:normal}
+.p4-bars{flex:1}.p4-br{display:flex;align-items:center;gap:6px;font-size:12px;color:#555}.p4-br span{width:12px;text-align:center}.p4-br div{flex:1;height:7px;background:#eee;border-radius:4px;overflow:hidden}.p4-br div i{display:block;height:100%;background:#f2a900}.p4-br em{font-style:normal;width:18px;text-align:left}
+.p4-write{display:block;width:100%;margin:12px 0 4px;border:0;background:linear-gradient(#ffd34d,#f29a10);border-radius:12px;padding:10px;font-weight:800;font-size:15px;color:#141414;cursor:pointer}
+.p4-sort{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px}.p4-sort button{font-size:12px;border:1px solid #e3d7b5;border-radius:14px;padding:3px 10px;background:#fffaf0;color:#6b4e00;cursor:pointer}.p4-sort button.on{background:#1c2330;color:#fff;border-color:#1c2330}
+.p4-rv{border-top:1px solid #eee;padding:10px 0}.p4-rh{display:flex;justify-content:space-between;align-items:center;gap:8px}.p4-rh b{font-size:14px}.p4-rh small{font-size:11px;color:#999;white-space:nowrap}
+.p4-rv p,.p4a-c p{font-size:14px;color:#333;margin:3px 0 0;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.p4-rep{margin-top:7px;background:#faf6ea;border-right:3px solid #d4af37;border-radius:8px;padding:6px 9px;font-size:13px;color:#5a4500}.p4-rep b{display:block;font-size:12px;color:#7a5a00}
+.p4-more{display:block;margin:6px auto 0;border:0;background:none;color:#7a5a00;font-weight:800;font-size:13px;cursor:pointer}
+#p4w{position:fixed;inset:0;z-index:100001;direction:rtl}.p4-dim{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.p4-sheet{position:absolute;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;background:#fff;border-radius:22px 22px 0 0;padding:16px 16px 20px;max-width:620px;margin:0 auto;text-align:right}
+.p4-sheet h3{margin:0;font-size:18px}.p4-sub{font-size:13px;color:#777;margin:3px 0 8px}
+.p4-pick{display:flex;justify-content:center;gap:4px;direction:ltr}.p4-pick button{border:0;background:none;font-size:40px;line-height:1;color:#ddd;cursor:pointer;padding:0 2px}.p4-pick button.on{color:#f2a900}
+.p4-pl{text-align:center;font-size:13px;color:#7a5a00;font-weight:700;margin:2px 0 6px}
+.p4-f{display:block;font-size:13px;font-weight:700;color:#444;margin:9px 0 4px}
+#p4w input,#p4w textarea,.p4a-ta{width:100%;box-sizing:border-box;border:1.5px solid #e3d7b5;border-radius:12px;padding:10px 12px;font:inherit;font-size:15px;background:#fffdf8;direction:rtl}
+.p4-note{font-size:12px;color:#0a6a2e;background:#f3fbf5;border-radius:10px;padding:7px 9px;margin-top:9px}
+.p4-send{display:block;width:100%;margin-top:11px;border:0;background:linear-gradient(#ffd34d,#f29a10);border-radius:12px;padding:12px;font-weight:800;font-size:16px;color:#141414;cursor:pointer}
+#p4t{position:fixed;left:10px;right:10px;bottom:14px;z-index:100000;max-width:560px;margin:0 auto;background:#1c2330;color:#fff;border-radius:16px;padding:10px 12px;font-size:14px;display:flex;gap:9px;align-items:center;direction:rtl;box-shadow:0 10px 26px rgba(0,0,0,.3)}
+#p4t b{color:#ffd34d}#p4t div{flex:1}#p4t button{border:0;background:#ffd34d;color:#111;border-radius:10px;padding:6px 10px;font-weight:800;font-size:13px;white-space:nowrap;cursor:pointer}#p4t .p4-x{background:transparent;color:#aaa;padding:4px}
+#p4a{position:fixed;inset:0;z-index:100000;background:#f6f2e8;overflow:auto;direction:rtl;text-align:right}
+.p4a-h{position:sticky;top:0;background:#14181f;color:#f5c542;padding:13px 14px;font-size:17px;display:flex;justify-content:space-between;align-items:center;z-index:1}.p4a-h button{border:0;background:none;color:#fff;font-size:20px;cursor:pointer}
+.p4a-tabs{display:flex;gap:6px;padding:10px;flex-wrap:wrap}.p4a-tabs button{font-size:13px;border-radius:14px;padding:4px 12px;background:#fff;border:1px solid #e3d7b5;cursor:pointer}.p4a-tabs button.on{background:#1c2330;color:#fff}
+.p4a-list{padding:0 10px 30px;max-width:720px;margin:0 auto}.p4a-c{background:#fff;border-radius:16px;padding:12px 13px;margin-bottom:10px;box-shadow:0 3px 10px rgba(0,0,0,.06)}
+.p4a-p{font-size:12px;color:#7a5a00;margin-bottom:3px}.p4-flag{font-size:11px;background:#fdeeee;color:#a3202a;border-radius:8px;padding:1px 7px;font-weight:700}
+.p4a-acts{display:flex;gap:6px;margin-top:9px}.p4a-acts button{flex:1;border-radius:10px;padding:7px 0;font-size:13px;font-weight:800;cursor:pointer}
+.p4a-acts .ok{background:#0a8a3a;color:#fff;border:0}.p4a-acts .rp{background:#fff8e1;color:#7a5a00;border:1px solid #e3b23c}.p4a-acts .no{background:#fff;color:#c0262f;border:1px solid #f0b4b8}
+.p4a-why{margin-top:8px;font-size:12px;color:#a3202a;display:flex;flex-wrap:wrap;gap:5px;align-items:center}.p4a-why button{font-size:12px;background:#fdeeee;color:#a3202a;border:0;border-radius:10px;padding:3px 9px;cursor:pointer}
+.p4-n{background:#e0303d;color:#fff;border-radius:10px;padding:0 7px;font-size:12px;margin-right:4px}
+`;document.head.appendChild(st);
+})();
+
 })();
 
 </script>

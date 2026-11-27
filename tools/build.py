@@ -61,6 +61,56 @@ GROUPS_DEFAULT = [
 COVERS = {}  # V241: main-section name -> cover image the owner picked
 
 
+REVIEWS = {}  # V244: product code -> published customer reviews (newest first)
+
+
+def reviews():
+    REVIEWS.clear()
+    try:
+        rows = sb("product_reviews?select=product_code,name,rating,body,reply,created_at&status=eq.published&order=created_at.desc&limit=10000")
+    except Exception as e:  # the store must still build if reviews can't be read
+        print("reviews: skipped (%s)" % e)
+        return
+    for r in rows:
+        if isinstance(r, dict) and r.get("product_code") and 1 <= int(r.get("rating") or 0) <= 5:
+            REVIEWS.setdefault(r["product_code"].strip(), []).append(r)
+
+
+def reviews_html(code, rv):
+    """Visible review block. Shows every published review, so the numbers match the structured data exactly."""
+    star = lambda n: "★" * n + '<i>%s</i>' % ("★" * (5 - n))
+    h = '<section class="rv" id="reviews"><h2>⭐ تقييمات الزباين</h2>'
+    if rv:
+        n = len(rv)
+        avg = sum(int(r["rating"]) for r in rv) / n
+        cnt = {k: sum(1 for r in rv if int(r["rating"]) == k) for k in range(1, 6)}
+        h += '<div class="rsum"><div class="rbig"><b>%.1f</b><span class="st">%s</span><small>من %d تقييم</small></div><div class="rbars">%s</div></div>' % (
+            avg, star(int(round(avg))), n,
+            "".join('<div class="rb"><span>%d</span><div><i style="width:%d%%"></i></div><em>%d</em></div>' % (k, round(cnt[k] * 100 / n), cnt[k]) for k in (5, 4, 3, 2, 1)))
+    else:
+        h += '<p class="rnone">ما في تقييمات لهالمنتج بعد. كون أول واحد بيقيّمه!</p>'
+    h += '<button type="button" class="rwrite" onclick="peRv()">⭐ اكتب تقييمك</button>'
+    h += ('<form class="rform" id="rform" hidden onsubmit="return peRvSend(event)"><div class="rpick" id="rpick">%s</div>'
+          '<label>اسمك<input id="rname" maxlength="40" required minlength="2" autocomplete="name"></label>'
+          '<label>رأيك بالمنتج *<textarea id="rbody" maxlength="1000" required minlength="5" rows="4" placeholder="الجودة، التركيب، السعر، التوصيل…"></textarea></label>'
+          '<p class="rnote">✓ تقييمك بينشر بعد مراجعة سريعة من فريق بترا باور</p><button type="submit" class="rwrite">إرسال التقييم</button><p class="rmsg" id="rmsg"></p></form>') % (
+        "".join('<button type="button" onclick="peRvStar(%d)">★</button>' % k for k in range(1, 6)))
+    for r in rv:
+        h += '<div class="ri"><div class="rh"><b>%s</b><small>%s</small></div><span class="st">%s</span><p>%s</p>%s</div>' % (
+            html.escape(clean(r.get("name") or "", 40)), html.escape((r.get("created_at") or "")[:10]), star(int(r["rating"])),
+            html.escape((r.get("body") or "").strip()[:1000]),
+            ('<div class="rrep"><b>↩︎ ردّ بترا باور</b>%s</div>' % html.escape((r.get("reply") or "").strip()[:1000])) if (r.get("reply") or "").strip() else "")
+    h += ('<script>var peS=0;function peRv(){var f=document.getElementById("rform");f.hidden=false;f.scrollIntoView({behavior:"smooth",block:"center"});}'
+          'function peRvStar(k){peS=k;var b=document.querySelectorAll("#rpick button");for(var i=0;i<b.length;i++)b[i].className=i<k?"on":"";}'
+          'function peRvSend(e){e.preventDefault();var m=document.getElementById("rmsg");if(!peS){m.textContent="اختار عدد النجوم أول";return false;}'
+          'var n=document.getElementById("rname").value.trim(),t=document.getElementById("rbody").value.trim();m.textContent="⏳";'
+          'fetch(%s+"/rest/v1/product_reviews",{method:"POST",headers:{apikey:%s,Authorization:"Bearer "+%s,"Content-Type":"application/json",Prefer:"return=minimal"},'
+          'body:JSON.stringify({product_code:%s,name:n,rating:peS,body:t})}).then(function(r){if(!r.ok)throw 0;'
+          'document.getElementById("rform").innerHTML="<p class=rnote>✅ شكراً! وصلنا تقييمك، وبينشر بعد مراجعة سريعة.</p>";})'
+          '.catch(function(){m.textContent="ما انبعت التقييم، جرّب كمان مرة";});return false;}</script>') % (
+        json.dumps(SB_URL), json.dumps(SB_KEY), json.dumps(SB_KEY), json.dumps(code))
+    return h + "</section>"
+
 def groups():
     """Main sections as the owner arranged them in the store (V232), else the default."""
     try:
@@ -188,7 +238,17 @@ details .d{direction:ltr;text-align:left}.rel{display:grid;grid-template-columns
 .rel a{background:#fff;border-radius:14px;text-decoration:none;padding:8px;font-size:13px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .rel img{width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;border-radius:10px}h2{font-size:18px;margin:20px 0 8px}
 .cat{display:inline-block;background:#fff3cd;border-radius:20px;padding:2px 12px;font-size:13px;margin-bottom:6px;text-decoration:none}
-footer{text-align:center;color:#777;font-size:13px;padding:22px 10px}"""
+footer{text-align:center;color:#777;font-size:13px;padding:22px 10px}
+.rv{background:#fff;border-radius:20px;box-shadow:0 4px 14px rgba(0,0,0,.08);padding:14px 16px;margin-top:14px}.rv h2{font-size:19px;margin:0 0 10px}
+.rsum{display:flex;gap:14px;align-items:center}.rbig{text-align:center;min-width:92px}.rbig b{font-size:36px;line-height:1;display:block;direction:ltr}.rbig small{font-size:12px;color:#777;display:block}
+.st{color:#f2a900;font-size:16px;letter-spacing:1px}.st i{color:#ddd;font-style:normal}
+.rbars{flex:1}.rb{display:flex;align-items:center;gap:6px;font-size:12px;color:#555}.rb span{width:12px;text-align:center}.rb div{flex:1;height:7px;background:#eee;border-radius:4px;overflow:hidden}.rb div i{display:block;height:100%;background:#f2a900}.rb em{font-style:normal;width:18px;text-align:left}
+.rnone{color:#777;margin:4px 0}.rwrite{display:block;width:100%;margin:12px 0 4px;border:0;background:linear-gradient(#ffd34d,#f29a10);border-radius:12px;padding:10px;font-weight:800;font-size:15px;color:#141414;cursor:pointer;font-family:inherit}
+.rform label{display:block;font-size:13px;font-weight:700;color:#444;margin:9px 0 0}.rform input,.rform textarea{display:block;width:100%;margin-top:4px;border:1.5px solid #e3d7b5;border-radius:12px;padding:10px 12px;font:inherit;font-size:15px;background:#fffdf8}
+.rpick{display:flex;justify-content:center;gap:4px;direction:ltr}.rpick button{border:0;background:none;font-size:38px;line-height:1;color:#ddd;cursor:pointer;padding:0 2px}.rpick button.on{color:#f2a900}
+.rnote{font-size:12px;color:#0a6a2e;background:#f3fbf5;border-radius:10px;padding:7px 9px;margin:9px 0 0}.rmsg{font-size:13px;color:#c0262f;margin:4px 0 0}
+.ri{border-top:1px solid #eee;padding:10px 0}.rh{display:flex;justify-content:space-between;gap:8px}.rh b{font-size:14.5px}.rh small{font-size:11.5px;color:#999;direction:ltr}
+.ri p{margin:3px 0 0;font-size:14.5px;white-space:pre-wrap;word-break:break-word}.rrep{margin-top:7px;background:#faf6ea;border-right:3px solid #d4af37;border-radius:8px;padding:6px 9px;font-size:13.5px;color:#5a4500}.rrep b{display:block;font-size:12px;color:#7a5a00}"""
 
 PAGE = """<!doctype html>
 <html lang="ar" dir="rtl"><head><meta charset="utf-8">
@@ -220,6 +280,7 @@ PAGE = """<!doctype html>
 {gallery}
 {endesc}
 </div></article>
+{reviews}
 {related}
 </main>
 <footer>{brand} · بيروت – لبنان · دمشق – سوريا<br><a href="{store}">petrapowerstore.com</a></footer>
@@ -305,12 +366,20 @@ def build_page(p, by_cat, contact_list):
         else:
             ld["offers"] = {"@type": "Offer", "priceCurrency": "USD", "price": lo, "url": url,
                             "seller": {"@type": "Organization", "name": BRAND}}
+    rv = REVIEWS.get(code, [])
+    if rv:  # only real, published reviews; same numbers as the visible block
+        ld["aggregateRating"] = {"@type": "AggregateRating", "ratingValue": round(sum(int(r["rating"]) for r in rv) / len(rv), 1),
+                                 "reviewCount": len(rv), "bestRating": 5, "worstRating": 1}
+        ld["review"] = [{"@type": "Review", "author": {"@type": "Person", "name": clean(r.get("name") or "", 40)},
+                         "datePublished": (r.get("created_at") or "")[:10], "reviewBody": (r.get("body") or "").strip()[:1000],
+                         "reviewRating": {"@type": "Rating", "ratingValue": int(r["rating"]), "bestRating": 5, "worstRating": 1}} for r in rv[:10]]
     ldj = json.dumps(ld, ensure_ascii=False).replace("</", "<\\/")
     return PAGE.format(title=html.escape(name), title_attr=html.escape(name), brand=BRAND, desc=html.escape(desc),
                        ogimg=html.escape(og), url=url, ld=ldj, css=CSS, store=STORE, img=html.escape(hero),
                        catlink=catlink, en=('<p class="en">%s</p>' % html.escape(name_en)) if name_en else "",
                        price=price, wa=('<div class="contact"><span class="lb">تواصل معنا</span><div class="warow">%s</div></div>' % "".join(wa)) if wa else "", target=html.escape(target), sizes=sizes_html,
-                       body=desc_html(p.get("description_ar") or ""), gallery=gal, endesc=endesc, related=related)
+                       body=desc_html(p.get("description_ar") or ""), gallery=gal, endesc=endesc, related=related,
+                       reviews=reviews_html(code, rv))
 
 
 # ---------------------------------------------------------------- home page (/)
@@ -535,6 +604,7 @@ def main():
     for p in rows:
         p["code"] = p["code"].strip()
     contact_list = contacts()
+    reviews()
     by_cat = {}
     for p in rows:
         by_cat.setdefault(p.get("category_name") or "", []).append(p)
