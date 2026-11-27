@@ -299,6 +299,9 @@ def build_page(p, by_cat, contact_list):
         if hi and hi != lo:
             ld["offers"] = {"@type": "AggregateOffer", "priceCurrency": "USD", "lowPrice": lo, "highPrice": hi,
                             "url": url, "seller": {"@type": "Organization", "name": BRAND}}
+            sz = p.get("sizes") if isinstance(p.get("sizes"), list) else []
+            # Google «offerCount»: how many sizes/options this product is sold in (real count, from the product's sizes)
+            ld["offers"]["offerCount"] = max(2, len([x for x in sz if str(x).strip()]))
         else:
             ld["offers"] = {"@type": "Offer", "priceCurrency": "USD", "price": lo, "url": url,
                             "seller": {"@type": "Organization", "name": BRAND}}
